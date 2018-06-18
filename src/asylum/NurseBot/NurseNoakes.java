@@ -119,6 +119,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 						e.printStackTrace();
 					}
 				}));
+		
+		new Straitjacket(this, commandHandler);
 	}
 
 	@Override

@@ -25,6 +25,10 @@ public class Sender {
 		send(text, false, replyto);
 	}
 	
+	public void reply(String text, Message replyto, boolean markdown) throws TelegramApiException {
+		send(text, markdown, replyto);
+	}
+	
 	public void send(String text) throws TelegramApiException {
 		send(text, false, null);
 	}

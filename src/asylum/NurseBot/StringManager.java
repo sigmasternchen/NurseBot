@@ -24,7 +24,7 @@ public class StringManager {
 			builder.append(makeMention(user));
 		}
 		
-		return "Hallo " + builder.toString() + "!\nWillkommen in der Irrenanstalt!\n\nUm 16 Uhr beginnt die Pillenausgabe mit anschließendem Codeschnipselraten.";
+		return "Hallo " + builder.toString() + "!\nWillkommen in der Irrenanstalt für Informatiker!\n\nUm 16 Uhr beginnt die Pillenausgabe mit anschließendem Codeschnipselraten.";
 	}
 	
 	public String makeMention(User user) {

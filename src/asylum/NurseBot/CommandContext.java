@@ -22,5 +22,6 @@ public class CommandContext {
 		super();
 		this.message = message;
 		this.sender = sender;
+		this.parameter = parameter;
 	}
 }

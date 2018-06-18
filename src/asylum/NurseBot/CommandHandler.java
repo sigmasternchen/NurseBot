@@ -56,7 +56,7 @@ public class CommandHandler {
 		String token = message.getText().split(" ")[0];
 		token = token.substring(1);
 		String parameter = "";
-		if (token.length() + 1 > message.getText().length())
+		if (token.length() + 1 < message.getText().length())
 			parameter = message.getText().substring(token.length() + 2);
 		
 		Command command = null;
