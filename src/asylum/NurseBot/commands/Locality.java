@@ -1,4 +1,4 @@
-package asylum.NurseBot;
+package asylum.NurseBot.commands;
 
 import org.telegram.telegrambots.api.objects.Chat;
 

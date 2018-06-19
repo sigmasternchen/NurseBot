@@ -2,6 +2,8 @@ package asylum.NurseBot;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -10,9 +12,20 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import asylum.NurseBot.commands.Command;
+import asylum.NurseBot.commands.CommandHandler;
+import asylum.NurseBot.commands.Locality;
+import asylum.NurseBot.commands.Permission;
+import asylum.NurseBot.commands.Visibility;
+import asylum.NurseBot.modules.Appointments;
+import asylum.NurseBot.modules.Eastereggs;
+import asylum.NurseBot.modules.Module;
+import asylum.NurseBot.modules.Straitjacket;
+
 public class NurseNoakes extends TelegramLongPollingBot {
 
 	public static final String USERNAME = "NurseNoakesBot";
+	public static final String VERSION = "0.1";
 
 	public static void main(String[] args) {
 		ApiContextInitializer.init();
@@ -30,52 +43,14 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	private StringManager stringmanager;
 	private CommandHandler commandHandler;
 	
-	Set<Long> pausedChats = new HashSet<>();
+	private Set<Long> pausedChats = new HashSet<>();
+	
+	private List<Module> modules = new LinkedList<>();
 	
 	public NurseNoakes() {
 		stringmanager = new StringManager();
 		commandHandler = new CommandHandler(this);
-		
-		
-		commandHandler.add(new Command()
-				.setName("miau")
-				.setInfo("Da muss wohl eine Katze gestreichelt werden.")
-				.setVisibility(Visibility.PRIVATE)
-				.setPermission(Permission.USER)
-				.setLocality(Locality.EVERYWHERE)
-				.setAction(c -> {
-					try {
-						c.getSender().reply("*streichel*", c.getMessage());
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
-				}));
-		commandHandler.add(new Command()
-				.setName("mimimi")
-				.setInfo("Wollen wir die Muppets sehen?")
-				.setVisibility(Visibility.PRIVATE)
-				.setPermission(Permission.USER)
-				.setLocality(Locality.EVERYWHERE)
-				.setAction(c -> {
-					try {
-						c.getSender().send("https://www.youtube.com/watch?v=VnT7pT6zCcA");
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
-				}));
-		commandHandler.add(new Command()
-				.setName("eyeroll")
-				.setInfo("")
-				.setVisibility(Visibility.PRIVATE)
-				.setPermission(Permission.USER)
-				.setLocality(Locality.EVERYWHERE)
-				.setAction(c -> {
-					try {
-						c.getSender().send("🙄");
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
-				}));
+	
 		commandHandler.add(new Command()
 				.setName("start")
 				.setInfo("")
@@ -120,7 +95,47 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					}
 				}));
 		
-		new Straitjacket(this, commandHandler);
+		commandHandler.add(new Command()
+				.setName("info")
+				.setInfo("zeigt Information zu diesem Bot an")
+				.setVisibility(Visibility.PUBLIC)
+				.setPermission(Permission.USER)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					try {
+						StringBuilder builder = new StringBuilder();
+						
+						builder.append(USERNAME).append(" ").append(VERSION).append("\n");
+						
+						builder.append("\n").append(stringmanager.makeBold("Modules")).append("\n");
+						for (Module module : modules) {
+							builder.append("- ").append(module.getName()).append("\n");
+						}
+						
+						builder.append("\n").append(stringmanager.makeBold("Commands")).append("\n");
+						builder.append("There are currently ").append(commandHandler.getNumberOfCommands()).append(" commands installed.");
+						builder.append("\n");
+						
+						builder.append("\n").append(stringmanager.makeBold("System")).append("\n");
+						builder.append(stringmanager.makeItalic("Operating System: ")).append(System.getProperty("os.name")).append("\n");
+						builder.append(stringmanager.makeItalic("Cores: ")).append(Runtime.getRuntime().availableProcessors()).append("\n");
+						builder.append(stringmanager.makeItalic("User: ")).append(System.getProperty("user.name")).append("\n");
+						long maxMemory = Runtime.getRuntime().maxMemory();
+						long freeMemory = Runtime.getRuntime().freeMemory();
+						long usedMemory = maxMemory - freeMemory;
+						builder.append(stringmanager.makeItalic("Memory: ")).append(Math.round(((float) usedMemory) / 1024 / 1024 * 10)/10).append("/").append(Math.round(((float) maxMemory) / 1024 / 1024 * 10)/10).append(" MiB").append("\n");
+						
+						
+						c.getSender().send(builder.toString(), true);
+					} catch (TelegramApiException e) {
+						e.printStackTrace();
+					}
+				}));
+		
+		modules.add(new Appointments(commandHandler));
+		modules.add(new Straitjacket(this, commandHandler));
+		modules.add(new Eastereggs(commandHandler));
 	}
 
 	@Override

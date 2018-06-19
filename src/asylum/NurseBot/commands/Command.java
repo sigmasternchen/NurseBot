@@ -1,8 +1,10 @@
-package asylum.NurseBot;
+package asylum.NurseBot.commands;
+
 
 public class Command {
 	private String name = "notset";
 	private String info = "";
+	private CommandCategory category = null;
 	private Visibility visibility = Visibility.PRIVATE;
 	private Permission permission = Permission.OWNER;
 	private Locality locality = Locality.EVERYWHERE;
@@ -37,6 +39,10 @@ public class Command {
 		this.pausable = pausable;
 		return this;
 	}
+	public Command setCategory(CommandCategory category) {
+		this.category = category;
+		return this;
+	}
 	
 	
 	public String getName() {
@@ -56,6 +62,9 @@ public class Command {
 	}
 	public Action getAction() {
 		return action;
+	}
+	public CommandCategory getCategory() {
+		return category;
 	}
 	
 	public boolean isPausable() {

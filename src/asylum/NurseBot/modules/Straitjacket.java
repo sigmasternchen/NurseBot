@@ -1,4 +1,4 @@
-package asylum.NurseBot;
+package asylum.NurseBot.modules;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -7,7 +7,17 @@ import org.telegram.telegrambots.api.methods.groupadministration.RestrictChatMem
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-public class Straitjacket {
+import asylum.NurseBot.NurseNoakes;
+import asylum.NurseBot.Sender;
+import asylum.NurseBot.StringManager;
+import asylum.NurseBot.commands.Command;
+import asylum.NurseBot.commands.CommandCategory;
+import asylum.NurseBot.commands.CommandHandler;
+import asylum.NurseBot.commands.Locality;
+import asylum.NurseBot.commands.Permission;
+import asylum.NurseBot.commands.Visibility;
+
+public class Straitjacket implements Module {
 	public static final int STRIKES_TO_RESTRICT = 5;
 	public static final int RESTRICT_TIME = 5*60*1000;
 	public static final int STRIKE_TIMEOUT = 5*60*1000;
@@ -105,17 +115,22 @@ public class Straitjacket {
 	
 	private StringManager stringManager;
 	
+	private CommandCategory category;
+	
 	public Straitjacket(NurseNoakes nurse, CommandHandler commandHandler) {
 		this.nurse = nurse;
 		
 		this.stringManager = new StringManager();
 		
+		this.category = new CommandCategory("Zwangsjacke");
+		
 		commandHandler.add(new Command()
 				.setName("strikes")
-				.setInfo("Wie viele Strikes hast du gerade?")
+				.setInfo("zeigt die Anzahl der eigenen Strikes an")
 				.setVisibility(Visibility.PUBLIC)
 				.setPermission(Permission.USER)
 				.setLocality(Locality.GROUPS)
+				.setCategory(category)
 				.setAction(c -> {
 					try {
 						deleteOldStrikes();
@@ -128,9 +143,10 @@ public class Straitjacket {
 		commandHandler.add(new Command()
 				.setName("clearstrikes")
 				.setInfo("")
-				.setVisibility(Visibility.PUBLIC)
+				.setVisibility(Visibility.PRIVATE)
 				.setPermission(Permission.ADMIN)
 				.setLocality(Locality.GROUPS)
+				.setCategory(category)
 				.setAction(c -> {
 					try {
 						strikes.clear();
@@ -142,10 +158,11 @@ public class Straitjacket {
 		
 		commandHandler.add(new Command()
 				.setName("strike")
-				.setInfo("Füge einen Strike für einen User hinzu.")
+				.setInfo("fügt einem User einen neuen Strike hinzu")
 				.setVisibility(Visibility.PUBLIC)
 				.setPermission(Permission.USER)
 				.setLocality(Locality.GROUPS)
+				.setCategory(category)
 				.setAction(c -> {
 					try {
 						if (c.getMessage().getReplyToMessage() == null) {
@@ -178,5 +195,10 @@ public class Straitjacket {
 						e.printStackTrace();
 					}
 				}));
+	}
+
+	@Override
+	public String getName() {
+		return "Straitjacket";
 	}
 }

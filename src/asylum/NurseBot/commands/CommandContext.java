@@ -1,6 +1,8 @@
-package asylum.NurseBot;
+package asylum.NurseBot.commands;
 
 import org.telegram.telegrambots.api.objects.Message;
+
+import asylum.NurseBot.Sender;
 
 public class CommandContext {
 	private Message message;

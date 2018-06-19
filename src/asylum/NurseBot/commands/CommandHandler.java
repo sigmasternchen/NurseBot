@@ -1,4 +1,4 @@
-package asylum.NurseBot;
+package asylum.NurseBot.commands;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -6,9 +6,15 @@ import java.util.List;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import asylum.NurseBot.NurseNoakes;
+import asylum.NurseBot.Sender;
+import asylum.NurseBot.StringManager;
+
 public class CommandHandler {
 
 	private NurseNoakes nurse;
+	
+	private StringManager stringManager;
 	
 	private List<Command> commands;
 	
@@ -16,14 +22,16 @@ public class CommandHandler {
 		commands = new LinkedList<>();
 		this.nurse = nurse;
 		
+		stringManager = new StringManager();
+		
 		commands.add(new Command()
 				.setName("help")
-				.setInfo("")
-				.setVisibility(Visibility.PRIVATE)
+				.setInfo("zeigt diese Hilfe an")
+				.setVisibility(Visibility.PUBLIC)
 				.setPermission(Permission.USER)
 				.setAction(c -> {
 					try {
-						c.getSender().send(getHelp());
+						c.getSender().send(getHelp(), true);
 					} catch (TelegramApiException e) {
 						e.printStackTrace();
 					}
@@ -35,14 +43,23 @@ public class CommandHandler {
 		
 		builder.append("Hier ist eine Liste von Dingen, die ich kann:\n\n");
 		
+		CommandCategory current = null;
+		
 		for(Command command : commands) {
 			if (command.getVisibility() == Visibility.PRIVATE)
 				continue;
 			
-			StringBuilder spaces = new StringBuilder();
-			for (int i = command.getName().length() + 1; i < 20; i++)
-				spaces.append(" ");
-			builder.append("/").append(command.getName()).append(spaces.toString()).append(command.getInfo()).append("\n");
+			if (command.getCategory() != current) {
+				current = command.getCategory();
+				
+				if (current == null) {
+					builder.append("\n");
+				} else {
+					builder.append("\n").append(stringManager.makeBold(current.getName())).append("\n");
+				}
+			}
+			
+			builder.append("/").append(command.getName()).append(" - ").append(command.getInfo()).append("\n");
 		}
 		
 		return builder.toString();
@@ -89,5 +106,9 @@ public class CommandHandler {
 	
 	public void add(Command command) {
 		commands.add(command);
+	}
+
+	public int getNumberOfCommands() {
+		return commands.size();
 	}
 }

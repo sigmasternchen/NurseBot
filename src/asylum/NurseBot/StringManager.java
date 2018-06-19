@@ -1,7 +1,10 @@
 package asylum.NurseBot;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.telegram.telegrambots.api.objects.User;
 
@@ -49,5 +52,19 @@ public class StringManager {
 	
 	public String makeLink(String text, String url) {
 		return "[" + text + "](" + url + ")";
+	}
+	
+	public List<String> tokenize(String text) {
+		List<String> list = new LinkedList<>();
+		
+		Matcher m = Pattern.compile("\"([^\"]*)\"|(\\S+)").matcher(text);
+		while (m.find()) {
+			if (m.group(1) != null)
+				list.add(m.group(1));
+			else
+				list.add(m.group(2));
+		}
+		    
+		return list;
 	}
 }
