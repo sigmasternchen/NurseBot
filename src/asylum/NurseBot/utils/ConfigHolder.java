@@ -1,4 +1,4 @@
-package asylum.NurseBot;
+package asylum.NurseBot.utils;
 
 import java.io.FileInputStream;
 import java.io.IOException;

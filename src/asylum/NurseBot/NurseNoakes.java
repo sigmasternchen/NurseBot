@@ -27,6 +27,7 @@ import asylum.NurseBot.objects.Permission;
 import asylum.NurseBot.objects.Visibility;
 import asylum.NurseBot.commands.CommandHandler;
 import asylum.NurseBot.semantics.SemanticsHandler;
+import asylum.NurseBot.utils.ConfigHolder;
 import asylum.NurseBot.utils.StringTools;
 
 public class NurseNoakes extends TelegramLongPollingBot {
