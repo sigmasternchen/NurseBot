@@ -1,4 +1,4 @@
-package asylum.NurseBot.modules;
+package asylum.NurseBot.utils;
 
 public interface Module {
 	String getName();

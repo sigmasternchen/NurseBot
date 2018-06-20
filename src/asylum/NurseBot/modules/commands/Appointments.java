@@ -1,4 +1,4 @@
-package asylum.NurseBot.modules;
+package asylum.NurseBot.modules.commands;
 
 import java.util.Calendar;
 import java.util.Collection;
@@ -15,12 +15,13 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.NurseBot.Sender;
 import asylum.NurseBot.StringManager;
-import asylum.NurseBot.commands.Command;
+import asylum.NurseBot.commands.CommandInterpreter;
+import asylum.NurseBot.utils.Locality;
+import asylum.NurseBot.utils.Module;
+import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.utils.Visibility;
 import asylum.NurseBot.commands.CommandCategory;
 import asylum.NurseBot.commands.CommandHandler;
-import asylum.NurseBot.commands.Locality;
-import asylum.NurseBot.commands.Permission;
-import asylum.NurseBot.commands.Visibility;
 
 public class Appointments implements Module {
 	
@@ -151,7 +152,7 @@ public class Appointments implements Module {
 		
 		category = new CommandCategory("Termine");
 		
-		commandHandler.add(new Command()
+		commandHandler.add(new CommandInterpreter()
 				.setName("appointment")
 				.setInfo("Termin anlegen")
 				.setVisibility(Visibility.PUBLIC)
@@ -159,53 +160,49 @@ public class Appointments implements Module {
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
-					try {
-						String help = "Synopsis: /appointment \"Name des Termines\" relativ|absolut mm[:ss]|[YYYY-MM-DD-]hh:mm:ss";
-						List<String> list = stringManager.tokenize(c.getParameter());
-						
-						if (list.size() != 3) {
-							System.out.println("Wrong number of parameters.");
-							c.getSender().reply(help, c.getMessage());
-							return;
-						}
-						
-						boolean abs = "absolut".equals(list.get(1).toLowerCase());
-						boolean rel = "relativ".equals(list.get(1).toLowerCase());
-						long time = 0;
-						boolean fail = false;
-						try {
-							time = getTimestamp(list.get(2), rel);
-						} catch (Exception e) {
-							System.out.println("Wrong time format.");
-							fail = true;
-						}
-						
-						if (list.size() != 3 || !(abs ^ rel) || fail) {
-							System.out.println("Wrong parameter");
-							c.getSender().reply(help, c.getMessage());
-							return;
-						}
-						
-						if (searchAppointment(c.getMessage().getFrom(), list.get(0)) != null) {
-							c.getSender().reply("Du hast bereits einen Termin mit diesem Namen.", c.getMessage());
-						}
-						
-						try {
-							setTimer(c.getMessage().getFrom(), list.get(0), rel, time, c.getSender());
-						} catch (Exception e) {
-							System.out.println("Problem setting timer.");
-							c.getSender().reply(help, c.getMessage());
-							return;
-						}
-							
-						Date date = new Date(rel ? (time + System.currentTimeMillis()) : time);
-						
-						c.getSender().reply("Der Termin \"" + list.get(0) + "\" wurde für " + date.toString() + " eingetragen.", c.getMessage());
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
+					String help = "Synopsis: /appointment \"Name des Termines\" relativ|absolut mm[:ss]|[YYYY-MM-DD-]hh:mm:ss";
+					List<String> list = stringManager.tokenize(c.getParameter());
+					
+					if (list.size() != 3) {
+						System.out.println("Wrong number of parameters.");
+						c.getSender().reply(help, c.getMessage());
+						return;
 					}
+					
+					boolean abs = "absolut".equals(list.get(1).toLowerCase());
+					boolean rel = "relativ".equals(list.get(1).toLowerCase());
+					long time = 0;
+					boolean fail = false;
+					try {
+						time = getTimestamp(list.get(2), rel);
+					} catch (Exception e) {
+						System.out.println("Wrong time format.");
+						fail = true;
+					}
+					
+					if (list.size() != 3 || !(abs ^ rel) || fail) {
+						System.out.println("Wrong parameter");
+						c.getSender().reply(help, c.getMessage());
+						return;
+					}
+					
+					if (searchAppointment(c.getMessage().getFrom(), list.get(0)) != null) {
+						c.getSender().reply("Du hast bereits einen Termin mit diesem Namen.", c.getMessage());
+					}
+					
+					try {
+						setTimer(c.getMessage().getFrom(), list.get(0), rel, time, c.getSender());
+					} catch (Exception e) {
+						System.out.println("Problem setting timer.");
+						c.getSender().reply(help, c.getMessage());
+						return;
+					}
+						
+					Date date = new Date(rel ? (time + System.currentTimeMillis()) : time);
+					
+					c.getSender().reply("Der Termin \"" + list.get(0) + "\" wurde für " + date.toString() + " eingetragen.", c.getMessage());
 				}));
-		commandHandler.add(new Command()
+		commandHandler.add(new CommandInterpreter()
 				.setName("appointmentinfo")
 				.setInfo("zeigt Informationen zu einem Termin an")
 				.setVisibility(Visibility.PUBLIC)
@@ -213,45 +210,41 @@ public class Appointments implements Module {
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
-					try {
-						String help = "Synopsis: /appointmentinfo [\"Name des Termines\"]";
-						List<String> list = stringManager.tokenize(c.getParameter());
+					String help = "Synopsis: /appointmentinfo [\"Name des Termines\"]";
+					List<String> list = stringManager.tokenize(c.getParameter());
+					
+					if (list.size() != 1) {
+						StringBuilder builder = new StringBuilder();
+						builder.append(help).append("\n\n");
 						
-						if (list.size() != 1) {
-							StringBuilder builder = new StringBuilder();
-							builder.append(help).append("\n\n");
-							
-							List<Appointment> appointments = getAllAppointments(c.getMessage().getFrom());
-							if (appointments.isEmpty()) {
-								builder.append("Ich habe zurzeit keine Termine für dich gespeichert.");
-							} else {
-								builder.append("Ich habe folgende Termine für dich:\n");
-								for(Appointment appointment : appointments) {
-									builder.append("- ");
-									builder.append(appointment.name);
-									builder.append(": ");
-									builder.append(new Date(appointment.time).toString());
-									builder.append("\n");
-								}
+						List<Appointment> appointments = getAllAppointments(c.getMessage().getFrom());
+						if (appointments.isEmpty()) {
+							builder.append("Ich habe zurzeit keine Termine für dich gespeichert.");
+						} else {
+							builder.append("Ich habe folgende Termine für dich:\n");
+							for(Appointment appointment : appointments) {
+								builder.append("- ");
+								builder.append(appointment.name);
+								builder.append(": ");
+								builder.append(new Date(appointment.time).toString());
+								builder.append("\n");
 							}
-							
-							c.getSender().reply(builder.toString(), c.getMessage());
-							return;
 						}
 						
-						Appointment appointment = searchAppointment(c.getMessage().getFrom(), list.get(0));
-						if (appointment == null) {
-							c.getSender().reply("Ich habe keinen Termin mit diesem Namen gefunden.", c.getMessage());
-							return;
-						}
-						
-						c.getSender().reply("Dieser Termin ist für " + (new Date(appointment.time).toString()) + " eingetragen.", c.getMessage());
-						
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
+						c.getSender().reply(builder.toString(), c.getMessage());
+						return;
 					}
+					
+					Appointment appointment = searchAppointment(c.getMessage().getFrom(), list.get(0));
+					if (appointment == null) {
+						c.getSender().reply("Ich habe keinen Termin mit diesem Namen gefunden.", c.getMessage());
+						return;
+					}
+					
+					c.getSender().reply("Dieser Termin ist für " + (new Date(appointment.time).toString()) + " eingetragen.", c.getMessage());
+					
 				}));
-		commandHandler.add(new Command()
+		commandHandler.add(new CommandInterpreter()
 				.setName("appointmentdelete")
 				.setInfo("zeigt Informationen zu einem Termin an")
 				.setVisibility(Visibility.PUBLIC)
@@ -259,25 +252,21 @@ public class Appointments implements Module {
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
-					try {
-						String help = "Synopsis: /appointmentdelete \"Name des Termines\"";
-						List<String> list = stringManager.tokenize(c.getParameter());
-						
-						if (list.size() != 1) {
-							c.getSender().reply(help, c.getMessage());
-							return;
-						}
-						
-						if (!removeAppointment(c.getMessage().getFrom(), list.get(0))) {
-							c.getSender().reply("Ich habe keinen Termin mit diesem Namen gefunden.", c.getMessage());
-							return;
-						}
-						
-						c.getSender().reply("Ich habe den Termin \"" + list.get(0) + "\" gelöscht.", c.getMessage());
-						
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
+					String help = "Synopsis: /appointmentdelete \"Name des Termines\"";
+					List<String> list = stringManager.tokenize(c.getParameter());
+					
+					if (list.size() != 1) {
+						c.getSender().reply(help, c.getMessage());
+						return;
 					}
+					
+					if (!removeAppointment(c.getMessage().getFrom(), list.get(0))) {
+						c.getSender().reply("Ich habe keinen Termin mit diesem Namen gefunden.", c.getMessage());
+						return;
+					}
+					
+					c.getSender().reply("Ich habe den Termin \"" + list.get(0) + "\" gelöscht.", c.getMessage());
+					
 				}));
 	}
 

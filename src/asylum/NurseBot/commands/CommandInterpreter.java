@@ -1,7 +1,10 @@
 package asylum.NurseBot.commands;
 
+import asylum.NurseBot.utils.Locality;
+import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.utils.Visibility;
 
-public class Command {
+public class CommandInterpreter {
 	private String name = "notset";
 	private String info = "";
 	private CommandCategory category = null;
@@ -9,37 +12,37 @@ public class Command {
 	private Permission permission = Permission.OWNER;
 	private Locality locality = Locality.EVERYWHERE;
 	private boolean pausable = true;
-	private Action action = (c -> System.out.println("Action not defined."));
+	private CommandAction action = (c -> System.out.println("Action not defined."));
 	
-	public Command setName(String name) {
+	public CommandInterpreter setName(String name) {
 		this.name = name;
 		return this;
 	}
-	public Command setInfo(String info) {
+	public CommandInterpreter setInfo(String info) {
 		this.info = info;
 		return this;
 	}
-	public Command setVisibility(Visibility visibility) {
+	public CommandInterpreter setVisibility(Visibility visibility) {
 		this.visibility = visibility;
 		return this;
 	}
-	public Command setPermission(Permission permission) {
+	public CommandInterpreter setPermission(Permission permission) {
 		this.permission = permission;
 		return this;
 	}
-	public Command setLocality(Locality locality) {
+	public CommandInterpreter setLocality(Locality locality) {
 		this.locality = locality;
 		return this;
 	}
-	public Command setAction(Action action) {
+	public CommandInterpreter setAction(CommandAction action) {
 		this.action = action;
 		return this;
 	}
-	public Command setPausable(boolean pausable) {
+	public CommandInterpreter setPausable(boolean pausable) {
 		this.pausable = pausable;
 		return this;
 	}
-	public Command setCategory(CommandCategory category) {
+	public CommandInterpreter setCategory(CommandCategory category) {
 		this.category = category;
 		return this;
 	}
@@ -60,7 +63,7 @@ public class Command {
 	public Locality getLocality() {
 		return locality;
 	}
-	public Action getAction() {
+	public CommandAction getAction() {
 		return action;
 	}
 	public CommandCategory getCategory() {

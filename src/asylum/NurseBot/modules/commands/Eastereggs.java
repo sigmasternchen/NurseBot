@@ -1,13 +1,14 @@
-package asylum.NurseBot.modules;
+package asylum.NurseBot.modules.commands;
 
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import asylum.NurseBot.commands.Command;
+import asylum.NurseBot.commands.CommandInterpreter;
+import asylum.NurseBot.utils.Locality;
+import asylum.NurseBot.utils.Module;
+import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.utils.Visibility;
 import asylum.NurseBot.commands.CommandCategory;
 import asylum.NurseBot.commands.CommandHandler;
-import asylum.NurseBot.commands.Locality;
-import asylum.NurseBot.commands.Permission;
-import asylum.NurseBot.commands.Visibility;
 
 public class Eastereggs implements Module {
 
@@ -17,7 +18,7 @@ public class Eastereggs implements Module {
 		
 		category = new CommandCategory("Eastereggs");
 		
-		commandHandler.add(new Command()
+		commandHandler.add(new CommandInterpreter()
 				.setName("miau")
 				.setInfo("Da muss wohl eine Katze gestreichelt werden.")
 				.setVisibility(Visibility.PRIVATE)
@@ -31,7 +32,7 @@ public class Eastereggs implements Module {
 						e.printStackTrace();
 					}
 				}));
-		commandHandler.add(new Command()
+		commandHandler.add(new CommandInterpreter()
 				.setName("mimimi")
 				.setInfo("Wollen wir die Muppets sehen?")
 				.setVisibility(Visibility.PRIVATE)
@@ -45,7 +46,7 @@ public class Eastereggs implements Module {
 						e.printStackTrace();
 					}
 				}));
-		commandHandler.add(new Command()
+		commandHandler.add(new CommandInterpreter()
 				.setName("eyeroll")
 				.setInfo("")
 				.setVisibility(Visibility.PRIVATE)

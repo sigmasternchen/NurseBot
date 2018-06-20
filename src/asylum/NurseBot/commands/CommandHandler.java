@@ -9,6 +9,8 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
 import asylum.NurseBot.StringManager;
+import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.utils.Visibility;
 
 public class CommandHandler {
 
@@ -16,7 +18,7 @@ public class CommandHandler {
 	
 	private StringManager stringManager;
 	
-	private List<Command> commands;
+	private List<CommandInterpreter> commands;
 	
 	public CommandHandler(NurseNoakes nurse) {
 		commands = new LinkedList<>();
@@ -24,7 +26,7 @@ public class CommandHandler {
 		
 		stringManager = new StringManager();
 		
-		commands.add(new Command()
+		commands.add(new CommandInterpreter()
 				.setName("help")
 				.setInfo("zeigt diese Hilfe an")
 				.setVisibility(Visibility.PUBLIC)
@@ -45,7 +47,7 @@ public class CommandHandler {
 		
 		CommandCategory current = null;
 		
-		for(Command command : commands) {
+		for(CommandInterpreter command : commands) {
 			if (command.getVisibility() == Visibility.PRIVATE)
 				continue;
 			
@@ -76,8 +78,8 @@ public class CommandHandler {
 		if (token.length() + 1 < message.getText().length())
 			parameter = message.getText().substring(token.length() + 2);
 		
-		Command command = null;
-		for (Command c : commands) {
+		CommandInterpreter command = null;
+		for (CommandInterpreter c : commands) {
 			if (c.getName().equals(token) || (c.getName() + "@" + NurseNoakes.USERNAME).equals(token)) {
 				command = c;
 				break;
@@ -101,14 +103,18 @@ public class CommandHandler {
 		// TODO Permission check
 		
 		CommandContext context = new CommandContext(message, new Sender(message.getChatId(), nurse), parameter);
-		command.getAction().action(context);
+		try {
+			command.getAction().action(context);
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
 	}
 	
-	public void add(Command command) {
+	public void add(CommandInterpreter command) {
 		commands.add(command);
 	}
 
-	public int getNumberOfCommands() {
+	public int getNumberOfEntities() {
 		return commands.size();
 	}
 }

@@ -1,4 +1,4 @@
-package asylum.NurseBot.modules;
+package asylum.NurseBot.modules.commands;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -10,12 +10,13 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
 import asylum.NurseBot.StringManager;
-import asylum.NurseBot.commands.Command;
+import asylum.NurseBot.commands.CommandInterpreter;
+import asylum.NurseBot.utils.Locality;
+import asylum.NurseBot.utils.Module;
+import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.utils.Visibility;
 import asylum.NurseBot.commands.CommandCategory;
 import asylum.NurseBot.commands.CommandHandler;
-import asylum.NurseBot.commands.Locality;
-import asylum.NurseBot.commands.Permission;
-import asylum.NurseBot.commands.Visibility;
 
 public class Straitjacket implements Module {
 	public static final int STRIKES_TO_RESTRICT = 5;
@@ -124,7 +125,7 @@ public class Straitjacket implements Module {
 		
 		this.category = new CommandCategory("Zwangsjacke");
 		
-		commandHandler.add(new Command()
+		commandHandler.add(new CommandInterpreter()
 				.setName("strikes")
 				.setInfo("zeigt die Anzahl der eigenen Strikes an")
 				.setVisibility(Visibility.PUBLIC)
@@ -132,15 +133,11 @@ public class Straitjacket implements Module {
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
-					try {
-						deleteOldStrikes();
-						c.getSender().reply("Du hast " + countStrikes(c.getMessage().getFrom()) + " Strikes.", c.getMessage());
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
+					deleteOldStrikes();
+					c.getSender().reply("Du hast " + countStrikes(c.getMessage().getFrom()) + " Strikes.", c.getMessage());
 				}));
 		
-		commandHandler.add(new Command()
+		commandHandler.add(new CommandInterpreter()
 				.setName("clearstrikes")
 				.setInfo("")
 				.setVisibility(Visibility.PRIVATE)
@@ -148,15 +145,11 @@ public class Straitjacket implements Module {
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
-					try {
-						strikes.clear();
-						c.getSender().reply("Alle Strikes wurden entfernt.", c.getMessage());
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
+					strikes.clear();
+					c.getSender().reply("Alle Strikes wurden entfernt.", c.getMessage());
 				}));
 		
-		commandHandler.add(new Command()
+		commandHandler.add(new CommandInterpreter()
 				.setName("strike")
 				.setInfo("fügt einem User einen neuen Strike hinzu")
 				.setVisibility(Visibility.PUBLIC)
@@ -164,35 +157,31 @@ public class Straitjacket implements Module {
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
-					try {
-						if (c.getMessage().getReplyToMessage() == null) {
-							c.getSender().reply("Um jemanden zu striken, musst du auf eine Nachricht desjenigen antworten.", c.getMessage());
-							return;
-						}
-						User target = c.getMessage().getReplyToMessage().getFrom();
-						User source = c.getMessage().getFrom();
-						
-						if (NurseNoakes.USERNAME.equals(target.getUserName())) {
-							c.getSender().reply("Haha, sehr witzig.", c.getMessage());
-							return;
-						}
+					if (c.getMessage().getReplyToMessage() == null) {
+						c.getSender().reply("Um jemanden zu striken, musst du auf eine Nachricht desjenigen antworten.", c.getMessage());
+						return;
+					}
+					User target = c.getMessage().getReplyToMessage().getFrom();
+					User source = c.getMessage().getFrom();
+					
+					if (NurseNoakes.USERNAME.equals(target.getUserName())) {
+						c.getSender().reply("Haha, sehr witzig.", c.getMessage());
+						return;
+					}
 
-						if (target.getId().equals(source.getId())) {
-							c.getSender().reply(stringManager.makeMention(target) + " waurde ge-... warte, was?! Du willst dich selbst striken. Ähm. Nein.", c.getMessage(), true);
-							return;
-						}
-						
-						deleteOldStrikes();
-						if (!addStrike(target, source)) {
-							c.getSender().reply("Du hast " + stringManager.makeMention(target) + " bereits gestrikt.", c.getMessage(), true);
-							return;
-						}
-						c.getSender().reply(stringManager.makeMention(target) + " wurde gestrikt.", c.getMessage(), true);
-						if (checkRestrict(target)) {
-							restrict(c.getMessage().getChatId(), target, c.getSender());
-						}
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
+					if (target.getId().equals(source.getId())) {
+						c.getSender().reply(stringManager.makeMention(target) + " waurde ge-... warte, was?! Du willst dich selbst striken. Ähm. Nein.", c.getMessage(), true);
+						return;
+					}
+					
+					deleteOldStrikes();
+					if (!addStrike(target, source)) {
+						c.getSender().reply("Du hast " + stringManager.makeMention(target) + " bereits gestrikt.", c.getMessage(), true);
+						return;
+					}
+					c.getSender().reply(stringManager.makeMention(target) + " wurde gestrikt.", c.getMessage(), true);
+					if (checkRestrict(target)) {
+						restrict(c.getMessage().getChatId(), target, c.getSender());
 					}
 				}));
 	}
