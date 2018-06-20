@@ -3,9 +3,9 @@ package asylum.NurseBot.semantics;
 import java.util.LinkedList;
 import java.util.List;
 
-import asylum.NurseBot.utils.Locality;
-import asylum.NurseBot.utils.Module;
-import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.objects.Locality;
+import asylum.NurseBot.objects.Module;
+import asylum.NurseBot.objects.Permission;
 
 public class SemanticInterpreter {
 	private List<WakeWord> wakeWords;

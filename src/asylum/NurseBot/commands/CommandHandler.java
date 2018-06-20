@@ -8,9 +8,9 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
-import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.objects.Permission;
+import asylum.NurseBot.objects.Visibility;
 import asylum.NurseBot.utils.StringTools;
-import asylum.NurseBot.utils.Visibility;
 
 public class CommandHandler {
 

@@ -1,4 +1,4 @@
-package asylum.NurseBot.utils;
+package asylum.NurseBot.objects;
 
 public enum Visibility {
 	PUBLIC, PRIVATE

@@ -3,7 +3,7 @@ package asylum.NurseBot.commands;
 import org.telegram.telegrambots.api.objects.Message;
 
 import asylum.NurseBot.Sender;
-import asylum.NurseBot.utils.ActionContext;
+import asylum.NurseBot.objects.ActionContext;
 
 public class CommandContext extends ActionContext {
 

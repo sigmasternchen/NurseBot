@@ -1,4 +1,4 @@
-package asylum.NurseBot.utils;
+package asylum.NurseBot.objects;
 
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.commands.CommandHandler;

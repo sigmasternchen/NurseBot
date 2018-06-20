@@ -8,13 +8,13 @@ import org.telegram.telegrambots.api.objects.User;
 
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.commands.CommandHandler;
+import asylum.NurseBot.objects.Locality;
+import asylum.NurseBot.objects.Module;
+import asylum.NurseBot.objects.Permission;
 import asylum.NurseBot.semantics.SemanticInterpreter;
 import asylum.NurseBot.semantics.SemanticsHandler;
 import asylum.NurseBot.semantics.WakeWord;
 import asylum.NurseBot.semantics.WakeWordType;
-import asylum.NurseBot.utils.Locality;
-import asylum.NurseBot.utils.Module;
-import asylum.NurseBot.utils.Permission;
 import asylum.NurseBot.utils.StringTools;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 

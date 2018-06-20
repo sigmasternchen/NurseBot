@@ -1,9 +1,9 @@
 package asylum.NurseBot.commands;
 
-import asylum.NurseBot.utils.Locality;
-import asylum.NurseBot.utils.Module;
-import asylum.NurseBot.utils.Permission;
-import asylum.NurseBot.utils.Visibility;
+import asylum.NurseBot.objects.Locality;
+import asylum.NurseBot.objects.Module;
+import asylum.NurseBot.objects.Permission;
+import asylum.NurseBot.objects.Visibility;
 
 public class CommandInterpreter {
 	private String name = "notset";

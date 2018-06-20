@@ -17,13 +17,13 @@ import asylum.NurseBot.modules.Appointments;
 import asylum.NurseBot.modules.Eastereggs;
 import asylum.NurseBot.modules.Greeter;
 import asylum.NurseBot.modules.Straitjacket;
+import asylum.NurseBot.objects.Locality;
+import asylum.NurseBot.objects.Module;
+import asylum.NurseBot.objects.Permission;
+import asylum.NurseBot.objects.Visibility;
 import asylum.NurseBot.commands.CommandHandler;
 import asylum.NurseBot.semantics.SemanticsHandler;
-import asylum.NurseBot.utils.Locality;
-import asylum.NurseBot.utils.Module;
-import asylum.NurseBot.utils.Permission;
 import asylum.NurseBot.utils.StringTools;
-import asylum.NurseBot.utils.Visibility;
 
 public class NurseNoakes extends TelegramLongPollingBot {
 
