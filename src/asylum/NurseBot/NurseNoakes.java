@@ -1,8 +1,11 @@
 package asylum.NurseBot;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -29,6 +32,12 @@ public class NurseNoakes extends TelegramLongPollingBot {
 
 	public static final String USERNAME = "NurseNoakesBot";
 	public static final String VERSION = "0.1";
+	public static final List<String> BOT_ADMIN_USERNAMES = 
+			Collections.unmodifiableList(Arrays.asList(new String[]{
+					"overflowerror"
+			}));
+	private static final int EXIT_CODE_SHUTDOWN = 0;
+	private static final int EXIT_CODE_RESTART = 1;
 
 	public static void main(String[] args) {
 		ApiContextInitializer.init();
@@ -89,6 +98,38 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setAction(c -> {
 					pausedChats.remove(c.getMessage().getChatId());
 					c.getSender().send("- resumed -");
+				}));
+		
+		commandHandler.add(new CommandInterpreter(null)
+				.setName("shutdown")
+				.setInfo("")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					if (BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
+						c.getSender().send("Shutting down...");
+						shutdown();
+					} else {
+						c.getSender().reply("Du darfst das nicht.", c.getMessage());
+					}
+				}));
+		
+		commandHandler.add(new CommandInterpreter(null)
+				.setName("reboot")
+				.setInfo("")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					if (BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
+						c.getSender().send("Restarting...");
+						restart();
+					} else {
+						c.getSender().reply("Du darfst das nicht.", c.getMessage());
+					}
 				}));
 		
 		commandHandler.add(new CommandInterpreter(null)
@@ -199,6 +240,34 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		module = new Eastereggs();
 		loadModule(module);
 		activateModule(module);
+	}
+
+	public void shutdown() {
+		System.out.println("Shutting down...");
+		for(Module module : activeModules) {
+			System.out.println("Shutting down module " + module.getName() + "...");
+			module.shutdown();
+		}
+		for(Module module : inactiveModules) {
+			System.out.println("Shutting down module " + module.getName() + "...");
+			module.shutdown();
+		}
+		
+		System.exit(EXIT_CODE_SHUTDOWN);
+	}
+	
+	public void restart() {
+		System.out.println("Rebooting...");
+		for(Module module : activeModules) {
+			System.out.println("Shutting down module " + module.getName() + "...");
+			module.shutdown();
+		}
+		for(Module module : inactiveModules) {
+			System.out.println("Shutting down module " + module.getName() + "...");
+			module.shutdown();
+		}
+		
+		System.exit(EXIT_CODE_RESTART);
 	}
 
 	private Module searchModule(String name) {
