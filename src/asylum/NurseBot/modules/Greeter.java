@@ -110,7 +110,7 @@ public class Greeter implements Module {
 		SemanticsHandler.add(new SemanticInterpreter(this)
 			.addWakeWord(new WakeWord(null, WakeWordType.META))
 			.setLocality(Locality.GROUPS)
-			.setPermission(Permission.USER)
+			.setPermission(Permission.ANY)
 			.setAction(c -> {
 				if (c.getMessage().getNewChatMembers() != null) {
 					System.out.println("New Users: " + c.getMessage().getNewChatMembers());
@@ -125,7 +125,7 @@ public class Greeter implements Module {
 		SemanticsHandler.add(new SemanticInterpreter(this)
 				.addWakeWord(new WakeWord(null, WakeWordType.META))
 				.setLocality(Locality.GROUPS)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setAction(c -> {
 					if (c.getMessage().getLeftChatMember() != null) {
 						System.out.println("Left User: " + c.getMessage().getLeftChatMember());

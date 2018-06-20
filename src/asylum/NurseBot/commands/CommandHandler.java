@@ -10,6 +10,7 @@ import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
 import asylum.NurseBot.objects.Permission;
 import asylum.NurseBot.objects.Visibility;
+import asylum.NurseBot.utils.SecurityChecker;
 import asylum.NurseBot.utils.StringTools;
 
 public class CommandHandler {
@@ -86,8 +87,9 @@ public class CommandHandler {
 			return;
 		}
 		
-		if (!nurse.isActive(command.getModule())) {
+		if (command.getModule() != null && !nurse.isActive(command.getModule())) {
 			System.out.println("Module is inactive.");
+			return;
 		}
 		
 		if (!command.getLocality().check(message.getChat())) {
@@ -100,9 +102,22 @@ public class CommandHandler {
 			return;
 		}
 		
-		// TODO Permission check
+		Sender sender = new Sender(message.getChatId(), nurse);
 		
-		CommandContext context = new CommandContext(message, new Sender(message.getChatId(), nurse), parameter);
+		if (command.getPermission() != Permission.ANY) {
+			SecurityChecker checker = new SecurityChecker(nurse);
+			try {
+				if (!checker.checkRights(message.getChatId(), message.getFrom(), command.getPermission())) {
+					sender.reply("Du hast leider nicht die nötigen Berechtigungen.", message);
+					return;
+				}
+			} catch (TelegramApiException e) {
+				e.printStackTrace();
+				return;
+			}
+		}
+		
+		CommandContext context = new CommandContext(message, sender, parameter);
 		try {
 			command.getAction().action(context);
 		} catch (TelegramApiException e) {

@@ -8,6 +8,8 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
+import asylum.NurseBot.objects.Permission;
+import asylum.NurseBot.utils.SecurityChecker;
 
 public class SemanticsHandler {
 	
@@ -77,9 +79,22 @@ public class SemanticsHandler {
 				continue;
 			}
 			
-			// TODO permission check
+			Sender sender = new Sender(message.getChatId(), nurse);
 			
-			SemanticContext context = new SemanticContext(message, new Sender(message.getChatId(), nurse));
+			if (interpreter.getPermission() != Permission.ANY) {
+				SecurityChecker checker = new SecurityChecker(nurse);
+				try {
+					if (!checker.checkRights(message.getChatId(), message.getFrom(), interpreter.getPermission())) {
+						continue;
+					}
+				} catch (TelegramApiException e) {
+					e.printStackTrace();
+					continue;
+				}
+			}
+			
+			SemanticContext context = new SemanticContext(message, sender);
+			
 			try {
 				interpreter.getAction().action(context);
 			} catch (TelegramApiException e) {

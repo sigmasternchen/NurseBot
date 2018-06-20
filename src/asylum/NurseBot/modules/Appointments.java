@@ -159,7 +159,7 @@ public class Appointments implements Module {
 				.setName("appointment")
 				.setInfo("Termin anlegen")
 				.setVisibility(Visibility.PUBLIC)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
@@ -209,7 +209,7 @@ public class Appointments implements Module {
 				.setName("appointmentinfo")
 				.setInfo("zeigt Informationen zu einem Termin an")
 				.setVisibility(Visibility.PUBLIC)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
@@ -251,7 +251,7 @@ public class Appointments implements Module {
 				.setName("appointmentdelete")
 				.setInfo("zeigt Informationen zu einem Termin an")
 				.setVisibility(Visibility.PUBLIC)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {

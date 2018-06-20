@@ -35,7 +35,7 @@ public class Eastereggs implements Module {
 				.setName("miau")
 				.setInfo("Da muss wohl eine Katze gestreichelt werden.")
 				.setVisibility(Visibility.PRIVATE)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setLocality(Locality.EVERYWHERE)
 				.setCategory(category)
 				.setAction(c -> {
@@ -49,7 +49,7 @@ public class Eastereggs implements Module {
 				.setName("mimimi")
 				.setInfo("Wollen wir die Muppets sehen?")
 				.setVisibility(Visibility.PRIVATE)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setLocality(Locality.EVERYWHERE)
 				.setCategory(category)
 				.setAction(c -> {
@@ -63,7 +63,7 @@ public class Eastereggs implements Module {
 				.setName("eyeroll")
 				.setInfo("")
 				.setVisibility(Visibility.PRIVATE)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setLocality(Locality.EVERYWHERE)
 				.setCategory(category)
 				.setAction(c -> {
@@ -77,7 +77,7 @@ public class Eastereggs implements Module {
 		semanticsHandler.add(new SemanticInterpreter(this)
 				.addWakeWord(new WakeWord("mau", WakeWordType.STANDALONE, false))
 				.setLocality(Locality.EVERYWHERE)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setAction(c -> {
 					String[] replys = new String[] {
 							"*streichel*", "Mau", "*flausch*"
