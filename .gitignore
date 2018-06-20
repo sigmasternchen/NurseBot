@@ -23,8 +23,8 @@
 hs_err_pid*
 /bin/
 
-# access token
-*.priv
+# properties
+*.properties
 
 # eclipse
 .project
