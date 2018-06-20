@@ -26,7 +26,7 @@ public class CommandHandler {
 		
 		stringManager = new StringManager();
 		
-		commands.add(new CommandInterpreter()
+		commands.add(new CommandInterpreter(null)
 				.setName("help")
 				.setInfo("zeigt diese Hilfe an")
 				.setVisibility(Visibility.PUBLIC)
@@ -88,6 +88,10 @@ public class CommandHandler {
 		if (command == null) {
 			System.out.println("Command not found: " + token);
 			return;
+		}
+		
+		if (!nurse.isActive(command.getModule())) {
+			System.out.println("Module is inactive.");
 		}
 		
 		if (!command.getLocality().check(message.getChat())) {

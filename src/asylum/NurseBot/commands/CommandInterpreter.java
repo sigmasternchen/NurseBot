@@ -1,6 +1,7 @@
 package asylum.NurseBot.commands;
 
 import asylum.NurseBot.utils.Locality;
+import asylum.NurseBot.utils.Module;
 import asylum.NurseBot.utils.Permission;
 import asylum.NurseBot.utils.Visibility;
 
@@ -11,8 +12,13 @@ public class CommandInterpreter {
 	private Visibility visibility = Visibility.PRIVATE;
 	private Permission permission = Permission.OWNER;
 	private Locality locality = Locality.EVERYWHERE;
+	private Module module;
 	private boolean pausable = true;
 	private CommandAction action = (c -> System.out.println("Action not defined."));
+	
+	public CommandInterpreter(Module module) {
+		this.module = module;
+	}
 	
 	public CommandInterpreter setName(String name) {
 		this.name = name;
@@ -68,6 +74,10 @@ public class CommandInterpreter {
 	}
 	public CommandCategory getCategory() {
 		return category;
+	}
+	
+	public Module getModule() {
+		return module;
 	}
 	
 	public boolean isPausable() {

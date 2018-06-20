@@ -1,4 +1,4 @@
-package asylum.NurseBot.modules.commands;
+package asylum.NurseBot.modules;
 
 import java.util.Calendar;
 import java.util.Collection;
@@ -13,13 +13,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
 import asylum.NurseBot.StringManager;
 import asylum.NurseBot.commands.CommandInterpreter;
+import asylum.NurseBot.semantics.SemanticsHandler;
 import asylum.NurseBot.utils.Locality;
 import asylum.NurseBot.utils.Module;
 import asylum.NurseBot.utils.Permission;
 import asylum.NurseBot.utils.Visibility;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import asylum.NurseBot.commands.CommandCategory;
 import asylum.NurseBot.commands.CommandHandler;
 
@@ -43,6 +46,7 @@ public class Appointments implements Module {
 	private Collection<Appointment> appointments = new ConcurrentLinkedQueue<>();
 
 	private StringManager stringManager;
+	private CommandHandler commandHandler;
 	
 	private long getTimestamp(String format, boolean rel) {
 		int Y = 1970;
@@ -146,13 +150,14 @@ public class Appointments implements Module {
 	
 	private CommandCategory category;
 	
-	public Appointments(CommandHandler commandHandler) {
-		
+	public Appointments() {
 		this.stringManager = new StringManager();
-		
 		category = new CommandCategory("Termine");
-		
-		commandHandler.add(new CommandInterpreter()
+	}
+	
+	@Override
+	public void init() {
+		commandHandler.add(new CommandInterpreter(this)
 				.setName("appointment")
 				.setInfo("Termin anlegen")
 				.setVisibility(Visibility.PUBLIC)
@@ -202,7 +207,7 @@ public class Appointments implements Module {
 					
 					c.getSender().reply("Der Termin \"" + list.get(0) + "\" wurde für " + date.toString() + " eingetragen.", c.getMessage());
 				}));
-		commandHandler.add(new CommandInterpreter()
+		commandHandler.add(new CommandInterpreter(this)
 				.setName("appointmentinfo")
 				.setInfo("zeigt Informationen zu einem Termin an")
 				.setVisibility(Visibility.PUBLIC)
@@ -244,7 +249,7 @@ public class Appointments implements Module {
 					c.getSender().reply("Dieser Termin ist für " + (new Date(appointment.time).toString()) + " eingetragen.", c.getMessage());
 					
 				}));
-		commandHandler.add(new CommandInterpreter()
+		commandHandler.add(new CommandInterpreter(this)
 				.setName("appointmentdelete")
 				.setInfo("zeigt Informationen zu einem Termin an")
 				.setVisibility(Visibility.PUBLIC)
@@ -273,5 +278,52 @@ public class Appointments implements Module {
 	@Override
 	public String getName() {
 		return "Appointments";
+	}
+
+	@Override
+	public boolean isCommandModule() {
+		return true;
+	}
+
+	@Override
+	public boolean isSemanticModule() {
+		return false;
+	}
+
+	@Override
+	public boolean needsNurse() {
+		return false;
+	}
+
+	@Override
+	public void setNurse(NurseNoakes nurse) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public void setCommandHandler(CommandHandler commandHandler) {
+		this.commandHandler = commandHandler;
+	}
+
+	@Override
+	public void setSemanticsHandler(SemanticsHandler semanticHandler) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public void activate() {
+	}
+
+	@Override
+	public void deactivate() {
+		for(Appointment appointment : appointments) {
+			appointment.timer.cancel();
+			appointments.remove(appointment);
+		}
+	}
+
+	@Override
+	public void shutdown() {
+		deactivate();
 	}
 }

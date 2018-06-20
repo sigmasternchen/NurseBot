@@ -4,16 +4,19 @@ import java.util.LinkedList;
 import java.util.List;
 
 import asylum.NurseBot.utils.Locality;
+import asylum.NurseBot.utils.Module;
 import asylum.NurseBot.utils.Permission;
 
 public class SemanticInterpreter {
 	private List<WakeWord> wakeWords;
 	private Permission permission;
 	private Locality locality;
-	private SemanticAction action;
+	private Module module;
+	private SemanticAction action = (c -> System.out.println("Action not defined."));;
 
-	public SemanticInterpreter() {
+	public SemanticInterpreter(Module module) {
 		wakeWords = new LinkedList<>();
+		this.module = module;
 	}
 	
 	public List<WakeWord> getWakeWords() {
@@ -26,6 +29,10 @@ public class SemanticInterpreter {
 
 	public Locality getLocality() {
 		return locality;
+	}
+	
+	public Module getModule() {
+		return module;
 	}
 
 	public SemanticAction getAction() {

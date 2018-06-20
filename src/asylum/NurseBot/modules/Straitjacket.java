@@ -1,4 +1,4 @@
-package asylum.NurseBot.modules.commands;
+package asylum.NurseBot.modules;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,10 +11,12 @@ import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
 import asylum.NurseBot.StringManager;
 import asylum.NurseBot.commands.CommandInterpreter;
+import asylum.NurseBot.semantics.SemanticsHandler;
 import asylum.NurseBot.utils.Locality;
 import asylum.NurseBot.utils.Module;
 import asylum.NurseBot.utils.Permission;
 import asylum.NurseBot.utils.Visibility;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import asylum.NurseBot.commands.CommandCategory;
 import asylum.NurseBot.commands.CommandHandler;
 
@@ -24,14 +26,30 @@ public class Straitjacket implements Module {
 	public static final int STRIKE_TIMEOUT = 5*60*1000;
 	
 	private NurseNoakes nurse;
+	private CommandHandler commandHandler;
+	
+	class Restrict {
+		private long chatid;
+		private User target;
+		private long time;
+		
+		public Restrict(long chatid, User target, long time) {
+			super();
+			this.chatid = chatid;
+			this.target = target;
+			this.time = time;
+		}	
+	}
 	
 	class Strike {
+		private long chatid;
 		private User target;
 		private User source;
 		private long time;
 		
-		public Strike(User target, User source, long time) {
+		public Strike(long chatid, User target, User source, long time) {
 			super();
+			this.chatid = chatid;
 			this.target = target;
 			this.source = source;
 			this.time = time;
@@ -43,6 +61,7 @@ public class Straitjacket implements Module {
 	}
 	
 	private Collection<Strike> strikes = new ConcurrentLinkedQueue<Strike>();
+	private Collection<Restrict> restricts = new ConcurrentLinkedQueue<Restrict>();
 	
 	private void deleteOldStrikes() {
 		long now = System.currentTimeMillis();
@@ -53,37 +72,40 @@ public class Straitjacket implements Module {
 		}
 	}
 	
-	private boolean addStrike(User target, User source) {
+	private boolean addStrike(long chatid, User target, User source) {
 		for(Strike strike : strikes) {
-			if (strike.target.getId().equals(target.getId()) && strike.source.getId().equals(source.getId())) {
+			if (strike.chatid == chatid && strike.target.getId().equals(target.getId()) && strike.source.getId().equals(source.getId())) {
 				return false;
 			}
 		}
-		strikes.add(new Strike(target, source, System.currentTimeMillis()));
+		strikes.add(new Strike(chatid, target, source, System.currentTimeMillis()));
 		return true;
 	}
 	
-	private int countStrikes(User target) {
+	private int countStrikes(long chatid, User target) {
 		int i = 0; 
 		
 		for (Strike strike : strikes) {
-			if (strike.target.getId().equals(target.getId()))
+			if (strike.chatid == chatid && strike.target.getId().equals(target.getId()))
 				i++;
 		}
 		return i;
 	}
 	
-	private boolean checkRestrict(User target) {
-		return (countStrikes(target) >= STRIKES_TO_RESTRICT);
+	private boolean checkRestrict(long chatid, User target) {
+		return (countStrikes(chatid, target) >= STRIKES_TO_RESTRICT);
 	}
 	
 	private void restrict(long chatid, User target, Sender sender) {
-		RestrictChatMember restrict = new RestrictChatMember(chatid, target.getId());
-		restrict.setCanSendMessages(false);
-		restrict.setUntilDate(0);
+		Restrict restrict = new Restrict(chatid, target, System.currentTimeMillis());
+		restricts.add(restrict);
+		
+		RestrictChatMember restrictcmd = new RestrictChatMember(chatid, target.getId());
+		restrictcmd.setCanSendMessages(false);
+		restrictcmd.setUntilDate(0);
 		
 		try {
-			nurse.execute(restrict);
+			nurse.execute(restrictcmd);
 			
 			sender.mention(target, ", sei nett zu den anderen Patienten. Du bist jetzt für " + (RESTRICT_TIME / 1000 / 60) + " Minuten gesperrt.");
 		} catch (TelegramApiException e) {
@@ -98,34 +120,47 @@ public class Straitjacket implements Module {
 				e.printStackTrace();
 			}
 			
-			RestrictChatMember undo = new RestrictChatMember(chatid, target.getId());
-			undo.setCanSendOtherMessages(true);
-			undo.setCanSendMessages(true);
-			undo.setCanAddWebPagePreviews(true);
-			undo.setCanSendMediaMessages(true);
-			
 			try {
-				nurse.execute(undo);
+				if (!restricts.contains(restrict)) {
+					System.out.println("Restrict is not current.");
+					return;
+				}
 				
+				undoRestrict(restrict);
 				sender.mention(target, ", ich hoffe, du hast deine Lektion gelernt.");
 			} catch (TelegramApiException e) {
 				e.printStackTrace();
 			}
+			
 		}).start();
 	}
 	
+	private void undoRestrict(Restrict restrict) throws TelegramApiException {
+		RestrictChatMember undo = new RestrictChatMember(restrict.chatid, restrict.target.getId());
+		undo.setCanSendOtherMessages(true);
+		undo.setCanSendMessages(true);
+		undo.setCanAddWebPagePreviews(true);
+		undo.setCanSendMediaMessages(true);
+		
+		nurse.execute(undo);
+		
+		restricts.remove(restrict);
+			
+	}
+
 	private StringManager stringManager;
 	
 	private CommandCategory category;
 	
-	public Straitjacket(NurseNoakes nurse, CommandHandler commandHandler) {
-		this.nurse = nurse;
-		
+	public Straitjacket() {
 		this.stringManager = new StringManager();
 		
 		this.category = new CommandCategory("Zwangsjacke");
-		
-		commandHandler.add(new CommandInterpreter()
+	}
+	
+	@Override
+	public void init() {
+		commandHandler.add(new CommandInterpreter(this)
 				.setName("strikes")
 				.setInfo("zeigt die Anzahl der eigenen Strikes an")
 				.setVisibility(Visibility.PUBLIC)
@@ -134,10 +169,10 @@ public class Straitjacket implements Module {
 				.setCategory(category)
 				.setAction(c -> {
 					deleteOldStrikes();
-					c.getSender().reply("Du hast " + countStrikes(c.getMessage().getFrom()) + " Strikes.", c.getMessage());
+					c.getSender().reply("Du hast " + countStrikes(c.getMessage().getChatId(), c.getMessage().getFrom()) + " Strikes.", c.getMessage());
 				}));
 		
-		commandHandler.add(new CommandInterpreter()
+		commandHandler.add(new CommandInterpreter(this)
 				.setName("clearstrikes")
 				.setInfo("")
 				.setVisibility(Visibility.PRIVATE)
@@ -149,7 +184,7 @@ public class Straitjacket implements Module {
 					c.getSender().reply("Alle Strikes wurden entfernt.", c.getMessage());
 				}));
 		
-		commandHandler.add(new CommandInterpreter()
+		commandHandler.add(new CommandInterpreter(this)
 				.setName("strike")
 				.setInfo("fügt einem User einen neuen Strike hinzu")
 				.setVisibility(Visibility.PUBLIC)
@@ -175,12 +210,12 @@ public class Straitjacket implements Module {
 					}
 					
 					deleteOldStrikes();
-					if (!addStrike(target, source)) {
+					if (!addStrike(c.getMessage().getChatId(), target, source)) {
 						c.getSender().reply("Du hast " + stringManager.makeMention(target) + " bereits gestrikt.", c.getMessage(), true);
 						return;
 					}
 					c.getSender().reply(stringManager.makeMention(target) + " wurde gestrikt.", c.getMessage(), true);
-					if (checkRestrict(target)) {
+					if (checkRestrict(c.getMessage().getChatId(), target)) {
 						restrict(c.getMessage().getChatId(), target, c.getSender());
 					}
 				}));
@@ -189,5 +224,56 @@ public class Straitjacket implements Module {
 	@Override
 	public String getName() {
 		return "Straitjacket";
+	}
+
+	@Override
+	public boolean isCommandModule() {
+		return true;
+	}
+
+	@Override
+	public boolean isSemanticModule() {
+		return false;
+	}
+
+	@Override
+	public boolean needsNurse() {
+		return true;
+	}
+
+	@Override
+	public void setNurse(NurseNoakes nurse) {
+		this.nurse = nurse;
+	}
+
+	@Override
+	public void setCommandHandler(CommandHandler commandHandler) {
+		this.commandHandler = commandHandler;
+	}
+
+	@Override
+	public void setSemanticsHandler(SemanticsHandler semanticHandler) {
+		throw new NotImplementedException();
+	}
+
+	@Override
+	public void activate() {
+	}
+
+	@Override
+	public void deactivate() {
+		try {
+			for (Restrict restrict : restricts) {
+					undoRestrict(restrict);
+			}
+		} catch (TelegramApiException e) {
+			e.printStackTrace();
+		}
+		strikes.clear();
+	}
+
+	@Override
+	public void shutdown() {
+		deactivate();
 	}
 }

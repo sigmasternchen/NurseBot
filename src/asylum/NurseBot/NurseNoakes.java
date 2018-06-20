@@ -1,10 +1,10 @@
 package asylum.NurseBot;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -13,11 +13,10 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.NurseBot.commands.CommandInterpreter;
+import asylum.NurseBot.modules.Appointments;
+import asylum.NurseBot.modules.Eastereggs;
+import asylum.NurseBot.modules.Straitjacket;
 import asylum.NurseBot.commands.CommandHandler;
-import asylum.NurseBot.modules.commands.Appointments;
-import asylum.NurseBot.modules.commands.Eastereggs;
-import asylum.NurseBot.modules.commands.Straitjacket;
-import asylum.NurseBot.modules.semantics.BasicInteractions;
 import asylum.NurseBot.semantics.SemanticsHandler;
 import asylum.NurseBot.utils.Locality;
 import asylum.NurseBot.utils.Module;
@@ -48,14 +47,15 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	
 	private Set<Long> pausedChats = new HashSet<>();
 	
-	private List<Module> modules = new LinkedList<>();
+	private Collection<Module> activeModules = new ConcurrentLinkedQueue<>();
+	private Collection<Module> inactiveModules = new ConcurrentLinkedQueue<>();
 	
 	public NurseNoakes() {
 		stringmanager = new StringManager();
 		commandHandler = new CommandHandler(this);
 		semanticsHandler = new SemanticsHandler(this);
 	
-		commandHandler.add(new CommandInterpreter()
+		commandHandler.add(new CommandInterpreter(null)
 				.setName("start")
 				.setInfo("")
 				.setVisibility(Visibility.PRIVATE)
@@ -68,7 +68,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 						e.printStackTrace();
 					}
 				}));
-		commandHandler.add(new CommandInterpreter()
+		commandHandler.add(new CommandInterpreter(null)
 				.setName("pause")
 				.setInfo("")
 				.setVisibility(Visibility.PRIVATE)
@@ -79,7 +79,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					pausedChats.add(c.getMessage().getChatId());
 					c.getSender().send("- paused -");
 				}));
-		commandHandler.add(new CommandInterpreter()
+		commandHandler.add(new CommandInterpreter(null)
 				.setName("resume")
 				.setInfo("")
 				.setVisibility(Visibility.PRIVATE)
@@ -91,7 +91,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					c.getSender().send("- resumed -");
 				}));
 		
-		commandHandler.add(new CommandInterpreter()
+		commandHandler.add(new CommandInterpreter(null)
 				.setName("info")
 				.setInfo("zeigt Information zu diesem Bot an")
 				.setVisibility(Visibility.PUBLIC)
@@ -104,8 +104,11 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					builder.append(USERNAME).append(" ").append(VERSION).append("\n");
 					
 					builder.append("\n").append(stringmanager.makeBold("Modules")).append("\n");
-					for (Module module : modules) {
-						builder.append("- ").append(module.getName()).append("\n");
+					for (Module module : activeModules) {
+						builder.append("+ ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
+					}
+					for (Module module : inactiveModules) {
+						builder.append("- ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
 					}
 					
 					builder.append("\n").append(stringmanager.makeBold("Commands")).append("\n");
@@ -129,12 +132,126 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					c.getSender().send(builder.toString(), true);
 				}));
 		
-		modules.add(new BasicInteractions(semanticsHandler));
-		modules.add(new Appointments(commandHandler));
-		modules.add(new Straitjacket(this, commandHandler));
-		modules.add(new Eastereggs(commandHandler));	
+		commandHandler.add(new CommandInterpreter(null)
+				.setName("modules")
+				.setInfo("(de-)aktiviert Module")
+				.setVisibility(Visibility.PUBLIC)
+				.setPermission(Permission.ADMIN)
+				.setLocality(Locality.GROUPS)
+				.setPausable(false)
+				.setAction(c -> {
+					if (c.getParameter().length() < 2) {
+						StringBuilder builder = new StringBuilder();
+						
+						builder.append("Synopsis: /modules [{+|-}MODUL]\n\n");
+						
+						builder.append("Aktuell sind folgende Module geladen:\n");
+						
+						for (Module module : activeModules) {
+							builder.append("+ ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
+						}
+						for (Module module : inactiveModules) {
+							builder.append("- ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
+						}
+						
+						c.getSender().reply(builder.toString(), c.getMessage());
+						return;
+					}
+					
+					boolean activate = c.getParameter().substring(0, 1).equals("+");
+					boolean deactivate = c.getParameter().substring(0, 1).equals("-");
+					
+					Module module = searchModule(c.getParameter().substring(1));
+					
+					if (module == null || !(activate ^ deactivate)) {
+						c.getSender().reply("Das schaut nicht richtig aus. Hast du dich vertippt?", c.getMessage());
+						return;
+					}
+					
+					try {
+						if (activate) {
+							activateModule(module);
+							c.getSender().send("Das Modul " + module.getName() + " wurde aktiviert.");
+						} else {
+							deactivateModule(module);
+							c.getSender().send("Das Modul " + module.getName() + " wurde deaktiviert.");
+						}
+					} catch (Exception e) {
+						c.getSender().reply("Der Vorgang ist fehlgeschlagen. Ist das Modul bereits aktiv/inaktiv?", c.getMessage());
+					}
+					
+				}));
+		
+		Module module;
+		
+		module = new Appointments();
+		loadModule(module);
+		activateModule(module);
+		
+		module = new Straitjacket();
+		loadModule(module);
+		activateModule(module);
+		
+		module = new Eastereggs();
+		loadModule(module);
+		activateModule(module);
 	}
 
+	private Module searchModule(String name) {
+		for (Module module : activeModules) {
+			if (module.getName().equals(name)) {
+				return module;
+			}
+		}
+		for (Module module : inactiveModules) {
+			if (module.getName().equals(name)) {
+				return module;
+			}
+		}
+		return null;
+	}
+	
+	private void loadModule(Module module) {
+		if (module.needsNurse())
+			module.setNurse(this);
+		if (module.isCommandModule())
+			module.setCommandHandler(commandHandler);
+		if (module.isSemanticModule())
+			module.setSemanticsHandler(semanticsHandler);
+		
+		module.init();
+		
+		inactiveModules.add(module);
+		
+		System.out.println("Module " + module.getName() + " loaded.");
+	}
+	
+	private void activateModule(Module module) {
+		if (!inactiveModules.remove(module))
+			throw new IllegalArgumentException();
+		
+		activeModules.add(module);
+		
+		module.activate();
+		
+		System.out.println("Module " + module.getName() + " activated.");
+	}
+	
+	private void deactivateModule(Module module) {
+		if (!activeModules.remove(module))
+			throw new IllegalArgumentException();
+		
+		inactiveModules.add(module);
+		
+		module.deactivate();
+		
+		System.out.println("Module " + module.getName() + " deactivated.");
+	}
+	
+	public boolean isActive(Module module) {
+		return activeModules.contains(module);
+	}
+	
 	@Override
 	public String getBotUsername() {
 		return USERNAME;

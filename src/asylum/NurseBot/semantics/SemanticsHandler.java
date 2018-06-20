@@ -67,6 +67,10 @@ public class SemanticsHandler {
 			if (!invoke)
 				continue;
 			
+			if (!nurse.isActive(interpreter.getModule())) {
+				continue;
+			}
+			
 			if (!interpreter.getLocality().check(message.getChat())) {
 				continue;
 			}
