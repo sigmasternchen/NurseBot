@@ -5,20 +5,20 @@ import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import asylum.NurseBot.utils.StringTools;
+
 public class Sender {
 
-	Long chatid;
-	NurseNoakes nurse;
-	StringManager stringmanager;
+	private Long chatid;
+	private NurseNoakes nurse;
 	
 	public Sender(Long chatId, NurseNoakes nurse) {
 		this.chatid = chatId;
 		this.nurse = nurse;
-		this.stringmanager = new StringManager();
 	}
 
 	public void mention(User user, String text) throws TelegramApiException {
-		send(stringmanager.makeMention(user) + " " + text, true);
+		send(StringTools.makeMention(user) + " " + text, true);
 	}
 	
 	public void reply(String text, Message replyto) throws TelegramApiException {

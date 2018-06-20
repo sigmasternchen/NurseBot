@@ -15,12 +15,14 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import asylum.NurseBot.commands.CommandInterpreter;
 import asylum.NurseBot.modules.Appointments;
 import asylum.NurseBot.modules.Eastereggs;
+import asylum.NurseBot.modules.Greeter;
 import asylum.NurseBot.modules.Straitjacket;
 import asylum.NurseBot.commands.CommandHandler;
 import asylum.NurseBot.semantics.SemanticsHandler;
 import asylum.NurseBot.utils.Locality;
 import asylum.NurseBot.utils.Module;
 import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.utils.StringTools;
 import asylum.NurseBot.utils.Visibility;
 
 public class NurseNoakes extends TelegramLongPollingBot {
@@ -41,7 +43,6 @@ public class NurseNoakes extends TelegramLongPollingBot {
 
 	}
 
-	private StringManager stringmanager;
 	private CommandHandler commandHandler;
 	private SemanticsHandler semanticsHandler;
 	
@@ -51,7 +52,6 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	private Collection<Module> inactiveModules = new ConcurrentLinkedQueue<>();
 	
 	public NurseNoakes() {
-		stringmanager = new StringManager();
 		commandHandler = new CommandHandler(this);
 		semanticsHandler = new SemanticsHandler(this);
 	
@@ -63,7 +63,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setLocality(Locality.USERS)
 				.setAction(c -> {
 					try {
-						c.getSender().send(stringmanager.makeBold("Hallo o/\nDieser Bot ist eigentlich für Gruppen Chats gedacht, aber ein paar Funktionen sind auch hier nutzbar."), true);
+						c.getSender().send(StringTools.makeBold("Hallo o/\nDieser Bot ist eigentlich für Gruppen Chats gedacht, aber ein paar Funktionen sind auch hier nutzbar."), true);
 					} catch (TelegramApiException e) {
 						e.printStackTrace();
 					}
@@ -103,7 +103,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					
 					builder.append(USERNAME).append(" ").append(VERSION).append("\n");
 					
-					builder.append("\n").append(stringmanager.makeBold("Modules")).append("\n");
+					builder.append("\n").append(StringTools.makeBold("Modules")).append("\n");
 					for (Module module : activeModules) {
 						builder.append("+ ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
 					}
@@ -111,22 +111,22 @@ public class NurseNoakes extends TelegramLongPollingBot {
 						builder.append("- ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
 					}
 					
-					builder.append("\n").append(stringmanager.makeBold("Commands")).append("\n");
+					builder.append("\n").append(StringTools.makeBold("Commands")).append("\n");
 					builder.append("There are currently ").append(commandHandler.getNumberOfEntities()).append(" commands installed.");
 					builder.append("\n");
 					
-					builder.append("\n").append(stringmanager.makeBold("Semantics")).append("\n");
+					builder.append("\n").append(StringTools.makeBold("Semantics")).append("\n");
 					builder.append("There are currently ").append(semanticsHandler.getNumberOfEntities()).append(" semantic interpreters installed.");
 					builder.append("\n");
 					
-					builder.append("\n").append(stringmanager.makeBold("System")).append("\n");
-					builder.append(stringmanager.makeItalic("Operating System: ")).append(System.getProperty("os.name")).append("\n");
-					builder.append(stringmanager.makeItalic("Cores: ")).append(Runtime.getRuntime().availableProcessors()).append("\n");
-					builder.append(stringmanager.makeItalic("User: ")).append(System.getProperty("user.name")).append("\n");
+					builder.append("\n").append(StringTools.makeBold("System")).append("\n");
+					builder.append(StringTools.makeItalic("Operating System: ")).append(System.getProperty("os.name")).append("\n");
+					builder.append(StringTools.makeItalic("Cores: ")).append(Runtime.getRuntime().availableProcessors()).append("\n");
+					builder.append(StringTools.makeItalic("User: ")).append(System.getProperty("user.name")).append("\n");
 					long maxMemory = Runtime.getRuntime().maxMemory();
 					long freeMemory = Runtime.getRuntime().freeMemory();
 					long usedMemory = maxMemory - freeMemory;
-					builder.append(stringmanager.makeItalic("Memory: ")).append(Math.round(((float) usedMemory) / 1024 / 1024 * 10)/10).append("/").append(Math.round(((float) maxMemory) / 1024 / 1024 * 10)/10).append(" MiB").append("\n");
+					builder.append(StringTools.makeItalic("Memory: ")).append(Math.round(((float) usedMemory) / 1024 / 1024 * 10)/10).append("/").append(Math.round(((float) maxMemory) / 1024 / 1024 * 10)/10).append(" MiB").append("\n");
 					
 					
 					c.getSender().send(builder.toString(), true);
@@ -183,6 +183,10 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				}));
 		
 		Module module;
+		
+		module = new Greeter();
+		loadModule(module);
+		activateModule(module);
 		
 		module = new Appointments();
 		loadModule(module);
@@ -260,19 +264,6 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	@Override
 	public void onUpdateReceived(Update update) {
 		if (update.hasMessage()) {
-			Sender sender = new Sender(update.getMessage().getChatId(), this);
-			if (update.getMessage().getNewChatMembers() != null) {
-				System.out.println("New Users: " + update.getMessage().getNewChatMembers());
-				if (update.getMessage().getNewChatMembers().stream().anyMatch(u -> u.getUserName() != null && u.getUserName().equals(USERNAME))) {
-					return;
-				} else {
-					try {
-						sender.send(stringmanager.getNewUserString(update.getMessage().getNewChatMembers()), true);
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
-				}
-			}
 			if (update.getMessage().isCommand()) {
 				commandHandler.parse(update.getMessage());
 			} else {

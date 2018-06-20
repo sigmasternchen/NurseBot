@@ -9,12 +9,12 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
-import asylum.NurseBot.StringManager;
 import asylum.NurseBot.commands.CommandInterpreter;
 import asylum.NurseBot.semantics.SemanticsHandler;
 import asylum.NurseBot.utils.Locality;
 import asylum.NurseBot.utils.Module;
 import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.utils.StringTools;
 import asylum.NurseBot.utils.Visibility;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import asylum.NurseBot.commands.CommandCategory;
@@ -147,14 +147,10 @@ public class Straitjacket implements Module {
 		restricts.remove(restrict);
 			
 	}
-
-	private StringManager stringManager;
 	
 	private CommandCategory category;
 	
 	public Straitjacket() {
-		this.stringManager = new StringManager();
-		
 		this.category = new CommandCategory("Zwangsjacke");
 	}
 	
@@ -205,16 +201,16 @@ public class Straitjacket implements Module {
 					}
 
 					if (target.getId().equals(source.getId())) {
-						c.getSender().reply(stringManager.makeMention(target) + " waurde ge-... warte, was?! Du willst dich selbst striken. Ähm. Nein.", c.getMessage(), true);
+						c.getSender().reply(StringTools.makeMention(target) + " waurde ge-... warte, was?! Du willst dich selbst striken. Ähm. Nein.", c.getMessage(), true);
 						return;
 					}
 					
 					deleteOldStrikes();
 					if (!addStrike(c.getMessage().getChatId(), target, source)) {
-						c.getSender().reply("Du hast " + stringManager.makeMention(target) + " bereits gestrikt.", c.getMessage(), true);
+						c.getSender().reply("Du hast " + StringTools.makeMention(target) + " bereits gestrikt.", c.getMessage(), true);
 						return;
 					}
-					c.getSender().reply(stringManager.makeMention(target) + " wurde gestrikt.", c.getMessage(), true);
+					c.getSender().reply(StringTools.makeMention(target) + " wurde gestrikt.", c.getMessage(), true);
 					if (checkRestrict(c.getMessage().getChatId(), target)) {
 						restrict(c.getMessage().getChatId(), target, c.getSender());
 					}

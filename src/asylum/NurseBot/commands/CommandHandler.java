@@ -8,23 +8,19 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
-import asylum.NurseBot.StringManager;
 import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.utils.StringTools;
 import asylum.NurseBot.utils.Visibility;
 
 public class CommandHandler {
 
 	private NurseNoakes nurse;
 	
-	private StringManager stringManager;
-	
 	private List<CommandInterpreter> commands;
 	
 	public CommandHandler(NurseNoakes nurse) {
 		commands = new LinkedList<>();
 		this.nurse = nurse;
-		
-		stringManager = new StringManager();
 		
 		commands.add(new CommandInterpreter(null)
 				.setName("help")
@@ -57,7 +53,7 @@ public class CommandHandler {
 				if (current == null) {
 					builder.append("\n");
 				} else {
-					builder.append("\n").append(stringManager.makeBold(current.getName())).append("\n");
+					builder.append("\n").append(StringTools.makeBold(current.getName())).append("\n");
 				}
 			}
 			

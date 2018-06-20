@@ -15,12 +15,12 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.Sender;
-import asylum.NurseBot.StringManager;
 import asylum.NurseBot.commands.CommandInterpreter;
 import asylum.NurseBot.semantics.SemanticsHandler;
 import asylum.NurseBot.utils.Locality;
 import asylum.NurseBot.utils.Module;
 import asylum.NurseBot.utils.Permission;
+import asylum.NurseBot.utils.StringTools;
 import asylum.NurseBot.utils.Visibility;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import asylum.NurseBot.commands.CommandCategory;
@@ -45,7 +45,6 @@ public class Appointments implements Module {
 	
 	private Collection<Appointment> appointments = new ConcurrentLinkedQueue<>();
 
-	private StringManager stringManager;
 	private CommandHandler commandHandler;
 	
 	private long getTimestamp(String format, boolean rel) {
@@ -151,7 +150,6 @@ public class Appointments implements Module {
 	private CommandCategory category;
 	
 	public Appointments() {
-		this.stringManager = new StringManager();
 		category = new CommandCategory("Termine");
 	}
 	
@@ -166,7 +164,7 @@ public class Appointments implements Module {
 				.setCategory(category)
 				.setAction(c -> {
 					String help = "Synopsis: /appointment \"Name des Termines\" relativ|absolut mm[:ss]|[YYYY-MM-DD-]hh:mm:ss";
-					List<String> list = stringManager.tokenize(c.getParameter());
+					List<String> list = StringTools.tokenize(c.getParameter());
 					
 					if (list.size() != 3) {
 						System.out.println("Wrong number of parameters.");
@@ -216,7 +214,7 @@ public class Appointments implements Module {
 				.setCategory(category)
 				.setAction(c -> {
 					String help = "Synopsis: /appointmentinfo [\"Name des Termines\"]";
-					List<String> list = stringManager.tokenize(c.getParameter());
+					List<String> list = StringTools.tokenize(c.getParameter());
 					
 					if (list.size() != 1) {
 						StringBuilder builder = new StringBuilder();
@@ -258,7 +256,7 @@ public class Appointments implements Module {
 				.setCategory(category)
 				.setAction(c -> {
 					String help = "Synopsis: /appointmentdelete \"Name des Termines\"";
-					List<String> list = stringManager.tokenize(c.getParameter());
+					List<String> list = StringTools.tokenize(c.getParameter());
 					
 					if (list.size() != 1) {
 						c.getSender().reply(help, c.getMessage());

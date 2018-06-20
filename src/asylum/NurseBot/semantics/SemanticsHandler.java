@@ -49,16 +49,18 @@ public class SemanticsHandler {
 	}
 	
 	public void parse(Message message) {
-		if (!message.hasText())
-			return;
-
 		if (nurse.isChatPaused(message.getChatId()))
 			return;
 		
 		for(SemanticInterpreter interpreter : interpreters) {
 			boolean invoke = false;
 			for (WakeWord wakeWord : interpreter.getWakeWords()) {
-				if (matchWakeWord(wakeWord, message.getText())) {
+				if (wakeWord.getType() == WakeWordType.META) {
+					if (message.getLeftChatMember() != null || (message.getNewChatMembers() != null)) {
+						invoke = true;
+						break;
+					}
+				} else if (message.hasText() && matchWakeWord(wakeWord, message.getText())) {
 					invoke = true;
 					break;
 				}
