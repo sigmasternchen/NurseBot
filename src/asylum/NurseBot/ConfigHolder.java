@@ -1,29 +1,47 @@
 package asylum.NurseBot;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStream;
+import java.util.Properties;
 
-public class TokenHolder {
-	private static TokenHolder holder;
+public class ConfigHolder {
+	private static ConfigHolder holder;
 	
-	public static TokenHolder getInstance() throws IOException {
+	public static ConfigHolder getInstance() throws IOException {
 		if (holder == null)
-			holder = new TokenHolder();
+			holder = new ConfigHolder();
 		
 		return holder;
 	}
 	
-	private static final String FILE = "token.priv";
+	private static final String FILE = "config.properties";
 	
-	private String token;
+	private Properties properties;
 
-	public String getToken() {
-		return token;
+	public String getTelegramToken() {
+		return properties.getProperty("telegram.token");
 	}
 
-	private TokenHolder() throws IOException {
-		token = new String(Files.readAllBytes(Paths.get(FILE)), Charset.forName("UTF-8")).trim();
+	public String getDatabaseHost() {
+		return properties.getProperty("database.host");
+	}
+	
+	public String getDatabaseSchema() {
+		return properties.getProperty("database.schema");
+	}
+	
+	public String getDatabaseUser() {
+		return properties.getProperty("database.user");
+	}
+	
+	public String getDatabasePassword() {
+		return properties.getProperty("database.password");
+	}
+	
+	private ConfigHolder() throws IOException {
+		InputStream input = new FileInputStream(FILE);
+		
+		properties.load(input);
 	}
 }

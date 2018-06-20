@@ -19,6 +19,7 @@ import asylum.NurseBot.commands.CommandInterpreter;
 import asylum.NurseBot.modules.Appointments;
 import asylum.NurseBot.modules.Eastereggs;
 import asylum.NurseBot.modules.Greeter;
+import asylum.NurseBot.modules.Statistics;
 import asylum.NurseBot.modules.Straitjacket;
 import asylum.NurseBot.objects.Locality;
 import asylum.NurseBot.objects.Module;
@@ -233,6 +234,10 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		loadModule(module);
 		activateModule(module);
 		
+		module = new Statistics();
+		loadModule(module);
+		activateModule(module);
+		
 		module = new Straitjacket();
 		loadModule(module);
 		activateModule(module);
@@ -344,7 +349,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	@Override
 	public String getBotToken() {
 		try {
-			return TokenHolder.getInstance().getToken();
+			return ConfigHolder.getInstance().getTelegramToken();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

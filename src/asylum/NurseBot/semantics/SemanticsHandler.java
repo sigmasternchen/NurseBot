@@ -44,6 +44,8 @@ public class SemanticsHandler {
 			return string.equals(wakeWord.getWord());
 		case REGEX:
 			return string.matches(wakeWord.getWord());
+		case TEXT_MESSAGE:
+			return true;
 		default:
 			System.out.println("Unknown WakeWordPosition.");
 			return false;
