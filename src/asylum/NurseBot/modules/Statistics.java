@@ -1,12 +1,12 @@
 package asylum.NurseBot.modules;
 
-import org.glassfish.grizzly.GracefulShutdownListener;
-
 import asylum.NurseBot.NurseNoakes;
 import asylum.NurseBot.commands.CommandHandler;
 import asylum.NurseBot.objects.Locality;
 import asylum.NurseBot.objects.Module;
 import asylum.NurseBot.objects.Permission;
+import asylum.NurseBot.persistence.ModelManager;
+import asylum.NurseBot.persistence.modules.StatisticsMessage;
 import asylum.NurseBot.semantics.SemanticInterpreter;
 import asylum.NurseBot.semantics.SemanticsHandler;
 import asylum.NurseBot.semantics.WakeWord;
@@ -53,6 +53,10 @@ public class Statistics implements Module {
 		this.semanticsHandler = semanticHandler; 
 	}
 
+	public Statistics() {
+		ModelManager.build(StatisticsMessage.class);
+	}
+	
 	@Override
 	public void init() {
 		semanticsHandler.add(new SemanticInterpreter(this)
@@ -60,6 +64,10 @@ public class Statistics implements Module {
 				.setLocality(Locality.GROUPS)
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
+					new StatisticsMessage()
+						.setChatId(c.getMessage().getChatId())
+						.setLength(c.getMessage().getText().length())
+						.saveIt();
 				}));
 	}
 

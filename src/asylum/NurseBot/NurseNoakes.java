@@ -25,6 +25,9 @@ import asylum.NurseBot.objects.Locality;
 import asylum.NurseBot.objects.Module;
 import asylum.NurseBot.objects.Permission;
 import asylum.NurseBot.objects.Visibility;
+import asylum.NurseBot.persistence.Connector;
+import asylum.NurseBot.persistence.ModelManager;
+import asylum.NurseBot.persistence.modules.NurseModule;
 import asylum.NurseBot.commands.CommandHandler;
 import asylum.NurseBot.semantics.SemanticsHandler;
 import asylum.NurseBot.utils.ConfigHolder;
@@ -50,6 +53,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 			botsApi.registerBot(new NurseNoakes());
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 	}
@@ -57,14 +62,23 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	private CommandHandler commandHandler;
 	private SemanticsHandler semanticsHandler;
 	
+	private Connector connector;
+	
 	private Set<Long> pausedChats = new HashSet<>();
 	
 	private Collection<Module> activeModules = new ConcurrentLinkedQueue<>();
 	private Collection<Module> inactiveModules = new ConcurrentLinkedQueue<>();
 	
-	public NurseNoakes() {
+	public NurseNoakes() throws IOException {
+		ConfigHolder holder = ConfigHolder.getInstance();
+		connector = new Connector(holder.getDatabaseHost(), holder.getDatabaseSchema(), holder.getDatabaseUser(), holder.getDatabasePassword());
+		
+		connector.connectThread(); // setup thread
+		
 		commandHandler = new CommandHandler(this);
 		semanticsHandler = new SemanticsHandler(this);
+		
+		ModelManager.build(NurseModule.class);
 	
 		commandHandler.add(new CommandInterpreter(null)
 				.setName("start")
@@ -229,23 +243,38 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		
 		module = new Greeter();
 		loadModule(module);
-		activateModule(module);
 		
 		module = new Appointments();
 		loadModule(module);
-		activateModule(module);
 		
 		module = new Statistics();
 		loadModule(module);
-		activateModule(module);
 		
 		module = new Straitjacket();
 		loadModule(module);
-		activateModule(module);
 		
 		module = new Eastereggs();
 		loadModule(module);
-		activateModule(module);
+		
+		
+		if (ModelManager.wasAnythingCreated()) {
+			System.out.println("We made changes to the database.");
+			restart();
+		}
+		
+		List<NurseModule> registeredModules = NurseModule.findAll();
+		for (NurseModule registeredModule : registeredModules) {
+			module = searchModule(registeredModule.getName());
+			if (module == null) {
+				System.out.println("Module in database does not exist: " + registeredModule.getName());
+				System.out.println("Deleting...");
+				registeredModule.delete();
+			}
+			if (registeredModule.isActive())
+				activateModule(module);
+		}
+		
+		connector.disconnectThread();
 	}
 
 	public void shutdown() {
@@ -258,6 +287,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 			System.out.println("Shutting down module " + module.getName() + "...");
 			module.shutdown();
 		}
+		
+		connector.close();
 		
 		System.exit(EXIT_CODE_SHUTDOWN);
 	}
@@ -272,6 +303,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 			System.out.println("Shutting down module " + module.getName() + "...");
 			module.shutdown();
 		}
+		
+		connector.close();
 		
 		System.exit(EXIT_CODE_RESTART);
 	}
@@ -313,6 +346,15 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		
 		module.activate();
 		
+		NurseModule nm = NurseModule.byName(module.getName());
+		if (nm == null) {
+			nm = new NurseModule().setName(module.getName());
+		}
+		
+		nm.setActive();
+		
+		nm.saveIt();
+		
 		System.out.println("Module " + module.getName() + " activated.");
 	}
 	
@@ -323,6 +365,15 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		inactiveModules.add(module);
 		
 		module.deactivate();
+		
+		NurseModule nm = NurseModule.byName(module.getName());
+		if (nm == null) {
+			nm = new NurseModule().setName(module.getName());
+		}
+		
+		nm.setInactive();
+		
+		nm.saveIt();
 		
 		System.out.println("Module " + module.getName() + " deactivated.");
 	}
@@ -338,6 +389,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 
 	@Override
 	public void onUpdateReceived(Update update) {
+		connector.connectThread();
+		
 		if (update.hasMessage()) {
 			if (update.getMessage().isCommand()) {
 				commandHandler.parse(update.getMessage());
@@ -345,6 +398,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				semanticsHandler.parse(update.getMessage());
 			}
 		}
+		
+		connector.disconnectThread();
 	}
 
 	@Override

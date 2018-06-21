@@ -40,6 +40,8 @@ public class ConfigHolder {
 	}
 	
 	private ConfigHolder() throws IOException {
+		properties = new Properties();
+		
 		InputStream input = new FileInputStream(FILE);
 		
 		properties.load(input);
