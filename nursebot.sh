@@ -5,8 +5,10 @@ RESTART=2
 
 INSTRUMENTATION=10
 
+jar=nursenoakes.jar
+
 while true; do
-	java -jar nursenoakes.jar
+	java -jar $jar
 	ec=$?
 
 	case $ec in
@@ -15,7 +17,7 @@ while true; do
 		$RESTART)
 			continue;;
 		$INSTRUMENTATION)
-			./instrumentation.sh
+			./instrumentation.sh $jar
 			continue
 			;;
 		*)
