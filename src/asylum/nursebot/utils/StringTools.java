@@ -10,7 +10,9 @@ import org.telegram.telegrambots.api.objects.User;
 public class StringTools {
 	
 	public static String makeMention(User user) {
-		return user.getUserName() == null ? makeLink(user.getFirstName().replaceAll("_", "\\_"), "tg://user?id=" + user.getId()) : ("@" + user.getUserName().replaceAll("_", "\\_"));
+		return user.getUserName() == null ? 
+				makeLink(user.getFirstName().replaceAll("_", "\\_"), "tg://user?id=" + user.getId()) : 
+				("@" + user.getUserName().replaceAll("_", "\\\\_"));
 	}
 	
 	public static String makeBold(String text) {

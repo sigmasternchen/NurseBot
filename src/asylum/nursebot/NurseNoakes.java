@@ -11,24 +11,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.javalite.activejdbc.InitException;
 import org.reflections.Reflections;
-import org.reflections.scanners.SubTypesScanner;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import com.google.common.base.Predicate;
-
 import asylum.nursebot.commands.CommandInterpreter;
-import asylum.nursebot.modules.Appointments;
-import asylum.nursebot.modules.Eastereggs;
-import asylum.nursebot.modules.Greeter;
-import asylum.nursebot.modules.Statistics;
-import asylum.nursebot.modules.Straitjacket;
 import asylum.nursebot.objects.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
@@ -44,7 +33,7 @@ import asylum.nursebot.utils.StringTools;
 
 public class NurseNoakes extends TelegramLongPollingBot {
 
-	public static final String VERSION = "0.9";
+	public static final String VERSION = "1.0";
 	public static final List<String> BOT_ADMIN_USERNAMES = 
 			Collections.unmodifiableList(Arrays.asList(new String[]{
 					"overflowerror"

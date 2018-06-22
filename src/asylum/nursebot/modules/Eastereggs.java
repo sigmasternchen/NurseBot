@@ -15,7 +15,6 @@ import asylum.nursebot.semantics.SemanticsHandler;
 import asylum.nursebot.semantics.WakeWord;
 import asylum.nursebot.semantics.WakeWordType;
 import asylum.nursebot.NurseNoakes;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import asylum.nursebot.commands.CommandCategory;
 import asylum.nursebot.commands.CommandHandler;
 
@@ -26,6 +25,7 @@ public class Eastereggs implements Module {
 	
 	private CommandHandler commandHandler;
 	private SemanticsHandler semanticsHandler;
+	private NurseNoakes nurse;
 	
 	public Eastereggs() {
 		category = new CommandCategory("Eastereggs");
@@ -78,6 +78,7 @@ public class Eastereggs implements Module {
 		
 		semanticsHandler.add(new SemanticInterpreter(this)
 				.addWakeWord(new WakeWord("mau", WakeWordType.STANDALONE, false))
+				.addWakeWord(new WakeWord("mau.", WakeWordType.STANDALONE, false))
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
@@ -101,6 +102,62 @@ public class Eastereggs implements Module {
 						}
 					}).start();
 				}));
+		semanticsHandler.add(new SemanticInterpreter(this)
+				.addWakeWord(new WakeWord("*boop*", WakeWordType.ANYWHERE, false))
+				.addWakeWord(new WakeWord("*stups*", WakeWordType.ANYWHERE, false))
+				.addWakeWord(new WakeWord("*anstups*", WakeWordType.ANYWHERE, false))
+				.setLocality(Locality.EVERYWHERE)
+				.setPermission(Permission.ANY)
+				.setAction(c -> {
+					if (!c.getMessage().getText().contains("@" + nurse.getBotUsername()))
+						return;
+					
+					String[] replys = new String[] {
+							"*erschreck*", "*reschreck*\n*vom Stuhl fall*", "Au! D:"
+					};
+					
+					Random random = new Random();
+					
+					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
+				}));
+		
+		semanticsHandler.add(new SemanticInterpreter(this)
+				.addWakeWord(new WakeWord("scheiße", WakeWordType.ANYWHERE, false))
+				.addWakeWord(new WakeWord("scheiß", WakeWordType.ANYWHERE, false))
+				.addWakeWord(new WakeWord("fuck ", WakeWordType.ANYWHERE, false))
+				.setLocality(Locality.EVERYWHERE)
+				.setPermission(Permission.ANY)
+				.setAction(c -> {
+					String[] replys = new String[] {
+							"Ich dulde keine Kraftausdrücke hier!", "Hey! Achte auf deine Sprache!", "Hey! Es sind Kinder anwesend."
+					};
+					
+					Random random = new Random();
+					
+					if (random.nextInt(5) != 0)
+						return;
+					
+					
+					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
+				}));
+		semanticsHandler.add(new SemanticInterpreter(this)
+				.addWakeWord(new WakeWord("danke", WakeWordType.ANYWHERE, false))
+				.setLocality(Locality.EVERYWHERE)
+				.setPermission(Permission.ANY)
+				.setAction(c -> {
+					if (c.getMessage().getText().split(" ").length > 4)
+						return;
+					if (!c.getMessage().getText().contains(" Noakes"))
+						return;
+					
+					String[] replys = new String[] {
+							"Gern geschehen.", "Hab ich gerne gemacht."
+					};
+					
+					Random random = new Random();	
+					
+					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
+				}));
 	}
 
 	@Override
@@ -120,12 +177,12 @@ public class Eastereggs implements Module {
 
 	@Override
 	public boolean needsNurse() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public void setNurse(NurseNoakes nurse) {
-		throw new NotImplementedException();
+		this.nurse = nurse;
 	}
 
 	@Override
