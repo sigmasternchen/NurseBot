@@ -1,8 +1,5 @@
 package asylum.nursebot.modules;
 
-import java.util.Calendar;
-import java.util.List;
-
 import com.googlecode.charts4j.AxisLabels;
 import com.googlecode.charts4j.AxisLabelsFactory;
 import com.googlecode.charts4j.AxisStyle;

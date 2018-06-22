@@ -29,6 +29,7 @@ public class Greeter implements Module {
 			"Ciao %s!";
 	
 	private SemanticsHandler SemanticsHandler;
+	private NurseNoakes nurse;
 	
 	public Greeter() {
 	}
@@ -87,12 +88,12 @@ public class Greeter implements Module {
 
 	@Override
 	public boolean needsNurse() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public void setNurse(NurseNoakes nurse) {
-		throw new NotImplementedException();
+		this.nurse = nurse;
 	}
 
 	@Override
@@ -114,7 +115,7 @@ public class Greeter implements Module {
 			.setAction(c -> {
 				if (c.getMessage().getNewChatMembers() != null) {
 					System.out.println("New Users: " + c.getMessage().getNewChatMembers());
-					if (c.getMessage().getNewChatMembers().stream().anyMatch(u -> u.getUserName() != null && u.getUserName().equals(NurseNoakes.USERNAME))) {
+					if (c.getMessage().getNewChatMembers().stream().anyMatch(u -> u.getUserName() != null && u.getUserName().equals(nurse.getBotUsername()))) {
 						return;
 					} else {
 						c.getSender().send(getNewUserString(c.getMessage().getNewChatMembers()), true);

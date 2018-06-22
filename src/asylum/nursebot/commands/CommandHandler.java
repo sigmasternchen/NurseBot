@@ -48,7 +48,7 @@ public class CommandHandler {
 			if (command.getVisibility() == Visibility.PRIVATE)
 				continue;
 			
-			if (!nurse.isActive(command.getModule()))
+			if (command.getModule() != null && !nurse.isActive(command.getModule()))
 				continue;
 			
 			if (command.getCategory() != current) {
@@ -80,7 +80,7 @@ public class CommandHandler {
 		
 		CommandInterpreter command = null;
 		for (CommandInterpreter c : commands) {
-			if (c.getName().equals(token) || (c.getName() + "@" + NurseNoakes.USERNAME).equals(token)) {
+			if (c.getName().equals(token) || (c.getName() + "@" + nurse.getBotUsername()).equals(token)) {
 				command = c;
 				break;
 			}

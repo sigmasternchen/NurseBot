@@ -36,7 +36,6 @@ import asylum.nursebot.utils.StringTools;
 
 public class NurseNoakes extends TelegramLongPollingBot {
 
-	public static final String USERNAME = "NurseNoakesBot";
 	public static final String VERSION = "0.9";
 	public static final List<String> BOT_ADMIN_USERNAMES = 
 			Collections.unmodifiableList(Arrays.asList(new String[]{
@@ -81,6 +80,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		
 			ModelManager.build(NurseModule.class);
 		} catch (InitException e) {
+			e.printStackTrace();
 			System.out.println("Error: Probably no instrumentation.");
 			System.exit(EXIT_CODE_INSTRUMENTATION_MISSING);
 		}
@@ -166,7 +166,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setAction(c -> {
 					StringBuilder builder = new StringBuilder();
 					
-					builder.append(USERNAME).append(" ").append(VERSION).append("\n");
+					builder.append(getBotUsername()).append(" ").append(VERSION).append("\n");
 					
 					builder.append("\n").append(StringTools.makeBold("Modules")).append("\n");
 					for (Module module : activeModules) {
@@ -392,7 +392,11 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	
 	@Override
 	public String getBotUsername() {
-		return USERNAME;
+		try {
+			return ConfigHolder.getInstance().getTelegramUser();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

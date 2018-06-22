@@ -195,7 +195,7 @@ public class Straitjacket implements Module {
 					User target = c.getMessage().getReplyToMessage().getFrom();
 					User source = c.getMessage().getFrom();
 					
-					if (NurseNoakes.USERNAME.equals(target.getUserName())) {
+					if (nurse.getBotUsername().equals(target.getUserName())) {
 						c.getSender().reply("Haha, sehr witzig.", c.getMessage());
 						return;
 					}

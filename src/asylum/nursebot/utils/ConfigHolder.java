@@ -46,4 +46,8 @@ public class ConfigHolder {
 		
 		properties.load(input);
 	}
+
+	public String getTelegramUser() {
+		return properties.getProperty("telegram.username");
+	}
 }
