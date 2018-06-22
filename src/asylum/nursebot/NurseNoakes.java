@@ -10,11 +10,18 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.javalite.activejdbc.InitException;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
+
+import com.google.common.base.Predicate;
 
 import asylum.nursebot.commands.CommandInterpreter;
 import asylum.nursebot.modules.Appointments;
@@ -22,6 +29,7 @@ import asylum.nursebot.modules.Eastereggs;
 import asylum.nursebot.modules.Greeter;
 import asylum.nursebot.modules.Statistics;
 import asylum.nursebot.modules.Straitjacket;
+import asylum.nursebot.objects.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.Permission;
@@ -247,23 +255,22 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					
 				}));
 		
-		Module module;
-		
-		module = new Greeter();
-		loadModule(module);
-		
-		module = new Appointments();
-		loadModule(module);
-		
-		module = new Statistics();
-		loadModule(module);
-		
-		module = new Straitjacket();
-		loadModule(module);
-		
-		module = new Eastereggs();
-		loadModule(module);
-		
+		Reflections reflections = new Reflections("asylum.nursebot");
+		Set<Class<?>> list = reflections.getTypesAnnotatedWith(AutoModule.class);
+		for (Class<?> clazz : list) {
+			if (!Module.class.isAssignableFrom(clazz))
+				throw new RuntimeException(clazz.getCanonicalName() + " is annotated but not a module.");
+			AutoModule annotation = clazz.getAnnotation(AutoModule.class);
+			if (annotation == null)
+				throw new RuntimeException("HOW?! " + clazz.getCanonicalName());
+			if (annotation.load()) {
+				try {
+					loadModule((Module) clazz.newInstance());
+				} catch (InstantiationException | IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
 		
 		if (ModelManager.wasAnythingCreated()) {
 			System.out.println("We made changes to the database.");
@@ -272,11 +279,12 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		
 		List<NurseModule> registeredModules = NurseModule.findAll();
 		for (NurseModule registeredModule : registeredModules) {
-			module = searchModule(registeredModule.getName());
+			Module module = searchModule(registeredModule.getName());
 			if (module == null) {
-				System.out.println("Module in database does not exist: " + registeredModule.getName());
+				System.out.println("Module does not exist in database: " + registeredModule.getName());
 				System.out.println("Deleting...");
 				registeredModule.delete();
+				continue;
 			}
 			if (registeredModule.isActive())
 				activateModule(module);

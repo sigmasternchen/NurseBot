@@ -1,7 +1,6 @@
 package asylum.nursebot.modules;
 
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 import com.googlecode.charts4j.AxisLabels;
@@ -22,6 +21,7 @@ import com.googlecode.charts4j.Shape;
 import asylum.nursebot.commands.CommandCategory;
 import asylum.nursebot.commands.CommandHandler;
 import asylum.nursebot.commands.CommandInterpreter;
+import asylum.nursebot.objects.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.Permission;
@@ -35,6 +35,7 @@ import asylum.nursebot.semantics.WakeWordType;
 import asylum.nursebot.NurseNoakes;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+@AutoModule(load=true)
 public class Statistics implements Module {
 
 	private CommandHandler commandHandler;

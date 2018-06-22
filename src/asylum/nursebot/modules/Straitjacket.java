@@ -8,6 +8,7 @@ import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.nursebot.commands.CommandInterpreter;
+import asylum.nursebot.objects.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.Permission;
@@ -20,6 +21,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import asylum.nursebot.commands.CommandCategory;
 import asylum.nursebot.commands.CommandHandler;
 
+@AutoModule(load=true)
 public class Straitjacket implements Module {
 	public static final int STRIKES_TO_RESTRICT = 5;
 	public static final int RESTRICT_TIME = 5*60*1000;

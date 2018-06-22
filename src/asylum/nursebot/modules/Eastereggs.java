@@ -5,6 +5,7 @@ import java.util.Random;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.nursebot.commands.CommandInterpreter;
+import asylum.nursebot.objects.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.Permission;
@@ -18,6 +19,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import asylum.nursebot.commands.CommandCategory;
 import asylum.nursebot.commands.CommandHandler;
 
+@AutoModule(load=true)
 public class Eastereggs implements Module {
 
 	private CommandCategory category;

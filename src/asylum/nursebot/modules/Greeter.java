@@ -7,6 +7,7 @@ import java.util.List;
 import org.telegram.telegrambots.api.objects.User;
 
 import asylum.nursebot.commands.CommandHandler;
+import asylum.nursebot.objects.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.Permission;
@@ -18,6 +19,7 @@ import asylum.nursebot.utils.StringTools;
 import asylum.nursebot.NurseNoakes;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+@AutoModule(load=true)
 public class Greeter implements Module {
 
 	private static final String GREETING = 
