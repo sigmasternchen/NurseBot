@@ -113,7 +113,7 @@ public class Eastereggs implements Module {
 						return;
 					
 					String[] replys = new String[] {
-							"*erschreck*", "*reschreck*\n*vom Stuhl fall*", "Au! D:"
+							"*erschreck*", "*erschreck*\n*vom Stuhl fall*", "Au! D:"
 					};
 					
 					Random random = new Random();
