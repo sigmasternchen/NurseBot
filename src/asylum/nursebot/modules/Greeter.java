@@ -116,7 +116,7 @@ public class Greeter implements Module {
 				if (c.getMessage().getNewChatMembers() != null) {
 					System.out.println("New Users: " + c.getMessage().getNewChatMembers());
 					if (c.getMessage().getNewChatMembers().stream().anyMatch(u -> u.getUserName() != null && u.getUserName().equals(nurse.getBotUsername()))) {
-						return;
+						c.getSender().send("Hallihallo o/");
 					} else {
 						c.getSender().send(getNewUserString(c.getMessage().getNewChatMembers()), true);
 					}
