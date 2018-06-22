@@ -201,7 +201,7 @@ public class Straitjacket implements Module {
 					}
 
 					if (target.getId().equals(source.getId())) {
-						c.getSender().reply(StringTools.makeMention(target) + " waurde ge-... warte, was?! Du willst dich selbst striken. Ähm. Nein.", c.getMessage(), true);
+						c.getSender().reply(StringTools.makeMention(target) + " wurde ge-... warte, was?! Du willst dich selbst striken. Ähm. Nein.", c.getMessage(), true);
 						return;
 					}
 					
