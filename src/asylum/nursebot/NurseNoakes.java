@@ -404,6 +404,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		connector.connectThread();
 		
 		if (update.hasMessage()) {
+			
 			if (update.getMessage().isCommand()) {
 				commandHandler.parse(update.getMessage());
 			} else {

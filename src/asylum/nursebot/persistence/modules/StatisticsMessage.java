@@ -1,5 +1,6 @@
 package asylum.nursebot.persistence.modules;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,5 +42,11 @@ public class StatisticsMessage extends Model implements Selfbuilding {
 				.setDefaultValue("CURRENT_TIMESTAMP")
 				.setNotNullFlag(true),
 		});
+	}
+	public Timestamp getTime() {
+		return getTimestamp("time");
+	}
+	public int getLength() {
+		return getInteger("length");
 	}
 }
