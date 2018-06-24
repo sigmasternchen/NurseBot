@@ -29,3 +29,6 @@ hs_err_pid*
 # eclipse
 .project
 .classpath
+
+# nogit
+.nogit
