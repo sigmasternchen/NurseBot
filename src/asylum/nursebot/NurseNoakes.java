@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.javalite.activejdbc.InitException;
-import org.reflections.Reflections;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.api.objects.Update;
@@ -18,7 +17,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.nursebot.commands.CommandInterpreter;
-import asylum.nursebot.objects.AutoModule;
+import asylum.nursebot.loader.ModuleLoader;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.Permission;
@@ -167,10 +166,10 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					
 					builder.append("\n").append(StringTools.makeBold("Modules")).append("\n");
 					for (Module module : activeModules) {
-						builder.append("+ ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
+						builder.append("+ ").append(module.getName()).append(" (").append(module.getType().toString()).append(")\n");
 					}
 					for (Module module : inactiveModules) {
-						builder.append("- ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
+						builder.append("- ").append(module.getName()).append(" (").append(module.getType().toString()).append(")\n");
 					}
 					
 					builder.append("\n").append(StringTools.makeBold("Commands")).append("\n");
@@ -210,10 +209,10 @@ public class NurseNoakes extends TelegramLongPollingBot {
 						builder.append("Aktuell sind folgende Module geladen:\n");
 						
 						for (Module module : activeModules) {
-							builder.append("+ ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
+							builder.append("+ ").append(module.getName()).append(" (").append(module.getType().toString()).append(")\n");
 						}
 						for (Module module : inactiveModules) {
-							builder.append("- ").append(module.getName()).append(" (").append(module.isCommandModule() ? "C" : "").append(module.isSemanticModule() ? "S" : "").append(")\n");
+							builder.append("- ").append(module.getName()).append(" (").append(module.getType().toString()).append(")\n");
 						}
 						
 						c.getSender().reply(builder.toString(), c.getMessage());
@@ -244,22 +243,9 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					
 				}));
 		
-		Reflections reflections = new Reflections("asylum.nursebot");
-		Set<Class<?>> list = reflections.getTypesAnnotatedWith(AutoModule.class);
-		for (Class<?> clazz : list) {
-			if (!Module.class.isAssignableFrom(clazz))
-				throw new RuntimeException(clazz.getCanonicalName() + " is annotated but not a module.");
-			AutoModule annotation = clazz.getAnnotation(AutoModule.class);
-			if (annotation == null)
-				throw new RuntimeException("HOW?! " + clazz.getCanonicalName());
-			if (annotation.load()) {
-				try {
-					loadModule((Module) clazz.newInstance());
-				} catch (InstantiationException | IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
+		ModuleLoader loader = new ModuleLoader(this, commandHandler, semanticsHandler);
+		
+		loader.loadAll(module -> loadModule(module));
 		
 		if (ModelManager.wasAnythingCreated()) {
 			System.out.println("We made changes to the database.");
@@ -329,13 +315,6 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	}
 	
 	private void loadModule(Module module) {
-		if (module.needsNurse())
-			module.setNurse(this);
-		if (module.isCommandModule())
-			module.setCommandHandler(commandHandler);
-		if (module.isSemanticModule())
-			module.setSemanticsHandler(semanticsHandler);
-		
 		module.init();
 		
 		inactiveModules.add(module);

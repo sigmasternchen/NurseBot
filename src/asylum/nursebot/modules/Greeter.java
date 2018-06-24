@@ -6,10 +6,12 @@ import java.util.List;
 
 import org.telegram.telegrambots.api.objects.User;
 
-import asylum.nursebot.commands.CommandHandler;
-import asylum.nursebot.objects.AutoModule;
+import com.google.inject.Inject;
+
+import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
+import asylum.nursebot.objects.ModuleType;
 import asylum.nursebot.objects.Permission;
 import asylum.nursebot.semantics.SemanticInterpreter;
 import asylum.nursebot.semantics.SemanticsHandler;
@@ -17,7 +19,6 @@ import asylum.nursebot.semantics.WakeWord;
 import asylum.nursebot.semantics.WakeWordType;
 import asylum.nursebot.utils.StringTools;
 import asylum.nursebot.NurseNoakes;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @AutoModule(load=true)
 public class Greeter implements Module {
@@ -30,7 +31,9 @@ public class Greeter implements Module {
 	private static final String BYE =
 			"Ciao %s!";
 	
+	@Inject
 	private SemanticsHandler SemanticsHandler;
+	@Inject
 	private NurseNoakes nurse;
 	
 	public Greeter() {
@@ -79,33 +82,9 @@ public class Greeter implements Module {
 	}
 
 	@Override
-	public boolean isCommandModule() {
-		return false;
-	}
-
-	@Override
-	public boolean isSemanticModule() {
-		return true;
-	}
-
-	@Override
-	public boolean needsNurse() {
-		return true;
-	}
-
-	@Override
-	public void setNurse(NurseNoakes nurse) {
-		this.nurse = nurse;
-	}
-
-	@Override
-	public void setCommandHandler(CommandHandler commandHandler) {
-		throw new NotImplementedException();
-	}
-
-	@Override
-	public void setSemanticsHandler(SemanticsHandler semanticHandler) {
-		this.SemanticsHandler = semanticHandler;
+	public ModuleType getType() {
+		return new ModuleType()
+				.set(ModuleType.SEMANTIC_MODULE);
 	}
 
 	@Override

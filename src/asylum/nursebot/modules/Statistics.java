@@ -3,6 +3,7 @@ package asylum.nursebot.modules;
 import java.util.Calendar;
 import java.util.List;
 
+import com.google.inject.Inject;
 import com.googlecode.charts4j.AxisLabels;
 import com.googlecode.charts4j.AxisLabelsFactory;
 import com.googlecode.charts4j.AxisStyle;
@@ -21,9 +22,10 @@ import com.googlecode.charts4j.Shape;
 import asylum.nursebot.commands.CommandCategory;
 import asylum.nursebot.commands.CommandHandler;
 import asylum.nursebot.commands.CommandInterpreter;
-import asylum.nursebot.objects.AutoModule;
+import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
+import asylum.nursebot.objects.ModuleType;
 import asylum.nursebot.objects.Permission;
 import asylum.nursebot.objects.Visibility;
 import asylum.nursebot.persistence.ModelManager;
@@ -32,14 +34,15 @@ import asylum.nursebot.semantics.SemanticInterpreter;
 import asylum.nursebot.semantics.SemanticsHandler;
 import asylum.nursebot.semantics.WakeWord;
 import asylum.nursebot.semantics.WakeWordType;
-import asylum.nursebot.NurseNoakes;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @AutoModule(load=true)
 public class Statistics implements Module {
 
+	@Inject
 	private CommandHandler commandHandler;
+	@Inject
 	private SemanticsHandler semanticsHandler;
+	
 	private CommandCategory category;
 
 	@Override
@@ -48,39 +51,16 @@ public class Statistics implements Module {
 	}
 
 	@Override
-	public boolean isCommandModule() {
-		return true;
-	}
-
-	@Override
-	public boolean isSemanticModule() {
-		return true;
-	}
-
-	@Override
-	public boolean needsNurse() {
-		return false;
-	}
-
-	@Override
-	public void setNurse(NurseNoakes nurse) {
-		throw new NotImplementedException();
-	}
-
-	@Override
-	public void setCommandHandler(CommandHandler commandHandler) {
-		this.commandHandler = commandHandler;
-	}
-
-	@Override
-	public void setSemanticsHandler(SemanticsHandler semanticHandler) {
-		this.semanticsHandler = semanticHandler;
-		
-		this.category = new CommandCategory("Statistiken");
+	public ModuleType getType() {
+		return new ModuleType()
+				.set(ModuleType.COMMAND_MODULE)
+				.set(ModuleType.SEMANTIC_MODULE);
 	}
 
 	public Statistics() {
 		ModelManager.build(StatisticsMessage.class);
+		
+		this.category = new CommandCategory("Statistiken");
 	}
 	
 	

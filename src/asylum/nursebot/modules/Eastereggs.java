@@ -4,10 +4,13 @@ import java.util.Random;
 
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import com.google.inject.Inject;
+
 import asylum.nursebot.commands.CommandInterpreter;
-import asylum.nursebot.objects.AutoModule;
+import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
+import asylum.nursebot.objects.ModuleType;
 import asylum.nursebot.objects.Permission;
 import asylum.nursebot.objects.Visibility;
 import asylum.nursebot.semantics.SemanticInterpreter;
@@ -23,8 +26,11 @@ public class Eastereggs implements Module {
 
 	private CommandCategory category;
 	
+	@Inject
 	private CommandHandler commandHandler;
+	@Inject
 	private SemanticsHandler semanticsHandler;
+	@Inject
 	private NurseNoakes nurse;
 	
 	public Eastereggs() {
@@ -166,33 +172,10 @@ public class Eastereggs implements Module {
 	}
 
 	@Override
-	public boolean isCommandModule() {
-		return true;
-	}
-
-	@Override
-	public boolean isSemanticModule() {
-		return true;
-	}
-
-	@Override
-	public boolean needsNurse() {
-		return true;
-	}
-
-	@Override
-	public void setNurse(NurseNoakes nurse) {
-		this.nurse = nurse;
-	}
-
-	@Override
-	public void setCommandHandler(CommandHandler commandHandler) {
-		this.commandHandler = commandHandler;
-	}
-
-	@Override
-	public void setSemanticsHandler(SemanticsHandler semanticHandler) {
-		this.semanticsHandler = semanticHandler;
+	public ModuleType getType() {
+		return new ModuleType()
+				.set(ModuleType.COMMAND_MODULE)
+				.set(ModuleType.SEMANTIC_MODULE);
 	}
 
 	@Override

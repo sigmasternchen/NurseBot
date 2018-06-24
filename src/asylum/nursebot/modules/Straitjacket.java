@@ -7,17 +7,18 @@ import org.telegram.telegrambots.api.methods.groupadministration.RestrictChatMem
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import com.google.inject.Inject;
+
 import asylum.nursebot.commands.CommandInterpreter;
-import asylum.nursebot.objects.AutoModule;
+import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
+import asylum.nursebot.objects.ModuleType;
 import asylum.nursebot.objects.Permission;
 import asylum.nursebot.objects.Visibility;
-import asylum.nursebot.semantics.SemanticsHandler;
 import asylum.nursebot.utils.StringTools;
 import asylum.nursebot.NurseNoakes;
 import asylum.nursebot.Sender;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import asylum.nursebot.commands.CommandCategory;
 import asylum.nursebot.commands.CommandHandler;
 
@@ -27,7 +28,9 @@ public class Straitjacket implements Module {
 	public static final int RESTRICT_TIME = 5*60*1000;
 	public static final int STRIKE_TIMEOUT = 5*60*1000;
 	
+	@Inject
 	private NurseNoakes nurse;
+	@Inject
 	private CommandHandler commandHandler;
 	
 	class Restrict {
@@ -225,33 +228,9 @@ public class Straitjacket implements Module {
 	}
 
 	@Override
-	public boolean isCommandModule() {
-		return true;
-	}
-
-	@Override
-	public boolean isSemanticModule() {
-		return false;
-	}
-
-	@Override
-	public boolean needsNurse() {
-		return true;
-	}
-
-	@Override
-	public void setNurse(NurseNoakes nurse) {
-		this.nurse = nurse;
-	}
-
-	@Override
-	public void setCommandHandler(CommandHandler commandHandler) {
-		this.commandHandler = commandHandler;
-	}
-
-	@Override
-	public void setSemanticsHandler(SemanticsHandler semanticHandler) {
-		throw new NotImplementedException();
+	public ModuleType getType() {
+		return new ModuleType()
+				.set(ModuleType.COMMAND_MODULE);
 	}
 
 	@Override

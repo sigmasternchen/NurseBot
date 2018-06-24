@@ -13,17 +13,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import com.google.inject.Inject;
+
 import asylum.nursebot.commands.CommandInterpreter;
-import asylum.nursebot.objects.AutoModule;
+import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
+import asylum.nursebot.objects.ModuleType;
 import asylum.nursebot.objects.Permission;
 import asylum.nursebot.objects.Visibility;
-import asylum.nursebot.semantics.SemanticsHandler;
 import asylum.nursebot.utils.StringTools;
-import asylum.nursebot.NurseNoakes;
 import asylum.nursebot.Sender;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import asylum.nursebot.commands.CommandCategory;
 import asylum.nursebot.commands.CommandHandler;
 
@@ -47,6 +47,7 @@ public class Appointments implements Module {
 	
 	private Collection<Appointment> appointments = new ConcurrentLinkedQueue<>();
 
+	@Inject
 	private CommandHandler commandHandler;
 	
 	private long getTimestamp(String format, boolean rel) {
@@ -281,33 +282,9 @@ public class Appointments implements Module {
 	}
 
 	@Override
-	public boolean isCommandModule() {
-		return true;
-	}
-
-	@Override
-	public boolean isSemanticModule() {
-		return false;
-	}
-
-	@Override
-	public boolean needsNurse() {
-		return false;
-	}
-
-	@Override
-	public void setNurse(NurseNoakes nurse) {
-		throw new NotImplementedException();
-	}
-
-	@Override
-	public void setCommandHandler(CommandHandler commandHandler) {
-		this.commandHandler = commandHandler;
-	}
-
-	@Override
-	public void setSemanticsHandler(SemanticsHandler semanticHandler) {
-		throw new NotImplementedException();
+	public ModuleType getType() {
+		return new ModuleType()
+				.set(ModuleType.COMMAND_MODULE);
 	}
 
 	@Override

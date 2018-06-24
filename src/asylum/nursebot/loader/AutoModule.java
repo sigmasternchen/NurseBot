@@ -1,4 +1,4 @@
-package asylum.nursebot.objects;
+package asylum.nursebot.loader;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
