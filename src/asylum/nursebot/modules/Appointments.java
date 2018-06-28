@@ -186,7 +186,7 @@ public class Appointments implements Module {
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
-					String help = "Synopsis: /appointment \"Name des Termines\" relativ|absolut mm[:ss]|[YYYY-MM-DDT]hh:mm:ss";
+					String help = "Synopsis: /appointment \"Name des Termines\" relativ[e]|absolut[e] mm[:ss]|[YYYY-MM-DDT]hh:mm:ss";
 					List<String> list = StringTools.tokenize(c.getParameter());
 					
 					if (list.size() != 3) {
