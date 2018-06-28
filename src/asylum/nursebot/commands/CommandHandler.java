@@ -6,6 +6,7 @@ import java.util.List;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
+import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Permission;
 import asylum.nursebot.objects.Visibility;
 import asylum.nursebot.utils.SecurityChecker;
@@ -61,7 +62,17 @@ public class CommandHandler {
 				}
 			}
 			
-			builder.append("/").append(command.getName()).append(" - ").append(command.getInfo()).append("\n");
+			builder.append("/").append(command.getName()).append(" - ");
+			
+			/*if (command.getLocality() != Locality.EVERYWHERE) {
+				builder.append("(").append(command.getLocality()).append(") ");
+			}
+			
+			if (command.getPermission() != Permission.ANY) {
+				builder.append("(").append(StringTools.makeItalic(command.getPermission().toString())).append(") ");
+			}*/
+			
+			builder.append(command.getInfo()).append("\n");
 		}
 		
 		return builder.toString();

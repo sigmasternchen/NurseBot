@@ -10,13 +10,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import com.google.inject.Inject;
 
 import asylum.nursebot.commands.CommandInterpreter;
+import asylum.nursebot.exceptions.NurseException;
 import asylum.nursebot.loader.AutoModule;
+import asylum.nursebot.loader.ModuleDependencies;
 import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.ModuleType;
@@ -49,6 +52,9 @@ public class Appointments implements Module {
 
 	@Inject
 	private CommandHandler commandHandler;
+	
+	@Inject
+	private ModuleDependencies dependencies;
 	
 	private long getTimestamp(String format, boolean rel) {
 		int Y = 1970;
@@ -125,7 +131,7 @@ public class Appointments implements Module {
 		return appointments.remove(appointment);
 	}
 	
-	private void setTimer(User user, String name, boolean relative, long time, Sender sender) {
+	private void setTimer(User user, String name, boolean relative, long time, Sender sender, Chat chat) {
 		if (!relative) {
 			time -= System.currentTimeMillis();
 		}
@@ -139,6 +145,20 @@ public class Appointments implements Module {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
+				PrivateNotifier notifier = (PrivateNotifier) dependencies.get(PrivateNotifier.class);
+				if (notifier != null) {
+					try {
+						notifier.send(sender, chat, user, "Du hast einen Termin: " + name);
+						
+						removeAppointment(user, name);
+						
+						return;
+					} catch (TelegramApiException e) {
+						e.printStackTrace();
+					} catch (NurseException e) {
+					}
+				}
+				
 				try {
 					sender.mention(user, ", du hast einen Termin: " + name);
 				} catch (TelegramApiException e) {
@@ -197,7 +217,7 @@ public class Appointments implements Module {
 					}
 					
 					try {
-						setTimer(c.getMessage().getFrom(), list.get(0), rel, time, c.getSender());
+						setTimer(c.getMessage().getFrom(), list.get(0), rel, time, c.getSender(), c.getMessage().getChat());
 					} catch (Exception e) {
 						System.out.println("Problem setting timer.");
 						c.getSender().reply(help, c.getMessage());

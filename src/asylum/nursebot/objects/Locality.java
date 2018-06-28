@@ -46,4 +46,17 @@ public class Locality {
 		
 		return check(loc);
 	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		if ((value & USER) != 0)
+			builder.append("U");
+		if ((value & GROUP) != 0)
+			builder.append("G");
+		if ((value & SUPERGROUP) != 0)
+			builder.append("S");
+		
+		return builder.toString();
+	}
 }

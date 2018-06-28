@@ -38,6 +38,10 @@ public class Sender {
 	}
 	
 	public void send(String text, boolean markdown, Message replyto) throws TelegramApiException {
+		send(chatid, text, markdown, replyto);
+	}
+	
+	public void send(long chatid, String text, boolean markdown, Message replyto) throws TelegramApiException {
 		SendMessage message = new SendMessage();
 		if (markdown)
 			message.setParseMode("markdown");
@@ -46,5 +50,13 @@ public class Sender {
 		message.setChatId(chatid);
 		message.setText(text);
 		nurse.execute(message);
+	}
+	
+	public void send(long chatid, String string) throws TelegramApiException {
+		send(chatid, string, false);
+	}
+	
+	public void send(long chatid, String text, boolean markdown) throws TelegramApiException {
+		send(chatid, text, markdown, null);
 	}
 }

@@ -92,7 +92,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setLocality(Locality.USERS)
 				.setAction(c -> {
 					try {
-						c.getSender().send(StringTools.makeBold("Hallo o/\nDieser Bot ist eigentlich für Gruppen Chats gedacht, aber ein paar Funktionen sind auch hier nutzbar."), true);
+						c.getSender().send(StringTools.makeBold("Hallo o/\nDieser Bot ist für Gruppen Chats gedacht, aber ein paar Funktionen sind auch hier nutzbar."), true);
 					} catch (TelegramApiException e) {
 						e.printStackTrace();
 					}
@@ -245,7 +245,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		
 		ModuleLoader loader = new ModuleLoader(this, commandHandler, semanticsHandler);
 		
-		loader.loadAll(module -> loadModule(module));
+		loader.loadDependencies();
+		loader.loadModules(module -> loadModule(module));
 		
 		if (ModelManager.wasAnythingCreated()) {
 			System.out.println("We made changes to the database.");
@@ -377,18 +378,22 @@ public class NurseNoakes extends TelegramLongPollingBot {
 
 	@Override
 	public void onUpdateReceived(Update update) {
-		connector.connectThread();
+		try {
+			connector.connectThread();
 		
-		if (update.hasMessage()) {
-			
-			if (update.getMessage().isCommand()) {
-				commandHandler.parse(update.getMessage());
-			} else {
-				semanticsHandler.parse(update.getMessage());
+			if (update.hasMessage()) {
+				
+				if (update.getMessage().isCommand()) {
+					commandHandler.parse(update.getMessage());
+				} else {
+					semanticsHandler.parse(update.getMessage());
+				}
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			connector.disconnectThread();
 		}
-		
-		connector.disconnectThread();
 	}
 
 	@Override
