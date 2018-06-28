@@ -83,7 +83,7 @@ public class Appointments implements Module {
 			h = Integer.parseInt(format.substring(0, 2));
 			m = Integer.parseInt(format.substring(3, 5));
 			s = Integer.parseInt(format.substring(6));
-		} else if (format.length() == 20) {
+		} else if (format.length() == 19) {
 			Y = Integer.parseInt(format.substring(0, 4));
 			M = Integer.parseInt(format.substring(5, 7)) - 1;
 			D = Integer.parseInt(format.substring(8, 10));
@@ -186,7 +186,7 @@ public class Appointments implements Module {
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
-					String help = "Synopsis: /appointment \"Name des Termines\" relativ|absolut mm[:ss]|[YYYY-MM-DD-]hh:mm:ss";
+					String help = "Synopsis: /appointment \"Name des Termines\" relativ|absolut mm[:ss]|[YYYY-MM-DDT]hh:mm:ss";
 					List<String> list = StringTools.tokenize(c.getParameter());
 					
 					if (list.size() != 3) {
@@ -214,6 +214,7 @@ public class Appointments implements Module {
 					
 					if (searchAppointment(c.getMessage().getFrom(), list.get(0)) != null) {
 						c.getSender().reply("Du hast bereits einen Termin mit diesem Namen.", c.getMessage());
+						return;
 					}
 					
 					try {
@@ -225,8 +226,11 @@ public class Appointments implements Module {
 					}
 						
 					Date date = new Date(rel ? (time + System.currentTimeMillis()) : time);
+					Calendar calendar = Calendar.getInstance();
+					calendar.setTime(date);
+					calendar.setTimeZone(TimeZone.getDefault());
 					
-					c.getSender().reply("Der Termin \"" + list.get(0) + "\" wurde für " + date.toString() + " eingetragen.", c.getMessage());
+					c.getSender().reply("Der Termin \"" + list.get(0) + "\" wurde für " + StringTools.getIso8601(calendar) + " eingetragen.", c.getMessage());
 				}));
 		commandHandler.add(new CommandInterpreter(this)
 				.setName("appointmentinfo")
