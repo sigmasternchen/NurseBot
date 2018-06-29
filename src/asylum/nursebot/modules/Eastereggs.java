@@ -164,6 +164,23 @@ public class Eastereggs implements Module {
 					
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
 				}));
+		
+		semanticsHandler.add(new SemanticInterpreter(this)
+				.addWakeWord(new WakeWord("hawara", WakeWordType.ANYWHERE, false))
+				.setLocality(Locality.EVERYWHERE)
+				.setPermission(Permission.ANY)
+				.setAction(c -> {
+					if (!c.getMessage().getFrom().getUserName().equals("m4xcoat"))
+						return;
+					
+					String[] replys = new String[] {
+							"Heast!"
+					};
+					
+					Random random = new Random();	
+					
+					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
+				}));
 	}
 
 	@Override
