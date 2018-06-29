@@ -189,6 +189,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					long usedMemory = maxMemory - freeMemory;
 					builder.append(StringTools.makeItalic("Memory: ")).append(Math.round(((float) usedMemory) / 1024 / 1024 * 10)/10).append("/").append(Math.round(((float) maxMemory) / 1024 / 1024 * 10)/10).append(" MiB").append("\n");
 					
+					builder.append("\n");
+					builder.append(StringTools.makeLink("Github Page", "https://github.com/overflowerror/NurseBot"));
 					
 					c.getSender().send(builder.toString(), true);
 				}));
