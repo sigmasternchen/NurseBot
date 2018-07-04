@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,7 +68,11 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	private Collection<Module> activeModules = new ConcurrentLinkedQueue<>();
 	private Collection<Module> inactiveModules = new ConcurrentLinkedQueue<>();
 	
+	private long started;
+	
 	public NurseNoakes() throws IOException {
+		started = new Date().getTime();
+		
 		ConfigHolder holder = ConfigHolder.getInstance();
 
 		try {
@@ -153,10 +158,85 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				}));
 		
 		commandHandler.add(new CommandInterpreter(null)
+				.setName("ping")
+				.setInfo("ist der Bot noch aktiv")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					c.getSender().reply(isChatPaused(c.getMessage().getChatId()) ? "Dieser Chat ist pausiert." : "pong", c.getMessage());
+				}));
+		
+		commandHandler.add(new CommandInterpreter(null)
+				.setName("uptime")
+				.setInfo("seit wann läuft der Bot")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					long diff = new Date().getTime() - started;
+					
+					long s = diff / 1000;
+					long m = s / 60;
+					s %= 60;
+					long h = m / 60;
+					m %= 60;
+					long d = h / 24;
+					h %= 24;
+					
+					StringBuilder builder = new StringBuilder();
+					builder.append("Dieser Bot läuft seit");
+					boolean show = false;
+					if (d > 0 || show) {
+						builder.append(" ");
+						show = true;
+						builder.append(d).append(" ");
+						builder.append("Tag");
+						if (d != 1)
+							builder.append("en");
+					}
+					if (h > 0 || show) {
+						builder.append(" ");
+						if (show && s == 0 && m == 0)
+							builder.append("und ");
+						show = true;
+						builder.append(h).append(" ");
+						builder.append("Stunde");
+						if (h != 1)
+							builder.append("n");
+					}
+					if (m > 0 || show) {
+						builder.append(" ");
+						if (show && s == 0)
+							builder.append("und ");
+						show = true;
+						builder.append(m).append(" ");
+						builder.append("Minute");
+						if (m != 1)
+							builder.append("n");
+					}
+					if (s > 0 || show) {
+						builder.append(" ");
+						if (show)
+							builder.append("und ");
+						show = true;
+						builder.append(s).append(" ");
+						builder.append("Sekunde");
+						if (s != 1)
+							builder.append("n");
+					}
+					builder.append(".");
+					
+					c.getSender().reply(builder.toString(), c.getMessage());
+				}));
+		
+		commandHandler.add(new CommandInterpreter(null)
 				.setName("info")
 				.setInfo("zeigt Information zu diesem Bot an")
 				.setVisibility(Visibility.PUBLIC)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setLocality(Locality.EVERYWHERE)
 				.setPausable(false)
 				.setAction(c -> {
