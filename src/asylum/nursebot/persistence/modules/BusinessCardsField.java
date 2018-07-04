@@ -26,9 +26,13 @@ public class BusinessCardsField extends Model implements Selfbuilding {
 					.setAutoincrement(true),
 				new Column("name", new Type(DataType.TEXT))
 					.setNotNullFlag(true),
-				new Column("description", new Type(DataType.TEXT))
+				new Column("label", new Type(DataType.TEXT))
 					.setNotNullFlag(true)
 			});
+	}
+
+	public String getName() {
+		return getString("name");
 	}
 
 }

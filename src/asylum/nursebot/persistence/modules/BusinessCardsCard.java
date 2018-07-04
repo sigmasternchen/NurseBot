@@ -27,6 +27,8 @@ public class BusinessCardsCard extends Model implements Selfbuilding {
 				new Column("userid", new Type(DataType.INT))
 					.setNotNullFlag(true),
 				new Column("name", new Type(DataType.TEXT))
+					.setNotNullFlag(true),
+				new Column("public", new Type(DataType.TINYINT))
 					.setNotNullFlag(true)
 			});
 	}
