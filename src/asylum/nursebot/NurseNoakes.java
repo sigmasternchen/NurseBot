@@ -244,10 +244,11 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				}));
 		
 		ModuleLoader loader = new ModuleLoader(this, commandHandler, semanticsHandler);
-		
+	
 		loader.loadDependencies();
 		loader.loadModules(module -> loadModule(module));
-		
+			
+			
 		if (ModelManager.wasAnythingCreated()) {
 			System.out.println("We made changes to the database.");
 			restart();

@@ -11,7 +11,12 @@ import asylum.nursebot.persistence.selfbuilding.Key;
 import asylum.nursebot.persistence.selfbuilding.Selfbuilding;
 import asylum.nursebot.persistence.selfbuilding.Type;
 
-public class BusinessCardsCardsFields extends Model implements Selfbuilding {
+public class BusinessCardsEntry extends Model implements Selfbuilding {
+
+	public void pseudoDefault() {
+		set("business_cards_card_id", 0);
+		set("business_cards_field_id", 0);
+	}
 
 	@Override
 	public String getSelfbuildingName() {
@@ -31,6 +36,15 @@ public class BusinessCardsCardsFields extends Model implements Selfbuilding {
 				new Column("value", new Type(DataType.TEXT))
 					.setNotNullFlag(true)
 			});
+	}
+
+	public BusinessCardsEntry setValue(String value) {
+		set("value", value);
+		return this;
+	}
+
+	public String getValue() {
+		return getString("value");
 	}
 
 }
