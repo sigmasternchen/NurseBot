@@ -325,6 +325,29 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					
 				}));
 		
+		commandHandler.add(new CommandInterpreter(null)
+				.setName("privacy")
+				.setInfo("zeigt die Datenschutzerklärung an")
+				.setVisibility(Visibility.PUBLIC)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					String text = "" +
+						StringTools.makeItalic("Welche personenbezogenen Daten werden gespeichert?") + "\n" +
+						"Benutzername und Benutzer-IDs werden zum Ablegen von Einstellungen in der Datenbank benutzt." + "\n\n" +
+						StringTools.makeItalic("Wann werden personenbezogene Daten gespeichert?") + "\n" +
+						"Personenbezogene Daten werden nur dann gespeichert, wenn sie benötigt werden." + "\n\n" +
+						StringTools.makeItalic("Wofür werden personenbezogene Daten verwendet?") + "\n" +
+						"Es werden nur Daten gespeichert, die für den Service direkt verwendet werden." + "\n√" +
+						StringTools.makeItalic("An wen werden personenbezogene Daten weitergegeben?") + "\n" +
+						"Personenbezogene Daten werden nicht an Dritte weitergegeben." + "\n\n" +
+						StringTools.makeItalic("Wann werden personenbezogene Daten wieder gelöscht?") + "\n" +
+						"Daten werden gelöscht, sobald sie nicht mehr benötigt werden.";
+					
+						c.getSender().send(text, true);
+				}));
+		
 		ModuleLoader loader = new ModuleLoader(this, commandHandler, semanticsHandler);
 		
 		loader.loadDependencies();
