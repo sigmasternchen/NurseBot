@@ -23,6 +23,7 @@ import asylum.nursebot.semantics.SemanticInterpreter;
 import asylum.nursebot.semantics.SemanticsHandler;
 import asylum.nursebot.semantics.WakeWord;
 import asylum.nursebot.semantics.WakeWordType;
+import asylum.nursebot.utils.MessageUtils;
 import asylum.nursebot.utils.StringTools;
 
 @AutoModule(load=true)
@@ -85,20 +86,13 @@ public class UserLookup implements Module {
 				.setVisibility(Visibility.PRIVATE)
 				.setCategory(category)
 				.setAction(c -> {
-					List<String> args = StringTools.tokenize(c.getParameter());
+					List<User> users = MessageUtils.getMentionedUsers(c.getMessage());
 					
-					if (args.size() == 0) {
+					if (users.size() == 0) {
 						c.getSender().reply("Deine UserID ist " + c.getMessage().getFrom().getId() + ".", c.getMessage());
 					} else {
-						String username = args.get(0);
-						if (username.startsWith("@"))
-							username = username.substring(1);
-						Integer id = getUserId(username);
-						if (id == null) {
-							c.getSender().reply("Dieser Benutzername konnte nicht gefunden werden.", c.getMessage());
-						} else {
-							c.getSender().reply("Der User @" + username + " hat die ID " + id + ".", c.getMessage());
-						}
+						User user = users.get(0);
+						c.getSender().reply("Der User " + StringTools.makeMention(user) + " hat die ID " + user.getId() + ".", c.getMessage(), true);
 					}
 				}));
 	}
