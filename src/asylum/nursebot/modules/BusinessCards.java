@@ -411,5 +411,4 @@ public class BusinessCards implements Module {
 	@Override
 	public void shutdown() {
 	}
-
-}
+}	
