@@ -28,6 +28,7 @@ import asylum.nursebot.persistence.ModelManager;
 import asylum.nursebot.persistence.modules.BusinessCardsCard;
 import asylum.nursebot.persistence.modules.BusinessCardsEntry;
 import asylum.nursebot.persistence.modules.BusinessCardsField;
+import asylum.nursebot.utils.MessageUtils;
 import asylum.nursebot.utils.StringTools;
 
 @AutoModule(load=true)
@@ -247,9 +248,8 @@ public class BusinessCards implements Module {
 					try {
 						String cardname = args.get(0);
 						User user = c.getMessage().getFrom();
-						String username = user.getUserName() == null ? "-" : user.getUserName();
 					
-						builder.append("Visitenkarte ").append(username).append(".").append(cardname).append(":\n\n");
+						builder.append("Visitenkarte ").append(StringTools.makeMention(user)).append(" ").append(cardname).append(":\n\n");
 						
 						List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname, c.getMessage().getFrom().getId().intValue());
 						if (tmp == null || tmp.isEmpty()) {
@@ -283,7 +283,7 @@ public class BusinessCards implements Module {
 				.setPermission(Permission.ANY)
 				.setCategory(category)
 				.setAction(c -> {
-					String help = "Synopsis: /givecard [USERNAME] CARDNAME";
+					String help = "Synopsis: /givecard CARDNAME USERNAME";
 					List<String> args = StringTools.tokenize(c.getParameter());
 					if (args.size() < 1) {
 						c.getSender().send(help);
@@ -292,8 +292,20 @@ public class BusinessCards implements Module {
 					StringBuilder builder = new StringBuilder();
 					try {
 						String cardname = args.get(0);
-					
-						builder.append("Visitenkarte ").append(cardname).append(":\n\n");
+						
+						PrivateNotifier notifier = (PrivateNotifier) moduleDependencies.get(PrivateNotifier.class);
+						if (notifier == null) {
+							c.getSender().reply("Tut mir leid, aber das Private Notifier Modul ist leider deaktivier.", c.getMessage());
+							return;
+						}
+						
+						List<User> users = MessageUtils.getMentionedUsers(c.getMessage());
+						
+						if (users.isEmpty()) {
+							throw new ParsingException("Es wurde kein User angegeben.");
+						}
+						
+						builder.append("Visitenkarte ").append(StringTools.makeMention(c.getMessage().getFrom())).append(" ").append(cardname).append(":\n\n");
 						
 						List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname, c.getMessage().getFrom().getId().intValue());
 						if (tmp == null || tmp.isEmpty()) {
@@ -303,17 +315,25 @@ public class BusinessCards implements Module {
 						
 						List<BusinessCardsEntry> list = card.getAll(BusinessCardsEntry.class);
 						for (BusinessCardsEntry entry : list) {
-							/*List<BusinessCardsField> fields = entry.getAll(BusinessCardsField.class);
-							if ((fields == null) || fields.isEmpty()) {
-								throw new WhatTheFuckException("Field object is inconsistent.");
-							}
-							BusinessCardsField field = fields.get(0);*/
 							BusinessCardsField field = entry.parent(BusinessCardsField.class);
 							builder.append(field.getLabel()).append(": ");
 							builder.append(entry.getValue()).append("\n");
 						}
 						
-						c.getSender().send(builder.toString());
+						String message = builder.toString();
+						
+						builder = new StringBuilder();
+						
+						for (User user : users) {
+							if (notifier.hasPrivateChat(user)) {
+								builder.append("Der User " + StringTools.makeMention(user) + " hat keine privaten Notifications aktiviert.\n");
+							} else {
+								notifier.send(c.getSender(), c.getMessage().getChat(), user, message);
+								builder.append("Die Visitenkarte wurde dem User " + StringTools.makeMention(user) + " erfolgreich gesendet.\n");
+							}
+						}
+						
+						c.getSender().send(builder.toString(), true);
 					} catch (NurseException e) {
 						c.getSender().send(help + "\n\n" + e.getMessage());
 					}
