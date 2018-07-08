@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -67,7 +68,11 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	private Collection<Module> activeModules = new ConcurrentLinkedQueue<>();
 	private Collection<Module> inactiveModules = new ConcurrentLinkedQueue<>();
 	
+	private long started;
+	
 	public NurseNoakes() throws IOException {
+		started = new Date().getTime();
+		
 		ConfigHolder holder = ConfigHolder.getInstance();
 
 		try {
@@ -153,10 +158,85 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				}));
 		
 		commandHandler.add(new CommandInterpreter(null)
+				.setName("ping")
+				.setInfo("ist der Bot noch aktiv")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					c.getSender().reply(isChatPaused(c.getMessage().getChatId()) ? "Dieser Chat ist pausiert." : "pong", c.getMessage());
+				}));
+		
+		commandHandler.add(new CommandInterpreter(null)
+				.setName("uptime")
+				.setInfo("seit wann läuft der Bot")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					long diff = new Date().getTime() - started;
+					
+					long s = diff / 1000;
+					long m = s / 60;
+					s %= 60;
+					long h = m / 60;
+					m %= 60;
+					long d = h / 24;
+					h %= 24;
+					
+					StringBuilder builder = new StringBuilder();
+					builder.append("Dieser Bot läuft seit");
+					boolean show = false;
+					if (d > 0 || show) {
+						builder.append(" ");
+						show = true;
+						builder.append(d).append(" ");
+						builder.append("Tag");
+						if (d != 1)
+							builder.append("en");
+					}
+					if (h > 0 || show) {
+						builder.append(" ");
+						if (show && s == 0 && m == 0)
+							builder.append("und ");
+						show = true;
+						builder.append(h).append(" ");
+						builder.append("Stunde");
+						if (h != 1)
+							builder.append("n");
+					}
+					if (m > 0 || show) {
+						builder.append(" ");
+						if (show && s == 0)
+							builder.append("und ");
+						show = true;
+						builder.append(m).append(" ");
+						builder.append("Minute");
+						if (m != 1)
+							builder.append("n");
+					}
+					if (s > 0 || show) {
+						builder.append(" ");
+						if (show)
+							builder.append("und ");
+						show = true;
+						builder.append(s).append(" ");
+						builder.append("Sekunde");
+						if (s != 1)
+							builder.append("n");
+					}
+					builder.append(".");
+					
+					c.getSender().reply(builder.toString(), c.getMessage());
+				}));
+		
+		commandHandler.add(new CommandInterpreter(null)
 				.setName("info")
 				.setInfo("zeigt Information zu diesem Bot an")
 				.setVisibility(Visibility.PUBLIC)
-				.setPermission(Permission.USER)
+				.setPermission(Permission.ANY)
 				.setLocality(Locality.EVERYWHERE)
 				.setPausable(false)
 				.setAction(c -> {
@@ -189,6 +269,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					long usedMemory = maxMemory - freeMemory;
 					builder.append(StringTools.makeItalic("Memory: ")).append(Math.round(((float) usedMemory) / 1024 / 1024 * 10)/10).append("/").append(Math.round(((float) maxMemory) / 1024 / 1024 * 10)/10).append(" MiB").append("\n");
 					
+					builder.append("\n");
+					builder.append(StringTools.makeLink("Github Page", "https://github.com/overflowerror/NurseBot"));
 					
 					c.getSender().send(builder.toString(), true);
 				}));
@@ -241,6 +323,29 @@ public class NurseNoakes extends TelegramLongPollingBot {
 						c.getSender().reply("Der Vorgang ist fehlgeschlagen. Ist das Modul bereits aktiv/inaktiv?", c.getMessage());
 					}
 					
+				}));
+		
+		commandHandler.add(new CommandInterpreter(null)
+				.setName("privacy")
+				.setInfo("zeigt die Datenschutzerklärung an")
+				.setVisibility(Visibility.PUBLIC)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					String text = "" +
+						StringTools.makeItalic("Welche personenbezogenen Daten werden gespeichert?") + "\n" +
+						"Benutzername und Benutzer-IDs werden zum Ablegen von Einstellungen in der Datenbank benutzt." + "\n\n" +
+						StringTools.makeItalic("Wann werden personenbezogene Daten gespeichert?") + "\n" +
+						"Personenbezogene Daten werden nur dann gespeichert, wenn sie benötigt werden." + "\n\n" +
+						StringTools.makeItalic("Wofür werden personenbezogene Daten verwendet?") + "\n" +
+						"Es werden nur Daten gespeichert, die für den Service direkt verwendet werden." + "\n√" +
+						StringTools.makeItalic("An wen werden personenbezogene Daten weitergegeben?") + "\n" +
+						"Personenbezogene Daten werden nicht an Dritte weitergegeben." + "\n\n" +
+						StringTools.makeItalic("Wann werden personenbezogene Daten wieder gelöscht?") + "\n" +
+						"Daten werden gelöscht, sobald sie nicht mehr benötigt werden.";
+					
+						c.getSender().send(text, true);
 				}));
 		
 		ModuleLoader loader = new ModuleLoader(this, commandHandler, semanticsHandler);

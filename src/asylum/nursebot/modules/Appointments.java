@@ -115,6 +115,15 @@ public class Appointments implements Module {
 		return list;
 	}
 	
+	private List<Appointment> searchAppointments(User user, String regex) {
+		List<Appointment> list = new LinkedList<>();
+		for(Appointment appointment : appointments) {
+			if (appointment.user.getId().equals(user.getId()) && appointment.name.matches(regex))
+				list.add(appointment);
+		}
+		return list;
+	}
+	
 	private Appointment searchAppointment(User user, String name) {
 		for(Appointment appointment : appointments) {
 			if (appointment.user.getId().equals(user.getId()) && appointment.name.equals(name))
@@ -123,12 +132,16 @@ public class Appointments implements Module {
 		return null;
 	}
 	
+	private boolean removeAppointment(Appointment appointment) {
+		appointment.timer.cancel();
+		return appointments.remove(appointment);
+	}
+	
 	private boolean removeAppointment(User user, String name) {
 		Appointment appointment = searchAppointment(user, name);
 		if (appointment == null)
 			return false;
-		appointment.timer.cancel();
-		return appointments.remove(appointment);
+		return removeAppointment(appointment);
 	}
 	
 	private void setTimer(User user, String name, boolean relative, long time, Sender sender, Chat chat) {
@@ -276,26 +289,37 @@ public class Appointments implements Module {
 				}));
 		commandHandler.add(new CommandInterpreter(this)
 				.setName("appointmentdelete")
-				.setInfo("zeigt Informationen zu einem Termin an")
+				.setInfo("löscht einen oder merhere Termine")
 				.setVisibility(Visibility.PUBLIC)
 				.setPermission(Permission.ANY)
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
-					String help = "Synopsis: /appointmentdelete \"Name des Termines\"";
-					List<String> list = StringTools.tokenize(c.getParameter());
+					String help = "Synopsis: /appointmentdelete \"Regex für Termin-Name\"";
+					List<String> params = StringTools.tokenize(c.getParameter());
 					
-					if (list.size() != 1) {
+					if (params.size() != 1) {
 						c.getSender().reply(help, c.getMessage());
 						return;
 					}
 					
-					if (!removeAppointment(c.getMessage().getFrom(), list.get(0))) {
+					List<Appointment> list = searchAppointments(c.getMessage().getFrom(), params.get(0));
+					
+					if (list.isEmpty()) {
 						c.getSender().reply("Ich habe keinen Termin mit diesem Namen gefunden.", c.getMessage());
 						return;
 					}
 					
-					c.getSender().reply("Ich habe den Termin \"" + list.get(0) + "\" gelöscht.", c.getMessage());
+					StringBuilder builder = new StringBuilder();
+					builder.append("Ich habe folgende(n) Termin(e) entfernt:\n");
+					
+					for (Appointment appointment : list) {
+						if (removeAppointment(appointment)) {
+							builder.append("- ").append(appointment.name).append("\n");
+						}
+					}
+					
+					c.getSender().reply(builder.toString(), c.getMessage());
 					
 				}));
 	}

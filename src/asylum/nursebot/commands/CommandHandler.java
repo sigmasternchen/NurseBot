@@ -30,15 +30,13 @@ public class CommandHandler {
 				.setVisibility(Visibility.PUBLIC)
 				.setPermission(Permission.USER)
 				.setAction(c -> {
-					try {
-						c.getSender().send(getHelp(), true);
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
+					List<String> params = StringTools.tokenize(c.getParameter());
+					boolean verbose = !params.isEmpty() && params.get(0).equals("verbose");
+					c.getSender().send(getHelp(verbose), true);
 				}));
 	}
 	
-	public String getHelp() {
+	public String getHelp(boolean verbose) {
 		StringBuilder builder = new StringBuilder();
 		
 		builder.append("Hier ist eine Liste von Dingen, die ich kann:\n\n");
@@ -64,13 +62,15 @@ public class CommandHandler {
 			
 			builder.append("/").append(command.getName()).append(" - ");
 			
-			/*if (command.getLocality() != Locality.EVERYWHERE) {
-				builder.append("(").append(command.getLocality()).append(") ");
+			if (verbose) {
+				if (command.getLocality() != Locality.EVERYWHERE) {
+					builder.append("(").append(command.getLocality()).append(") ");
+				}
+				
+				if (command.getPermission() != Permission.ANY) {
+					builder.append("(").append(StringTools.makeItalic(command.getPermission().toString())).append(" ) ");
+				}
 			}
-			
-			if (command.getPermission() != Permission.ANY) {
-				builder.append("(").append(StringTools.makeItalic(command.getPermission().toString())).append(") ");
-			}*/
 			
 			builder.append(command.getInfo()).append("\n");
 		}
