@@ -1,8 +1,10 @@
 package asylum.nursebot.modules;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.javalite.activejdbc.Base;
+import org.telegram.telegrambots.api.objects.User;
 
 import com.google.common.base.Strings;
 import com.google.inject.Inject;
@@ -67,6 +69,8 @@ public class BusinessCards implements Module {
 	private void modifyFields(BusinessCardsCard card, List<String> args) throws ParsingException {
 		List<BusinessCardsField> definedFields = getDefinedFields();
 		
+		List<BusinessCardsField> used = new LinkedList<>();
+		
 		for (String arg : args) {
 			int position = arg.indexOf("=");
 			if (position < 0)
@@ -85,8 +89,12 @@ public class BusinessCards implements Module {
 			if (foundField == null)
 				throw new ParsingException("Unbekannter Feldname. Die verfügbaren Felden können mit /showcardfields angezeigt werden. Neue Felder können mit /createcardfield erstellt werden.");
 			
+			if (used.contains(foundField))
+				throw new ParsingException("Feld " + foundField.getName() + " ist mehrfach definiert");
+			
+			used.add(foundField);
+			
 			BusinessCardsEntry entry = new BusinessCardsEntry();
-			entry.pseudoDefault();
 			entry.setValue(value);
 			card.add(entry);
 			foundField.add(entry);
@@ -141,6 +149,52 @@ public class BusinessCards implements Module {
 						c.getSender().send(help + "\n\n" + e.getMessage());
 					}
 				}));
+			commandHandler.add(new CommandInterpreter(this)
+					.setName("changecard")
+					.setInfo("verändert eine Visitenkarte")
+					.setLocality(Locality.USERS)
+					.setVisibility(Visibility.PUBLIC)
+					.setPermission(Permission.ANY)
+					.setCategory(category)
+					.setAction(c -> {
+						String help = "Synopsis: /changecard CARDNAME [public] {FIELD=VALUE ...}\n\nAlle Felder werden gelöscht, und die neuen Felder hinzugefügt.";
+						List<String> args = StringTools.tokenize(c.getParameter());
+						if (args.size() < 2) {
+							c.getSender().send(help);
+							return;
+						}
+						try {
+							Base.openTransaction();
+							
+							String cardname = args.get(0);
+						
+							List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname, c.getMessage().getFrom().getId().intValue());
+							if (tmp == null || tmp.isEmpty()) {
+								throw new ParsingException("Diese Karte existiert nicht.");
+							}
+							
+							args = args.subList(1, args.size());
+							boolean isPublic = args.get(0).toLowerCase().equals("public");
+							if (isPublic)
+								args = args.subList(1, args.size());
+							
+							BusinessCardsCard card = tmp.get(0);
+							card.setPublic(isPublic);
+							card.saveIt();
+							
+							List<BusinessCardsEntry> entries = card.getAll(BusinessCardsEntry.class);
+							entries.forEach(e -> e.delete());
+							
+							modifyFields(card, args);
+							
+							c.getSender().send("Die Visitenkarte " + cardname + " wurde erfolgreich verändert.");
+							
+							Base.commitTransaction();
+						} catch (NurseException e) {
+							Base.rollbackTransaction();
+							c.getSender().send(help + "\n\n" + e.getMessage());
+						}
+					}));
 		
 		commandHandler.add(new CommandInterpreter(this)
 				.setName("deletecard")
@@ -184,6 +238,52 @@ public class BusinessCards implements Module {
 				.setCategory(category)
 				.setAction(c -> {
 					String help = "Synopsis: /showcard CARDNAME";
+					List<String> args = StringTools.tokenize(c.getParameter());
+					if (args.size() < 1) {
+						c.getSender().send(help);
+						return;
+					}
+					StringBuilder builder = new StringBuilder();
+					try {
+						String cardname = args.get(0);
+						User user = c.getMessage().getFrom();
+						String username = user.getUserName() == null ? "-" : user.getUserName();
+					
+						builder.append("Visitenkarte ").append(username).append(".").append(cardname).append(":\n\n");
+						
+						List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname, c.getMessage().getFrom().getId().intValue());
+						if (tmp == null || tmp.isEmpty()) {
+							throw new ParsingException("Diese Visitenkarte existiert nicht.\nNeue Karten können mit /createcard hinzugefügt werden.");
+						}
+						BusinessCardsCard card = tmp.get(0);
+						
+						List<BusinessCardsEntry> list = card.getAll(BusinessCardsEntry.class);
+						for (BusinessCardsEntry entry : list) {
+							/*List<BusinessCardsField> fields = entry.getAll(BusinessCardsField.class);
+							if ((fields == null) || fields.isEmpty()) {
+								throw new WhatTheFuckException("Field object is inconsistent.");
+							}
+							BusinessCardsField field = fields.get(0);*/
+							BusinessCardsField field = entry.parent(BusinessCardsField.class);
+							builder.append(field.getLabel()).append(": ");
+							builder.append(entry.getValue()).append("\n");
+						}
+						
+						c.getSender().send(builder.toString());
+					} catch (NurseException e) {
+						c.getSender().send(help + "\n\n" + e.getMessage());
+					}
+				}));
+		
+		commandHandler.add(new CommandInterpreter(this)
+				.setName("givecard")
+				.setInfo("gibt einem User eine Visitenkarte")
+				.setLocality(Locality.EVERYWHERE)
+				.setVisibility(Visibility.PUBLIC)
+				.setPermission(Permission.ANY)
+				.setCategory(category)
+				.setAction(c -> {
+					String help = "Synopsis: /givecard [USERNAME] CARDNAME";
 					List<String> args = StringTools.tokenize(c.getParameter());
 					if (args.size() < 1) {
 						c.getSender().send(help);
