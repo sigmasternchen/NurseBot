@@ -1,8 +1,9 @@
 package asylum.nursebot.objects;
 
 public class ModuleType {
-	public static int COMMAND_MODULE = 1 << 0;
-	public static int SEMANTIC_MODULE = 1 << 1;
+	public static final int COMMAND_MODULE = 1 << 0;
+	public static final int SEMANTIC_MODULE = 1 << 1;
+	public static final int DEPENDENCY_MODULE = 1 << 2;
 	
 	private int value = 0;
 	
@@ -21,6 +22,8 @@ public class ModuleType {
 			return 'C';
 		case 1:
 			return 'S';
+		case 2:
+			return 'D';
 		default:
 			return '?';
 		}
