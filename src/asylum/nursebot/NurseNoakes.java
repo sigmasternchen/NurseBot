@@ -169,6 +169,17 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				}));
 		
 		commandHandler.add(new CommandInterpreter(null)
+				.setName("version")
+				.setInfo("zeigt die Version des Bots an")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					c.getSender().reply("Version " + VERSION, c.getMessage());
+				}));
+		
+		commandHandler.add(new CommandInterpreter(null)
 				.setName("uptime")
 				.setInfo("seit wann läuft der Bot")
 				.setVisibility(Visibility.PRIVATE)
