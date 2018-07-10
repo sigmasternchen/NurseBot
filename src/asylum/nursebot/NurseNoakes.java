@@ -44,6 +44,11 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	private static final int EXIT_CODE_INSTRUMENTATION_MISSING = 10;
 
 	public static void main(String[] args) {
+		if (Arrays.asList(args).contains("-v")) {
+			System.out.println(VERSION);
+			System.exit(0);
+		}
+		
 		ApiContextInitializer.init();
 
 		TelegramBotsApi botsApi = new TelegramBotsApi();
