@@ -26,5 +26,9 @@ fi
 
 popd
 
+./instrumentation.sh
+
+cp ../bin/activejdbc_models.properties ../build/
+
 exit $EXIT_SUCCESS
 
