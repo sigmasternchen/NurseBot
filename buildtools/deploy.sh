@@ -8,6 +8,6 @@ VERSION=$2
 pushd $DEPLOY_DIR
 
 unlink NurseBot.jar
-ln -s $VERSIONS/NurseBot$VERSION.jar NurseBot.jar
+ln $VERSIONS/NurseBot$VERSION.jar NurseBot.jar
 
 popd
