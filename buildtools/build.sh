@@ -3,6 +3,7 @@
 EXIT_SUCCESS=0
 EXIT_COMPILE_FAILED=1
 EXIT_PACKING_FAILED=2
+EXIT_INSTRUMENTATION_FAILED=3
 
 mkdir -p ../bin/
 mkdir -p ../build/
@@ -27,6 +28,9 @@ fi
 popd
 
 ./instrumentation.sh
+if test ! $? = 0; then
+	exit $EXIT_INSTRUMENTATION_FAILED
+fi
 
 cp ../bin/activejdbc_models.properties ../build/
 
