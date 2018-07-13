@@ -63,7 +63,8 @@ version=$(java -jar NurseBot.jar -v)
 echo "This is version $version."
 
 if test ! "$DEPLOY" = ""; then
-	echo "Set to deploy..."
+	echo "Set to deploy ($DEPLOY/$VERSIONS/NurseBot$version.jar)
+..."
 	cp NurseBot.jar $DEPLOY/$VERSIONS/NurseBot$version.jar
 	if test ! $? = 0; then
 		echo "... failed"
