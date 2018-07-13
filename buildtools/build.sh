@@ -15,8 +15,12 @@ mkdir -p ../build/NurseBot_lib/
 
 pushd ../src/
 
+for file in $(ls build/NurseBot_lib); do
+	export CLASSPLATH=$CLASSPATH:build/NurseBot_lib/$file
+done
+
 echo "Building... "
-javac -cp $(find ../build/NurseBot_lib -iname "*.jar" | tr "\n" ":") -d ../bin/ $(find ./ -iname "*.java")
+javac -cp $CLASSPATH | tr "\n" ":") -d ../bin/ $(find ./ -iname "*.java")
 if test ! $? = 0; then
 	echo "... failed"
 	exit $EXIT_COMPILE_FAILED
