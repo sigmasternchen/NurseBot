@@ -64,7 +64,7 @@ echo "This is version $version."
 
 if test ! "$DEPLOY" = ""; then
 	echo "Set to deploy..."
-	cp NurseBot.jar $DEPLOY/$VERSERIONS
+	cp NurseBot.jar $DEPLOY/$VERSIONS/NurseBot$version.jar
 	if test ! $? = 0; then
 		echo "... failed"
 		exit $EXIT_READY_FAILED
