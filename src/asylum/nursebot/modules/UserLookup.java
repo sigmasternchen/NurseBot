@@ -47,7 +47,7 @@ public class UserLookup implements Module {
 		@Override
 		public String getUserName() {
 			if (name.startsWith("@"))
-				return name;
+				return name.substring(1);
 			return null;
 		}
 		
