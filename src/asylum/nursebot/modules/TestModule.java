@@ -13,7 +13,7 @@ import asylum.nursebot.objects.Permission;
 import asylum.nursebot.objects.Visibility;
 import asylum.nursebot.utils.MessageUtils;
 
-@AutoModule(load = false)
+@AutoModule(load = true)
 public class TestModule implements Module {
 
 	@Inject
@@ -49,7 +49,7 @@ public class TestModule implements Module {
 				.setCategory(category)
 				.setVisibility(Visibility.PRIVATE)
 				.setAction(c -> {
-					System.out.println(MessageUtils.getMentionedUsers(c.getMessage()));
+					System.out.println(c.getMessage());
 				}));
 	}
 
