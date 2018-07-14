@@ -16,11 +16,12 @@ mkdir -p ../build/NurseBot_lib/
 pushd ../src/
 
 for file in $(ls ../build/NurseBot_lib); do
+	echo "found lib: $file"
 	export CLASSPATH=$CLASSPATH:../build/NurseBot_lib/$file
 done
 
 echo "Building... "
-javac -cp "$CLASSPATH" -d ../bin/ $(find ./ -iname "*.java")
+javac -cp $CLASSPATH -d ../bin/ $(find ./ -iname "*.java")
 if test ! $? = 0; then
 	echo "... failed"
 	exit $EXIT_COMPILE_FAILED
@@ -29,17 +30,7 @@ echo "... done"
 
 popd
 
-pushd ../bin/
-
-echo "Packing jar..."
-jar cmf ../buildtools/MANIFEST.MF ../build/NurseBot.jar $(find ./ -iname "*.class")
-if test ! $? = 0; then
-	echo "... failed"
-	exit $EXIT_PACKING_FAILED
-fi
-echo "... done"
-
-popd
+pushd ../buildtools/
 
 echo "Building instrumentation..."
 ./instrumentation.sh
@@ -57,7 +48,22 @@ if test ! $? = 0; then
 fi
 echo "... done"
 
+popd
+
+pushd ../bin/
+
+echo "Packing jar..."
+jar cmf ../buildtools/MANIFEST.MF ../build/NurseBot.jar $(find ./ -iname "*.class")
+if test ! $? = 0; then
+	echo "... failed"
+	exit $EXIT_PACKING_FAILED
+fi
+echo "... done"
+
+popd
+
 pushd ../build
+
 echo "Determine version..."
 version=$(java -jar NurseBot.jar -v)
 echo "This is version $version."
@@ -65,6 +71,7 @@ echo "This is version $version."
 if test ! "$DEPLOY" = ""; then
 	echo "Set to deploy ($DEPLOY/$VERSIONS/NurseBot$version.jar)
 ..."
+	cp activejdbc_models.properties $DEPLOY/$VERSIONS/activejdbc_models$version.properties
 	cp NurseBot.jar $DEPLOY/$VERSIONS/NurseBot$version.jar
 	if test ! $? = 0; then
 		echo "... failed"
