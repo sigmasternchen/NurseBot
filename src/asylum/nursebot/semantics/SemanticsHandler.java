@@ -59,7 +59,10 @@ public class SemanticsHandler {
 		for(SemanticInterpreter interpreter : interpreters) {
 			boolean invoke = false;
 			for (WakeWord wakeWord : interpreter.getWakeWords()) {
-				if (wakeWord.getType() == WakeWordType.META) {
+				if (wakeWord.getType() == WakeWordType.ANY_MESSAGE) {
+					invoke = true;
+					break;
+				} else if (wakeWord.getType() == WakeWordType.META) {
 					if (message.getLeftChatMember() != null || (message.getNewChatMembers() != null)) {
 						invoke = true;
 						break;

@@ -3,6 +3,7 @@ package asylum.nursebot.objects;
 public class ModuleType {
 	public static final int COMMAND_MODULE = 1 << 0;
 	public static final int SEMANTIC_MODULE = 1 << 1;
+	public static final int DEPENDENCY_MODULE = 1 << 2;
 	public static final int TEST_MODULE = 1 << 3;
 	public static final int META_MODULE = 1 << 4;
 	
@@ -23,6 +24,8 @@ public class ModuleType {
 			return 'C';
 		case 1:
 			return 'S';
+		case 2:
+			return 'D';
 		case 3:
 			return 'T';
 		case 4:
