@@ -169,6 +169,40 @@ public class Builder implements Module {
 					
 					update(getContext(c.getMessage(), c.getSender()));
 				}));
+		
+		commandHandler.add(new CommandInterpreter(this)
+				.setName("build")
+				.setInfo("compiliert die aktuelle Version")
+				.setCategory(category)
+				.setLocality(Locality.EVERYWHERE)
+				.setPermission(Permission.ANY)
+				.setVisibility(Visibility.PUBLIC)
+				.setAction(c -> {
+					if (!NurseNoakes.BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
+						c.getSender().reply("Das dürfen nur Bot-Admins.", c.getMessage());
+						return;
+					}
+					
+					build(getContext(c.getMessage(), c.getSender()));
+				}));
+		
+		commandHandler.add(new CommandInterpreter(this)
+				.setName("deploy")
+				.setInfo("deployt die angegebene Version")
+				.setCategory(category)
+				.setLocality(Locality.EVERYWHERE)
+				.setPermission(Permission.ANY)
+				.setVisibility(Visibility.PUBLIC)
+				.setAction(c -> {
+					if (!NurseNoakes.BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
+						c.getSender().reply("Das dürfen nur Bot-Admins.", c.getMessage());
+						return;
+					}
+					
+					String version = c.getParameter();
+					
+					deploy(getContext(c.getMessage(), c.getSender()), version);
+				}));
 	}
 
 	@Override
