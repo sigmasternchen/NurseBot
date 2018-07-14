@@ -15,9 +15,11 @@ mkdir -p ../build/NurseBot_lib/
 
 pushd ../src/
 
+export manifest_cp=.
 for file in $(ls ../build/NurseBot_lib); do
 	echo "found lib: $file"
 	export CLASSPATH=$CLASSPATH:../build/NurseBot_lib/$file
+	export manifest_cp="$manifest_cp NurseBot_lib/$file"
 done
 
 echo "Building... "
@@ -52,8 +54,19 @@ popd
 
 pushd ../bin/
 
+MAX_LINE=72
+manifest_cp="lass-Path: $manifest_cp"
+manifest_cp="$(echo $manifest_cp | fold -bw $((MAX_LINE - 1)) | awk '{ if (NR == 1) print "C" $0; else print " " $0}')"
+
+
+cat > ../build/MANIFST.MF <<EOF
+Manifest-Version: 1.0
+$manifest_cp
+Main-Class: asylum.nursebot.NurseNoakes
+EOF
+
 echo "Packing jar..."
-jar cmf ../buildtools/MANIFEST.MF ../build/NurseBot.jar $(find ./ -iname "*.class")
+jar cmf ../build/MANIFST.MF ../build/NurseBot.jar $(find ./ -iname "*.class")
 if test ! $? = 0; then
 	echo "... failed"
 	exit $EXIT_PACKING_FAILED
