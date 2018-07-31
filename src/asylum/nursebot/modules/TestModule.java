@@ -11,7 +11,6 @@ import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.ModuleType;
 import asylum.nursebot.objects.Permission;
 import asylum.nursebot.objects.Visibility;
-import asylum.nursebot.utils.MessageUtils;
 
 @AutoModule(load = true)
 public class TestModule implements Module {
