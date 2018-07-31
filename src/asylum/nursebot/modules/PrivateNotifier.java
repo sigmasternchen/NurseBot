@@ -155,6 +155,7 @@ public class PrivateNotifier implements Module {
 		if (!hasPrivateChat(user))
 			throw new NoPrivateChatPresentException();
 		
-		sender.send(user.getId(), user.getFirstName() + ", du hast eine neue Benachrichtigung aus dem Chat '" + chat.getTitle() + "'\n\n" + string);
+		sender.send(user.getId(), user.getFirstName() + ", du hast eine neue Benachrichtigung aus dem Chat '" +
+				(chat.isUserChat() ? (chat.getFirstName() + " " + chat.getLastName()) : chat.getTitle()) + "'\n\n" + string);
 	}
 }
