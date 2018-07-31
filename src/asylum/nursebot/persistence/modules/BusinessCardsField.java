@@ -11,7 +11,9 @@ import asylum.nursebot.persistence.selfbuilding.DataType;
 import asylum.nursebot.persistence.selfbuilding.Key;
 import asylum.nursebot.persistence.selfbuilding.Selfbuilding;
 import asylum.nursebot.persistence.selfbuilding.Type;
+import org.javalite.activejdbc.annotations.IdName;
 
+@IdName("id")
 public class BusinessCardsField extends Model implements Selfbuilding {
 
 	public static BusinessCardsField getByName(String name) {

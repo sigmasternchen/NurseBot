@@ -298,7 +298,7 @@ public class BusinessCards implements Module {
 						List<User> users = null;
 
 						UserLookup lookup = moduleDependencies.get(UserLookup.class);
-						if (lookup == null) {
+						if (lookup != null) {
 							users = lookup.getMentions(c.getMessage());
 						}
 
@@ -334,12 +334,14 @@ public class BusinessCards implements Module {
 
 						for (User user : users) {
 							if (notifier.hasPrivateChat(user)) {
-								builder.append("Der User " + StringTools.makeMention(user) + " hat keine privaten Notifications aktiviert.\n");
-							} else {
 								notifier.send(c.getSender(), c.getMessage().getChat(), user, message);
 								builder.append("Die Visitenkarte wurde dem User " + StringTools.makeMention(user) + " erfolgreich gesendet.\n");
+							} else {
+								builder.append("Der User " + StringTools.makeMention(user) + " hat keine privaten Notifications aktiviert.\n");
 							}
 						}
+
+						c.getSender().reply(builder.toString(), c.getMessage());
 					} catch (NurseException e) {
 						c.getSender().send(help + "\n\n" + e.getMessage());
 					}

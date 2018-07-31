@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.javalite.activejdbc.Model;
+import org.javalite.activejdbc.annotations.IdName;
 import org.javalite.activejdbc.annotations.Many2Many;
 
 import asylum.nursebot.persistence.selfbuilding.Column;
@@ -12,6 +13,7 @@ import asylum.nursebot.persistence.selfbuilding.Key;
 import asylum.nursebot.persistence.selfbuilding.Selfbuilding;
 import asylum.nursebot.persistence.selfbuilding.Type;
 
+@IdName("id")
 @Many2Many(other = BusinessCardsField.class, join = "business_cards_entries", sourceFKName = "business_cards_card_id", targetFKName = "business_cards_field_id")
 public class BusinessCardsCard extends Model implements Selfbuilding {
 

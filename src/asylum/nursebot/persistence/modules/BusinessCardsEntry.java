@@ -10,7 +10,9 @@ import asylum.nursebot.persistence.selfbuilding.DataType;
 import asylum.nursebot.persistence.selfbuilding.Key;
 import asylum.nursebot.persistence.selfbuilding.Selfbuilding;
 import asylum.nursebot.persistence.selfbuilding.Type;
+import org.javalite.activejdbc.annotations.IdName;
 
+@IdName("id")
 public class BusinessCardsEntry extends Model implements Selfbuilding {
 
 	public void pseudoDefault() {
