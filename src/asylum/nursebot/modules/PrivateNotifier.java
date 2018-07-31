@@ -49,7 +49,8 @@ public class PrivateNotifier implements Module {
 	@Override
 	public ModuleType getType() {
 		return new ModuleType()
-			.set(ModuleType.COMMAND_MODULE);
+			.set(ModuleType.COMMAND_MODULE)
+			.set(ModuleType.DEPENDENCY_MODULE);
 	}
 
 	public PrivateNotifier() {
