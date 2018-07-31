@@ -15,8 +15,15 @@ mkdir -p ../build/NurseBot_lib/
 
 pushd ../src/
 
+export manifest_cp=.
+for file in $(ls ../build/NurseBot_lib); do
+	echo "found lib: $file"
+	export CLASSPATH=$CLASSPATH:../build/NurseBot_lib/$file
+	export manifest_cp="$manifest_cp NurseBot_lib/$file"
+done
+
 echo "Building... "
-javac -cp $(find ../build/NurseBot_lib -iname "*.jar" | tr "\n" ":") -d ../bin/ $(find ./ -iname "*.java")
+javac -cp $CLASSPATH -d ../bin/ $(find ./ -iname "*.java")
 if test ! $? = 0; then
 	echo "... failed"
 	exit $EXIT_COMPILE_FAILED
@@ -25,17 +32,7 @@ echo "... done"
 
 popd
 
-pushd ../bin/
-
-echo "Packing jar..."
-jar cmf ../buildtools/MANIFEST.MF ../build/NurseBot.jar $(find ./ -iname "*.class")
-if test ! $? = 0; then
-	echo "... failed"
-	exit $EXIT_PACKING_FAILED
-fi
-echo "... done"
-
-popd
+pushd ../buildtools/
 
 echo "Building instrumentation..."
 ./instrumentation.sh
@@ -53,14 +50,42 @@ if test ! $? = 0; then
 fi
 echo "... done"
 
+popd
+
+pushd ../bin/
+
+MAX_LINE=72
+manifest_cp="lass-Path: $manifest_cp"
+manifest_cp="$(echo $manifest_cp | fold -bw $((MAX_LINE - 1)) | awk '{ if (NR == 1) print "C" $0; else print " " $0}')"
+
+
+cat > ../build/MANIFST.MF <<EOF
+Manifest-Version: 1.0
+$manifest_cp
+Main-Class: asylum.nursebot.NurseNoakes
+EOF
+
+echo "Packing jar..."
+jar cmf ../build/MANIFST.MF ../build/NurseBot.jar $(find ./ -iname "*.class")
+if test ! $? = 0; then
+	echo "... failed"
+	exit $EXIT_PACKING_FAILED
+fi
+echo "... done"
+
+popd
+
 pushd ../build
+
 echo "Determine version..."
 version=$(java -jar NurseBot.jar -v)
 echo "This is version $version."
 
 if test ! "$DEPLOY" = ""; then
-	echo "Set to deploy..."
-	cp NurseBot.jar $DEPLOY/$VERSERIONS
+	echo "Set to deploy ($DEPLOY/$VERSIONS/NurseBot$version.jar)
+..."
+	cp activejdbc_models.properties $DEPLOY/$VERSIONS/activejdbc_models$version.properties
+	cp NurseBot.jar $DEPLOY/$VERSIONS/NurseBot$version.jar
 	if test ! $? = 0; then
 		echo "... failed"
 		exit $EXIT_READY_FAILED

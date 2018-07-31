@@ -31,7 +31,7 @@ import static asylum.nursebot.utils.ExceptionIgnorer.ignore;
 
 @AutoModule(load=true)
 public class Builder implements Module {
-	private final String PREFIX = "/buildtools/";
+	private final String PREFIX = "/git/buildtools/";
 	private final String RUNDIR = System.getProperty("user.dir");
 	
 	

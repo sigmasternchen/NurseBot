@@ -33,7 +33,7 @@ import asylum.nursebot.utils.StringTools;
 
 public class NurseNoakes extends TelegramLongPollingBot {
 
-	public static final String VERSION = "2.0.1";
+	public static final String VERSION = "3.0ALPHA";
 	public static final List<String> BOT_ADMIN_USERNAMES = 
 			Collections.unmodifiableList(Arrays.asList(new String[]{
 					"overflowerror"

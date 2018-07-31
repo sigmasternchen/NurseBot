@@ -6,6 +6,7 @@ public class ModelManager {
 	private static boolean wasAnythingCreated = false;
 	
 	static public <T extends Selfbuilding> void build(Class<T> c) {
+		System.out.println("building model class " + c.getCanonicalName() + "...");
 		try {
 			if (c.newInstance().selfbuild())
 				wasAnythingCreated = true;
