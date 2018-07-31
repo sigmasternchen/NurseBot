@@ -1,8 +1,11 @@
 package asylum.nursebot.modules;
 
-import java.util.Calendar;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
+import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import com.google.inject.Inject;
@@ -33,7 +36,15 @@ public class Eastereggs implements Module {
 	private SemanticsHandler semanticsHandler;
 	@Inject
 	private NurseNoakes nurse;
-	
+
+	class RandomHugProperties {
+		Long chatId;
+		Map<Integer, User> users = new ConcurrentHashMap<>();
+		Calendar next;
+	}
+
+	private Collection<RandomHugProperties> randomHugs = new ConcurrentLinkedQueue<>();
+
 	public Eastereggs() {
 		category = new CommandCategory("Eastereggs");
 	}
@@ -81,6 +92,63 @@ public class Eastereggs implements Module {
 					} catch (TelegramApiException e) {
 						e.printStackTrace();
 					}
+				}));
+
+		commandHandler.add(new CommandInterpreter(this)
+				.setName("hugoptin")
+				.setInfo("")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setCategory(category)
+				.setAction(c -> {
+					RandomHugProperties randomHug = null;
+					for (RandomHugProperties hug : randomHugs) {
+						if (hug.chatId.equals(c.getMessage().getChatId())) {
+							randomHug = hug;
+							break;
+						}
+					}
+					if (randomHug == null) {
+						randomHug = new RandomHugProperties();
+						randomHug.chatId = c.getMessage().getChatId();
+						randomHugs.add(randomHug);
+						final RandomHugProperties hug = randomHug;
+						new Thread(() -> {
+							Random random = new Random();
+							try {
+								while(true) {
+									if (hug.next == null) {
+										hug.next = Calendar.getInstance();
+										hug.next.add(Calendar.DATE, 1);
+										hug.next.set(Calendar.HOUR_OF_DAY, random.nextInt(24));
+										hug.next.set(Calendar.MINUTE, random.nextInt(60));
+										hug.next.set(Calendar.SECOND, random.nextInt(60));
+									}
+									Thread.sleep(30000);
+									if (hug.next.compareTo(Calendar.getInstance()) < 0) {
+										List<User> users = new LinkedList<>(hug.users.values());
+										if (users.size() != 0) {
+											User user = users.get(random.nextInt(users.size()));
+											c.getSender().mention(user, "*random hug*");
+										}
+										hug.next = null;
+									}
+								}
+							} catch (InterruptedException | TelegramApiException e) {
+								e.printStackTrace();
+							}
+						}).start();
+					}
+					boolean add = false;
+					if (randomHug.users.containsKey(c.getMessage().getFrom().getId())) {
+						randomHug.users.remove(c.getMessage().getFrom().getId());
+					} else {
+						add = true;
+						randomHug.users.put(c.getMessage().getFrom().getId(), c.getMessage().getFrom());
+					}
+
+					c.getSender().reply("Okay " + (add ? ": )" : ":c"), c.getMessage());
 				}));
 		
 		semanticsHandler.add(new SemanticInterpreter(this)
