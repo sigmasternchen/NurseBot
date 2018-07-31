@@ -6,9 +6,7 @@ import java.util.List;
 import org.javalite.activejdbc.Base;
 import org.telegram.telegrambots.api.objects.User;
 
-import com.google.common.base.Strings;
 import com.google.inject.Inject;
-import com.sun.xml.internal.fastinfoset.util.StringArray;
 
 import asylum.nursebot.NurseNoakes;
 import asylum.nursebot.commands.CommandCategory;
@@ -16,7 +14,6 @@ import asylum.nursebot.commands.CommandHandler;
 import asylum.nursebot.commands.CommandInterpreter;
 import asylum.nursebot.exceptions.NurseException;
 import asylum.nursebot.exceptions.ParsingException;
-import asylum.nursebot.exceptions.WhatTheFuckException;
 import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.loader.ModuleDependencies;
 import asylum.nursebot.objects.Locality;
@@ -28,7 +25,6 @@ import asylum.nursebot.persistence.ModelManager;
 import asylum.nursebot.persistence.modules.BusinessCardsCard;
 import asylum.nursebot.persistence.modules.BusinessCardsEntry;
 import asylum.nursebot.persistence.modules.BusinessCardsField;
-import asylum.nursebot.utils.MessageUtils;
 import asylum.nursebot.utils.StringTools;
 
 @AutoModule(load=true)
@@ -293,14 +289,26 @@ public class BusinessCards implements Module {
 					try {
 						String cardname = args.get(0);
 						
-						PrivateNotifier notifier = (PrivateNotifier) moduleDependencies.get(PrivateNotifier.class);
+						PrivateNotifier notifier = moduleDependencies.get(PrivateNotifier.class);
 						if (notifier == null) {
 							c.getSender().reply("Tut mir leid, aber das Private Notifier Modul ist leider deaktivier.", c.getMessage());
 							return;
 						}
-						
-						List<User> users = MessageUtils.getMentionedUsers(c.getMessage());
-						
+
+						List<User> users = null;
+
+						UserLookup lookup = moduleDependencies.get(UserLookup.class);
+						if (lookup == null) {
+							users = lookup.getMentions(c.getMessage());
+						}
+
+						if (users == null) {
+							users = new LinkedList<>();
+							if (c.getMessage().getReplyToMessage() != null) {
+								users.add(c.getMessage().getReplyToMessage().getFrom());
+							}
+						}
+
 						if (users.isEmpty()) {
 							throw new ParsingException("Es wurde kein User angegeben.");
 						}
@@ -323,7 +331,7 @@ public class BusinessCards implements Module {
 						String message = builder.toString();
 						
 						builder = new StringBuilder();
-						
+
 						for (User user : users) {
 							if (notifier.hasPrivateChat(user)) {
 								builder.append("Der User " + StringTools.makeMention(user) + " hat keine privaten Notifications aktiviert.\n");
@@ -332,8 +340,6 @@ public class BusinessCards implements Module {
 								builder.append("Die Visitenkarte wurde dem User " + StringTools.makeMention(user) + " erfolgreich gesendet.\n");
 							}
 						}
-						
-						c.getSender().send(builder.toString(), true);
 					} catch (NurseException e) {
 						c.getSender().send(help + "\n\n" + e.getMessage());
 					}
