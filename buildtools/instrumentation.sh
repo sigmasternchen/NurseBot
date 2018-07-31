@@ -1,10 +1,12 @@
 #!/bin/bash
 
+pushd ../
+
 if test "$1" = ""; then
 	export CLASSPATH="bin"
 
-	for file in $(ls libs); do 
-		export CLASSPATH=$CLASSPATH:libs/$file
+	for file in $(ls build/NurseBot_lib); do 
+		export CLASSPATH=$CLASSPATH:build/NurseBot_lib/$file
 	done
 
 	java -cp $CLASSPATH -DoutputDirectory=bin org.javalite.instrumentation.Main

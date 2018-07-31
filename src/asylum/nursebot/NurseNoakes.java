@@ -33,7 +33,7 @@ import asylum.nursebot.utils.StringTools;
 
 public class NurseNoakes extends TelegramLongPollingBot {
 
-	public static final String VERSION = "2.0";
+	public static final String VERSION = "2.0.1";
 	public static final List<String> BOT_ADMIN_USERNAMES = 
 			Collections.unmodifiableList(Arrays.asList(new String[]{
 					"overflowerror"
@@ -44,6 +44,11 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	private static final int EXIT_CODE_INSTRUMENTATION_MISSING = 10;
 
 	public static void main(String[] args) {
+		if (Arrays.asList(args).contains("-v")) {
+			System.out.println(VERSION);
+			System.exit(0);
+		}
+		
 		ApiContextInitializer.init();
 
 		TelegramBotsApi botsApi = new TelegramBotsApi();
@@ -166,6 +171,17 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setPausable(false)
 				.setAction(c -> {
 					c.getSender().reply(isChatPaused(c.getMessage().getChatId()) ? "Dieser Chat ist pausiert." : "pong", c.getMessage());
+				}));
+		
+		commandHandler.add(new CommandInterpreter(null)
+				.setName("version")
+				.setInfo("zeigt die Version des Bots an")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setPausable(false)
+				.setAction(c -> {
+					c.getSender().reply("Version " + VERSION, c.getMessage());
 				}));
 		
 		commandHandler.add(new CommandInterpreter(null)
@@ -339,7 +355,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 						StringTools.makeItalic("Wann werden personenbezogene Daten gespeichert?") + "\n" +
 						"Personenbezogene Daten werden nur dann gespeichert, wenn sie benötigt werden." + "\n\n" +
 						StringTools.makeItalic("Wofür werden personenbezogene Daten verwendet?") + "\n" +
-						"Es werden nur Daten gespeichert, die für den Service direkt verwendet werden." + "\n√" +
+						"Es werden nur Daten gespeichert, die für den Service direkt verwendet werden." + "\n\n" +
 						StringTools.makeItalic("An wen werden personenbezogene Daten weitergegeben?") + "\n" +
 						"Personenbezogene Daten werden nicht an Dritte weitergegeben." + "\n\n" +
 						StringTools.makeItalic("Wann werden personenbezogene Daten wieder gelöscht?") + "\n" +

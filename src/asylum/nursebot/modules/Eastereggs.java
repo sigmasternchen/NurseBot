@@ -1,5 +1,6 @@
 package asylum.nursebot.modules;
 
+import java.util.Calendar;
 import java.util.Random;
 
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -143,7 +144,6 @@ public class Eastereggs implements Module {
 					if (random.nextInt(5) != 0)
 						return;
 					
-					
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
 				}));
 		semanticsHandler.add(new SemanticInterpreter(this)
@@ -179,6 +179,31 @@ public class Eastereggs implements Module {
 					
 					Random random = new Random();	
 					
+					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
+				}));
+		semanticsHandler.add(new SemanticInterpreter(this)
+				.addWakeWord(new WakeWord("Gute Nacht", WakeWordType.ANYWHERE, false))
+				.addWakeWord(new WakeWord("Nachti", WakeWordType.ANYWHERE, false))
+				.addWakeWord(new WakeWord("Ich geh dann mal ins Bett.", WakeWordType.ANYWHERE, false))
+				.addWakeWord(new WakeWord("Ich geh dann mal schlafen.", WakeWordType.ANYWHERE, false))
+				.setLocality(Locality.EVERYWHERE)
+				.setPermission(Permission.ANY)
+				.setAction(c -> {
+					String[] replys = new String[] {
+							"Ciao. o/", "Gute Nacht.", "Gute Nacht!", "Eine erholsame Nacht wünsche ich.", 
+							"Schlaf gut.", "Träum was Schönes.", "Nachtilein", "*zum Bett trag*", 
+							"Schlaf fein.", "Träum was Flauschiges.", "Eine gute Nacht wünsche ich.", 
+							"Gute Idee, ich bin auch schon müde. *gähn*", "Bis morgen.",
+							"*auf die Uhr schau*\nJetzt schon? o.ô", "Tschüss, man liest sich morgen.",
+							"Aber nicht mehr lange mit dem Handy spielen, ja?"
+					};
+					
+					Calendar calendar = Calendar.getInstance();
+					int hour = calendar.get(Calendar.HOUR_OF_DAY);
+					if (!(hour < 2 || hour > 21))
+						return;
+					
+					Random random = new Random();
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
 				}));
 	}

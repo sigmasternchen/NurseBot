@@ -1,11 +1,11 @@
 #!/bin/bash
 
-SHUTDOWN=1
-RESTART=2
+SHUTDOWN=0
+RESTART=1
 
 INSTRUMENTATION=10
 
-jar=nursenoakes.jar
+jar=NurseBot.jar
 
 while true; do
 	java -jar $jar
@@ -13,14 +13,13 @@ while true; do
 
 	case $ec in
 		$SHUTDOWN)
+			echo "Got shutdown."
 			break;;
 		$RESTART)
+			echo "Restart."
 			continue;;
-		$INSTRUMENTATION)
-			./instrumentation.sh $jar
-			continue
-			;;
 		*)
 			echo "This should not happen!"
+			break;;
 	esac
 done
