@@ -43,3 +43,9 @@ ln -s "$directory"/git/buildtools/nursebot.sh ./
 ln -s "$directory"/git/build/NurseBot_lib ./
 
 popd
+
+echo
+echo "Everything seems allright."
+echo "Don't forget to edit config.perperties."
+echo
+echo "Have fun!"
