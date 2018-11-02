@@ -35,9 +35,9 @@ version=$(./versions.sh ../../ | tail -n 1)
 
 cd ../..
 
-cp "$directory"/git/config.properties.default "$directory"/config.propterties
+cp "$directory"/git/config.properties.default "$directory"/config.properties
 
-ln -s "$directory"/git/buildtools/nursebot.sh ../../
-ln -s "$directory"/git/build/NurseBot_lib ../../
+ln -s "$directory"/git/buildtools/nursebot.sh ./
+ln -s "$directory"/git/build/NurseBot_lib ./
 
 popd
