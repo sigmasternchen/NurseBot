@@ -5,6 +5,7 @@ directory="$1"
 if test "$directory" = ""; then
 	directory=$(pwd)
 fi
+directory=$(realpath "$directory")
 
 pushd $directory
 
@@ -15,6 +16,7 @@ mkdir versions
 mkdir -p git/build/NurseBot_lib
 
 if test "$(ls git/build/NurseBot_lib)" = ""; then
+	echo
 	echo "Libs are missing."
 	echo "Please copy them to $directory/git/build/NurseBot_lib"
 	exit 1
