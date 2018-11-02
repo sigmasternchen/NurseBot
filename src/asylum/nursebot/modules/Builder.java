@@ -27,7 +27,7 @@ import asylum.nursebot.objects.ModuleType;
 import asylum.nursebot.objects.Permission;
 import asylum.nursebot.objects.Visibility;
 
-import static asylum.nursebot.utils.ExceptionIgnorer.ignore;
+import static asylum.nursebot.utils.ThreadHelper.ignore;
 
 @AutoModule(load=true)
 public class Builder implements Module {

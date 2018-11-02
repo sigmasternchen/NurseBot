@@ -336,6 +336,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 							c.getSender().send("Das Modul " + module.getName() + " wurde deaktiviert.");
 						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						c.getSender().reply("Der Vorgang ist fehlgeschlagen. Ist das Modul bereits aktiv/inaktiv?", c.getMessage());
 					}
 					

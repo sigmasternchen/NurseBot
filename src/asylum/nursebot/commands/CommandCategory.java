@@ -11,4 +11,14 @@ public class CommandCategory {
 	public String getName() {
 		return name;
 	}
+
+
+	public boolean equals(Object object) {
+		if (!(object instanceof CommandCategory))
+			return false;
+		CommandCategory category = (CommandCategory) object;
+
+		return name.equals(category.name);
+	}
+
 }
