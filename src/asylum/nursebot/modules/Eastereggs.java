@@ -37,14 +37,6 @@ public class Eastereggs implements Module {
 	@Inject
 	private NurseNoakes nurse;
 
-	class RandomHugProperties {
-		Long chatId;
-		Map<Integer, User> users = new ConcurrentHashMap<>();
-		Calendar next;
-	}
-
-	private Collection<RandomHugProperties> randomHugs = new ConcurrentLinkedQueue<>();
-
 	public Eastereggs() {
 		category = new CommandCategory("Eastereggs");
 	}
@@ -94,89 +86,7 @@ public class Eastereggs implements Module {
 					}
 				}));
 
-		commandHandler.add(new CommandInterpreter(this)
-				.setName("hugoptin")
-				.setInfo("")
-				.setVisibility(Visibility.PRIVATE)
-				.setPermission(Permission.ANY)
-				.setLocality(Locality.EVERYWHERE)
-				.setCategory(category)
-				.setAction(c -> {
-					RandomHugProperties randomHug = null;
-					for (RandomHugProperties hug : randomHugs) {
-						if (hug.chatId.equals(c.getMessage().getChatId())) {
-							randomHug = hug;
-							break;
-						}
-					}
-					if (randomHug == null) {
-						randomHug = new RandomHugProperties();
-						randomHug.chatId = c.getMessage().getChatId();
-						randomHugs.add(randomHug);
-						final RandomHugProperties hug = randomHug;
-						new Thread(() -> {
-							Random random = new Random();
-							try {
-								while(true) {
-									if (hug.next == null) {
-										hug.next = Calendar.getInstance();
-										hug.next.add(Calendar.DATE, 1);
-										hug.next.set(Calendar.HOUR_OF_DAY, random.nextInt(24));
-										hug.next.set(Calendar.MINUTE, random.nextInt(60));
-										hug.next.set(Calendar.SECOND, random.nextInt(60));
-									}
-									Thread.sleep(30000);
-									if (hug.next.compareTo(Calendar.getInstance()) < 0) {
-										List<User> users = new LinkedList<>(hug.users.values());
-										if (users.size() != 0) {
-											User user = users.get(random.nextInt(users.size()));
-											c.getSender().mention(user, "*random hug*");
-										}
-										hug.next = null;
-									}
-								}
-							} catch (InterruptedException | TelegramApiException e) {
-								e.printStackTrace();
-							}
-						}).start();
-					}
-					boolean add = false;
-					if (randomHug.users.containsKey(c.getMessage().getFrom().getId())) {
-						randomHug.users.remove(c.getMessage().getFrom().getId());
-					} else {
-						add = true;
-						randomHug.users.put(c.getMessage().getFrom().getId(), c.getMessage().getFrom());
-					}
 
-					c.getSender().reply("Okay " + (add ? ": )" : ":c"), c.getMessage());
-				}));
-		
-		semanticsHandler.add(new SemanticInterpreter(this)
-				.addWakeWord(new WakeWord("mau", WakeWordType.STANDALONE, false))
-				.addWakeWord(new WakeWord("mau.", WakeWordType.STANDALONE, false))
-				.setLocality(Locality.EVERYWHERE)
-				.setPermission(Permission.ANY)
-				.setAction(c -> {
-					String[] replys = new String[] {
-							"*streichel*", "Mau", "*flausch*"
-					};
-					
-					new Thread(() -> {
-						Random random = new Random();
-						
-						try {
-							Thread.sleep((random.nextInt(5) + 1) * 1000);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-						
-						try {
-							c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
-						} catch (TelegramApiException e) {
-							e.printStackTrace();
-						}
-					}).start();
-				}));
 		semanticsHandler.add(new SemanticInterpreter(this)
 				.addWakeWord(new WakeWord("*boop*", WakeWordType.ANYWHERE, false))
 				.addWakeWord(new WakeWord("*stups*", WakeWordType.ANYWHERE, false))
@@ -196,24 +106,7 @@ public class Eastereggs implements Module {
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
 				}));
 		
-		semanticsHandler.add(new SemanticInterpreter(this)
-				.addWakeWord(new WakeWord("scheiße", WakeWordType.ANYWHERE, false))
-				.addWakeWord(new WakeWord("scheiß", WakeWordType.ANYWHERE, false))
-				.addWakeWord(new WakeWord("fuck ", WakeWordType.ANYWHERE, false))
-				.setLocality(Locality.EVERYWHERE)
-				.setPermission(Permission.ANY)
-				.setAction(c -> {
-					String[] replys = new String[] {
-							"Ich dulde keine Kraftausdrücke hier!", "Hey! Achte auf deine Sprache!", "Hey! Es sind Kinder anwesend."
-					};
-					
-					Random random = new Random();
-					
-					if (random.nextInt(5) != 0)
-						return;
-					
-					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
-				}));
+
 		semanticsHandler.add(new SemanticInterpreter(this)
 				.addWakeWord(new WakeWord("danke", WakeWordType.ANYWHERE, false))
 				.setLocality(Locality.EVERYWHERE)
