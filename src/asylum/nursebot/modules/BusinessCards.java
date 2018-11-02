@@ -92,6 +92,7 @@ public class BusinessCards implements Module {
 			used.add(foundField);
 			
 			BusinessCardsEntry entry = new BusinessCardsEntry();
+			entry.pseudoDefault();
 			entry.setValue(value);
 			card.add(entry);
 			foundField.add(entry);
