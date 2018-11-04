@@ -23,8 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @AutoModule(load=true)
 public class ConversationStarter implements Module {
 	private final Duration SLEEP_TIME = Duration.ofSeconds(30);
-	//private final Duration IDLE_TIME = Duration.ofHours(7);
-	private final Duration IDLE_TIME = Duration.ofMinutes(1);
+	private final Duration IDLE_TIME = Duration.ofHours(7);
 	private final String[] STARTERS = {
 			"Mir fällt gerade auf: Alles, was ich jemals sagen werde, ist durch mein Programm vorherbestimmt.\n" +
 			"Denkt ihr, dass sich die ganze Welt so verhält?",
