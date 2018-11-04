@@ -95,4 +95,8 @@ public class StringTools {
 		}
 		return builder.toString();
 	}
+
+	public static String nullCheck(String string, String nullValue) {
+		return string == null ? nullValue : string;
+	}
 }

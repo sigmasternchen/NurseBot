@@ -6,7 +6,10 @@ import asylum.nursebot.commands.CommandCategory;
 import asylum.nursebot.commands.CommandHandler;
 import asylum.nursebot.commands.CommandInterpreter;
 import asylum.nursebot.loader.AutoModule;
+import asylum.nursebot.loader.ModuleDependencies;
 import asylum.nursebot.objects.*;
+import asylum.nursebot.persistence.ModelManager;
+import asylum.nursebot.persistence.modules.RandomHugsOptins;
 import asylum.nursebot.utils.ThreadHelper;
 import com.google.inject.Inject;
 import org.telegram.telegrambots.api.objects.User;
@@ -22,10 +25,14 @@ public class RandomHugs implements Module {
     @Inject
     private NurseNoakes nurse;
 
+	@Inject
+	private ModuleDependencies moduleDependencies;
+
 
     private CommandCategory category;
 
     class RandomHugProperties {
+    	Long chatid;
         Map<Integer, User> users = new ConcurrentHashMap<>();
         Calendar next;
         RandomHugThread thread;
@@ -33,24 +40,19 @@ public class RandomHugs implements Module {
 
     class RandomHugThread extends Thread {
     	private RandomHugProperties properties;
-    	private Sender sender;
     	private volatile boolean running = true;
 
-    	public RandomHugThread(RandomHugProperties properties, Sender sender) {
+    	public RandomHugThread(RandomHugProperties properties) {
     		this.properties = properties;
-    		this.sender = sender;
 		}
 
 		public void shutdown() {
 			running = false;
 		}
 
-		public void restart() {
-			running = true;
-			start();
-		}
-
 		public void run() {
+    		Sender sender = new Sender(properties.chatid, nurse);
+
 			Random random = new Random();
 			while(running) {
 				if (properties.next == null) {
@@ -81,6 +83,8 @@ public class RandomHugs implements Module {
 
     public RandomHugs() {
         category = new CommandCategory("Eastereggs");
+
+		ModelManager.build(RandomHugsOptins.class);
     }
 
     @Override
@@ -93,12 +97,13 @@ public class RandomHugs implements Module {
         return new ModuleType().set(ModuleType.COMMAND_MODULE);
     }
 
-    private RandomHugProperties getProperties(Long chatid, Sender sender) {
+    private RandomHugProperties getProperties(Long chatid) {
 		RandomHugProperties properties = randomHugChats.get(chatid);
 		if (properties == null) {
 			properties = new RandomHugProperties();
 			randomHugChats.put(chatid, properties);
-			properties.thread = new RandomHugThread(properties, sender);
+			properties.chatid = chatid;
+			properties.thread = new RandomHugThread(properties);
 			properties.thread.start();
 		}
 		return properties;
@@ -106,6 +111,28 @@ public class RandomHugs implements Module {
 
     @Override
     public void init() {
+
+		commandHandler.add(new CommandInterpreter(this)
+				.setName("huginfo")
+				.setInfo("")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setCategory(category)
+				.setAction(c -> {
+					RandomHugProperties properties = getProperties(c.getMessage().getChatId());
+
+					if ((properties == null) || (properties.users.size()) == 0) {
+						c.getSender().reply("Für diesen Chat ist niemand für Random Hugs angemeldet. : (\nUm dich anzumelden benutze /hugoptin.", c.getMessage());
+					} else {
+						StringBuilder builder = new StringBuilder();
+						builder.append("Für diesen Chat sind folgende Leute für Random Hugs angemeldet:\n");
+						for (User user : properties.users.values()) {
+							builder.append("- " + user.getFirstName() + " " + user.getLastName() + "\n");
+						}
+						c.getSender().reply(builder.toString(), c.getMessage());
+					}
+				}));
 
     	commandHandler.add(new CommandInterpreter(this)
 			.setName("hugoptin")
@@ -115,12 +142,16 @@ public class RandomHugs implements Module {
 				.setLocality(Locality.EVERYWHERE)
 				.setCategory(category)
 				.setAction(c -> {
-					RandomHugProperties properties = getProperties(c.getMessage().getChatId(), c.getSender());
+					Long chatid = c.getMessage().getChatId();
+					User user = c.getMessage().getFrom();
+					RandomHugProperties properties = getProperties(chatid);
 
-					if (properties.users.containsKey(c.getMessage().getFrom().getId())) {
+					if (properties.users.containsKey(user.getId())) {
 						c.getSender().reply("Du bist bereits angemeldet.\nMit /hugoptout kannst du dich wieder abmelden.", c.getMessage());
 					} else {
-						properties.users.put(c.getMessage().getFrom().getId(), c.getMessage().getFrom());
+						properties.users.put(user.getId(), user);
+						RandomHugsOptins entry = new RandomHugsOptins(chatid, user.getId());
+						entry.saveIt();
 						c.getSender().reply("Yay, ich freue mich schon. : )", c.getMessage());
 					}
 				}));
@@ -133,10 +164,16 @@ public class RandomHugs implements Module {
                 .setLocality(Locality.EVERYWHERE)
                 .setCategory(category)
                 .setAction(c -> {
-					RandomHugProperties properties = getProperties(c.getMessage().getChatId(), c.getSender());
+					Long chatid = c.getMessage().getChatId();
+					User user = c.getMessage().getFrom();
 
-					if (properties.users.containsKey(c.getMessage().getFrom().getId())) {
-						properties.users.remove(c.getMessage().getFrom().getId());
+					RandomHugProperties properties = getProperties(chatid);
+
+					if (properties.users.containsKey(user.getId())) {
+						properties.users.remove(user.getId());
+						RandomHugsOptins entry = RandomHugsOptins.find(chatid, user.getId());
+						if (entry != null)
+							entry.delete();
 						c.getSender().reply("Schade. : (", c.getMessage());
 					} else {
 						c.getSender().reply("Du bist nicht angemeldet.\nMit /hugoptin kannst du dich wieder anmelden.", c.getMessage());
@@ -147,8 +184,34 @@ public class RandomHugs implements Module {
 
     @Override
     public void activate() {
+    	if (randomHugChats.size() == 0) {
+    		UserLookup userLookup = moduleDependencies.get(UserLookup.class);
+    		if (userLookup == null) {
+    			System.out.print("Loading hug users from database failed: UserLookup module not active.");
+			} else {
+
+				List<RandomHugsOptins> entries = RandomHugsOptins.findAll();
+
+				for (RandomHugsOptins entry : entries) {
+					RandomHugProperties properties = getProperties(entry.getChatId());
+
+					if (!properties.users.containsKey(entry.getUserId())) {
+						User user = userLookup.getUser(entry.getUserId());
+						if (user == null) {
+							System.out.println("Loading user from database failed: No User Entry from User Lookup.");
+						} else {
+							properties.users.put(entry.getUserId(), user);
+						}
+					}
+				}
+    		}
+		}
+
 		for(RandomHugProperties properties : randomHugChats.values()) {
-			properties.thread.restart();
+			if (properties.thread == null)
+				properties.thread = new RandomHugThread(properties);
+			if (!properties.thread.running)
+				properties.thread.start();
 		}
     }
 
@@ -156,6 +219,7 @@ public class RandomHugs implements Module {
     public void deactivate() {
 		for(RandomHugProperties properties : randomHugChats.values()) {
 			properties.thread.shutdown();
+			properties.thread = null;
 		}
     }
 
