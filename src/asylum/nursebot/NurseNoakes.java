@@ -1,15 +1,10 @@
 package asylum.nursebot;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import asylum.nursebot.objects.*;
 import org.javalite.activejdbc.InitException;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -19,10 +14,6 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import asylum.nursebot.commands.CommandInterpreter;
 import asylum.nursebot.loader.ModuleLoader;
-import asylum.nursebot.objects.Locality;
-import asylum.nursebot.objects.Module;
-import asylum.nursebot.objects.Permission;
-import asylum.nursebot.objects.Visibility;
 import asylum.nursebot.persistence.Connector;
 import asylum.nursebot.persistence.ModelManager;
 import asylum.nursebot.persistence.modules.NurseModule;
@@ -375,7 +366,9 @@ public class NurseNoakes extends TelegramLongPollingBot {
 			System.out.println("We made changes to the database.");
 			restart();
 		}
-		
+
+		List<Module> modulesToActivate = new LinkedList<>();
+
 		List<NurseModule> registeredModules = NurseModule.findAll();
 		for (NurseModule registeredModule : registeredModules) {
 			Module module = searchModule(registeredModule.getName());
@@ -386,7 +379,23 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				continue;
 			}
 			if (registeredModule.isActive())
+				modulesToActivate.add(module);
+		}
+
+
+		List<Module> nonDependencyModulesToActivate = new LinkedList<>();
+
+		System.out.println("Activating all dependency modules.");
+		for (Module module : modulesToActivate) {
+			if (module.getType().is(ModuleType.DEPENDENCY_MODULE)) {
 				activateModule(module);
+			} else {
+				nonDependencyModulesToActivate.add(module);
+			}
+		}
+		System.out.println("Activating all other modules.");
+		for (Module module : nonDependencyModulesToActivate) {
+			activateModule(module);
 		}
 		
 		connector.disconnectThread();
