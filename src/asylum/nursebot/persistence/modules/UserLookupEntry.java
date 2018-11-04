@@ -27,22 +27,42 @@ public class UserLookupEntry extends Model implements Selfbuilding{
 				new Column("userid", new Type(DataType.INT))
 					.setNotNullFlag(true),
 				new Column("username", new Type(DataType.TEXT))
+					.setNotNullFlag(false),
+				new Column("firstname", new Type(DataType.TEXT))
+					.setNotNullFlag(true),
+				new Column("surname", new Type(DataType.TEXT))
 					.setNotNullFlag(true)
 			});
-	}
-
-	public void setUsername(String userName) {
-		set("username", userName);
 	}
 
 	public String getUsername() {
 		return getString("username");
 	}
 
+	public String getFirstname() {
+		return getString("firstname");
+	}
+
+	public String getSurname() {
+		return getString("surname");
+	}
+
 	public Integer getUserid() {
 		return getInteger("userid");
 	}
-	
+
+	public void setUsername(String userName) {
+		set("username", userName);
+	}
+
+	public void setFirstname(String firstname) {
+		set("firstname", firstname);
+	}
+
+	public void setSurname(String surname) {
+		set("surname", surname);
+	}
+
 	public void setUserid(Integer id) {
 		set("userid", id);
 	}

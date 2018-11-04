@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import asylum.nursebot.objects.*;
 import org.javalite.activejdbc.Base;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.MessageEntity;
@@ -16,11 +17,6 @@ import asylum.nursebot.commands.CommandHandler;
 import asylum.nursebot.commands.CommandInterpreter;
 import asylum.nursebot.loader.AutoDependency;
 import asylum.nursebot.loader.AutoModule;
-import asylum.nursebot.objects.Locality;
-import asylum.nursebot.objects.Module;
-import asylum.nursebot.objects.ModuleType;
-import asylum.nursebot.objects.Permission;
-import asylum.nursebot.objects.Visibility;
 import asylum.nursebot.persistence.ModelManager;
 import asylum.nursebot.persistence.modules.UserLookupEntry;
 import asylum.nursebot.semantics.SemanticInterpreter;
@@ -32,45 +28,6 @@ import asylum.nursebot.utils.StringTools;
 @AutoModule(load=true)
 @AutoDependency
 public class UserLookup implements Module {
-
-	class MinimalUser extends User {
-		private static final long serialVersionUID = 2210503080750916556L;
-		
-		private String name;
-		private int id;
-		
-		public MinimalUser(int id, String name) {
-			this.name = name;
-			this.id = id;
-		}
-		
-		@Override
-		public String getUserName() {
-			if (name.startsWith("@"))
-				return name.substring(1);
-			return null;
-		}
-		
-		@Override
-		public String getFirstName() {
-			return name;
-		}
-		
-		@Override
-		public Integer getId() {
-			return id;
-		}
-		
-		@Override
-		public Boolean getBot() {
-			return null;
-		}
-		
-		@Override
-		public String getLanguageCode() {
-			return null;
-		}
-	}
 	
 	@Inject
 	private SemanticsHandler semanticsHandler;
@@ -112,11 +69,11 @@ public class UserLookup implements Module {
 						return;
 					
 					Base.openTransaction();
-					UserLookupEntry entry = getUser(user.getId());
+					UserLookupEntry entry = getUserEntry(user.getId());
 					if (entry == null)
 						addUser(user);
 					else if (!(entry.getUsername().equals(user.getUserName())))
-						updateUser(entry, user);
+							updateUser(entry, user);
 					Base.commitTransaction();
 				}));
 		
@@ -148,6 +105,8 @@ public class UserLookup implements Module {
 
 	private void updateUser(UserLookupEntry entry, User user) {
 		entry.setUsername(user.getUserName());
+		entry.setFirstname(StringTools.nullCheck(user.getFirstName(), ""));
+		entry.setSurname(StringTools.nullCheck(user.getLastName(), ""));
 		entry.saveIt();
 	}
 
@@ -155,15 +114,35 @@ public class UserLookup implements Module {
 		UserLookupEntry entry = new UserLookupEntry();
 		entry.setUserid(user.getId());
 		entry.setUsername(user.getUserName());
+		entry.setFirstname(StringTools.nullCheck(user.getFirstName(), ""));
+		entry.setSurname(StringTools.nullCheck(user.getLastName(), ""));
 		entry.saveIt();
 	}
 
-	private UserLookupEntry getUser(int id) {
+	private UserLookupEntry getUserEntry(int id) {
 		return UserLookupEntry.getByUserid(id);
 	}
 
+	private UserLookupEntry getUserEntry(String username) {
+		return UserLookupEntry.getByUsername(username);
+	}
+
+	public User getUser(int id) {
+		UserLookupEntry entry = getUserEntry(id);
+		if (entry == null)
+			return null;
+		return new MinimalUser(entry);
+	}
+
+	public User getUser(String name) {
+		UserLookupEntry entry = getUserEntry(name);
+		if (entry == null)
+			return null;
+		return new MinimalUser(entry);
+	}
+
 	public String getUsername(int id) {
-		UserLookupEntry entry = getUser(id);
+		UserLookupEntry entry = getUserEntry(id);
 		if (entry == null)
 			return null;
 		return entry.getUsername();
