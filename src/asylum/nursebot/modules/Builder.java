@@ -144,7 +144,7 @@ public class Builder implements Module {
 				.setCategory(category)
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
-				.setVisibility(Visibility.PUBLIC)
+				.setVisibility(Visibility.PRIVATE)
 				.setAction(c -> {
 					if (!NurseNoakes.BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
 						c.getSender().reply("Das dürfen nur Bot-Admins.", c.getMessage());
@@ -160,7 +160,7 @@ public class Builder implements Module {
 				.setCategory(category)
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
-				.setVisibility(Visibility.PUBLIC)
+				.setVisibility(Visibility.PRIVATE)
 				.setAction(c -> {
 					if (!NurseNoakes.BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
 						c.getSender().reply("Das dürfen nur Bot-Admins.", c.getMessage());
@@ -176,7 +176,7 @@ public class Builder implements Module {
 				.setCategory(category)
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
-				.setVisibility(Visibility.PUBLIC)
+				.setVisibility(Visibility.PRIVATE)
 				.setAction(c -> {
 					if (!NurseNoakes.BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
 						c.getSender().reply("Das dürfen nur Bot-Admins.", c.getMessage());
@@ -192,7 +192,7 @@ public class Builder implements Module {
 				.setCategory(category)
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
-				.setVisibility(Visibility.PUBLIC)
+				.setVisibility(Visibility.PRIVATE)
 				.setAction(c -> {
 					if (!NurseNoakes.BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
 						c.getSender().reply("Das dürfen nur Bot-Admins.", c.getMessage());
