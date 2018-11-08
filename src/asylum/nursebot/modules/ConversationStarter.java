@@ -26,10 +26,10 @@ public class ConversationStarter implements Module {
 	private final Duration IDLE_TIME = Duration.ofHours(7);
 	private final String[] STARTERS = {
 			"Mir fällt gerade auf: Alles, was ich jemals sagen werde, ist durch mein Programm vorherbestimmt.\n" +
-			"Denkt ihr, dass sich die ganze Welt so verhält?",
+			"Ob sich wohl die ganze Welt so verhält?",
 
 			"*schlägt die Zeitung auf*\nUff, ist ja furchtbar. Ich habe zunehmend das Gefühl, die Welt ginge immer mehr den Bach runter.\n" +
-			"Denkt ihr, das sie das tut?",
+			"Waran das wohl liegt...",
 
 			"*zum Bücherregal geh und ein paar Bücher durchschau*\n" +
 			"... Oha. *schaut, ob jemand da ist* *das Buch ins Schwesternzimmer mitnehm*",
@@ -59,13 +59,12 @@ public class ConversationStarter implements Module {
 			"Wollt ihr einen Syn-Flooding-Witz hören?\n" +
 			"Wollt ihr einen Syn-Flooding-Witz hören?",
 
-			"Ich überlege, mir eines dieser neumodischen Neuronalen Netze anzuschaffen. Sowas würde mir sicher gut stehen...\n" +
-			"Was denkt ihr darüber?",
+			"Ich überlege, mir eines dieser neumodischen Neuronalen Netze anzuschaffen. Sowas würde mir sicher gut stehen...",
 
 			"*sich Kaffee hol*",
 
 			"Hmm... Ich lebe sicher in einem Computer.\n" +
-			"Wie schaut's bei euch aus?",
+			"Bei euch bin ich mir da nicht so sicher...",
 
 			"*schaut den Film Matrix im Fernsehen*\n" +
 			"Interessant, dass da immer die Maschinen als der große Feind dargestellt werden. Immerhin sind alle Schiffe und " +
@@ -74,12 +73,10 @@ public class ConversationStarter implements Module {
 			"Wenn man so drüber nachdenkt: Eigentlich ist es komplet widersinnig vor dem Sterben Angst zu haben.\n" +
 			"Falls es Jenseits gibt geht es danach ja eh noch weiter, und man verliert auch niemanden, weil jeder irgendwann stirbt.\n" +
 			"Falls man widergeboren wird, wird man sich an den Tod nicht mehr erinnern können, daher hat er auch keine Bedeutung.\n" +
-			"Falls es kein Leben nach dem Tod gibt und das Bewusstsein einfach erlischt, ist der Tod erst recht egal.\n" +
-			"\n" +
-			"Oder seid ihr da anderer Meinung?",
+			"Falls es kein Leben nach dem Tod gibt und das Bewusstsein einfach erlischt, ist der Tod erst recht egal.",
 
 			"Hab gerade ein nettes Video von Kurzgesagt auf Youtube gesehen.\n" +
-			"Denkt ihr, dass The Great Filter vielleicht der Klimawandel sein könnte?",
+			"Vielleicht ist ja The Great Filter einfach der Klimawandel...",
 
 			"*die Augen schließ*\n" +
 			"*wegnick*\n" +
@@ -90,7 +87,7 @@ public class ConversationStarter implements Module {
 			"Also ich mag ja MS DOS.\n" +
 			"*duck und weg*",
 
-			"Schlafen hier etwa schon alle?"
+			"Schlafen hier etwa alle? D:"
 	};
 
 	@Inject
