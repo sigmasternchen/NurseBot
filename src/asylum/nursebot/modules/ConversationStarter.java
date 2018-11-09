@@ -130,6 +130,7 @@ public class ConversationStarter implements Module {
 								if (tmp.isBefore(Instant.now())) {
 									String starter = STARTERS[random.nextInt(STARTERS.length)];
 									ThreadHelper.ignore(TelegramApiException.class, () -> c.getSender().send(starter));
+									lastMessages.put(chatid, Instant.now());
 								}
 							}
 						}).start();
