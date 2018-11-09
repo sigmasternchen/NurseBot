@@ -128,7 +128,12 @@ public class RandomHugs implements Module {
 						StringBuilder builder = new StringBuilder();
 						builder.append("Für diesen Chat sind folgende Leute für Random Hugs angemeldet:\n");
 						for (User user : properties.users.values()) {
-							builder.append("- " + user.getFirstName() + " " + user.getLastName() + "\n");
+							builder.append("- ");
+							if (user.getFirstName() != null)
+								builder.append(user.getFirstName()).append(" ");
+							if (user.getLastName() != null)
+								builder.append(user.getLastName());
+							builder.append("\n");
 						}
 						c.getSender().reply(builder.toString(), c.getMessage());
 					}
