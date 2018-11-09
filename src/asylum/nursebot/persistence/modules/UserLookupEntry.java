@@ -29,9 +29,9 @@ public class UserLookupEntry extends Model implements Selfbuilding{
 				new Column("username", new Type(DataType.TEXT))
 					.setNotNullFlag(false),
 				new Column("firstname", new Type(DataType.TEXT))
-					.setNotNullFlag(true),
+					.setNotNullFlag(false),
 				new Column("surname", new Type(DataType.TEXT))
-					.setNotNullFlag(true)
+					.setNotNullFlag(false)
 			});
 	}
 

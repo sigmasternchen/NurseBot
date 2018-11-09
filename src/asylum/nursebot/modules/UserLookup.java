@@ -65,8 +65,6 @@ public class UserLookup implements Module {
 				.setAction(c -> {
 					
 					User user = c.getMessage().getFrom();
-					if (user.getUserName() == null)
-						return;
 					
 					Base.openTransaction();
 					UserLookupEntry entry = getUserEntry(user.getId());
