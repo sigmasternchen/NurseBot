@@ -78,7 +78,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 			System.exit(EXIT_CODE_CRITICAL);
 		});
 
-		logger = Logger.getWrapper("main");
+		logger = Logger.getModuleLogger("main");
 
 		logger.info("Getting config file.");
 		ConfigHolder holder = null;

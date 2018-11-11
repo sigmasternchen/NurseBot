@@ -1,10 +1,10 @@
 package asylum.nursebot.utils.log;
 
-public class LoggerWrapper extends Logger {
+public class ModuleLogger extends Logger {
 	private LoggerImpl logger;
 	private String module;
 
-	protected LoggerWrapper(LoggerImpl logger, String module) {
+	protected ModuleLogger(LoggerImpl logger, String module) {
 		this.logger = logger;
 		this.module = module;
 	}

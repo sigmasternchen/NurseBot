@@ -41,8 +41,8 @@ public abstract class Logger {
 		return instance;
 	}
 
-	public static Logger getWrapper(String module) {
-		return new LoggerWrapper(getInstance(), module);
+	public static Logger getModuleLogger(String module) {
+		return new ModuleLogger(getInstance(), module);
 	}
 
 	public abstract void log(int verbosity, String msg);
