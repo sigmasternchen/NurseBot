@@ -1,10 +1,12 @@
 package asylum.nursebot;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import asylum.nursebot.objects.*;
+import asylum.nursebot.utils.Logger;
 import org.javalite.activejdbc.InitException;
 import org.telegram.telegrambots.ApiContextInitializer;
 import org.telegram.telegrambots.TelegramBotsApi;
@@ -26,20 +28,18 @@ public class NurseNoakes extends TelegramLongPollingBot {
 
 	public static final String VERSION = "3.0";
 	public static final List<String> BOT_ADMIN_USERNAMES = 
-			Collections.unmodifiableList(Arrays.asList(new String[]{
-					"overflowerror"
-			}));
+			Collections.unmodifiableList(Arrays.asList("overflowerror"));
 	private static final int EXIT_CODE_SHUTDOWN = 0;
 	private static final int EXIT_CODE_RESTART = 1;
 
-	private static final int EXIT_CODE_INSTRUMENTATION_MISSING = 10;
+	private static final int EXIT_CODE_CRITICAL = 10;
 
 	public static void main(String[] args) {
 		if (Arrays.asList(args).contains("-v")) {
 			System.out.println(VERSION);
-			System.exit(0);
+			System.exit(EXIT_CODE_SHUTDOWN);
 		}
-		
+
 		ApiContextInitializer.init();
 
 		TelegramBotsApi botsApi = new TelegramBotsApi();
@@ -48,8 +48,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 			botsApi.registerBot(new NurseNoakes());
 		} catch (TelegramApiException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			System.exit(EXIT_CODE_CRITICAL);
 		}
 
 	}
@@ -65,26 +64,85 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	private Collection<Module> inactiveModules = new ConcurrentLinkedQueue<>();
 	
 	private long started;
+
+	private Logger logger;
+	private String loggerModule = "main";
 	
-	public NurseNoakes() throws IOException {
+	public NurseNoakes() {
 		started = new Date().getTime();
-		
-		ConfigHolder holder = ConfigHolder.getInstance();
+
+		logger = Logger.getInstance();
+		logger.setCrticalAction(() -> {
+			System.err.println("Critical error occurred.");
+			System.err.println("Shuting down.");
+			System.exit(EXIT_CODE_CRITICAL);
+		});
+
+		logger.info(loggerModule, "Getting config file.");
+		ConfigHolder holder = null;
+		try {
+			holder = ConfigHolder.getInstance();
+		} catch (IOException e) {
+			logger.critical(loggerModule, "Error reading config file: " + e.getMessage());
+		}
+
+		logger.debug(loggerModule, "Getting log verbosity.");
+		if (holder.getLogVerbosity() != null) {
+			switch (holder.getLogVerbosity().toLowerCase()) {
+				case "debug":
+					logger.setVerbosity(Logger.DEBUG);
+					break;
+				case "verbose":
+					logger.setVerbosity(Logger.VERBOSE);
+					break;
+				case "info":
+					logger.setVerbosity(Logger.INFO);
+					break;
+				case "warn":
+					logger.setVerbosity(Logger.WARNING);
+					break;
+				case "error":
+					logger.setVerbosity(Logger.ERROR);
+					break;
+				case "critical":
+					logger.setVerbosity(Logger.CRITICAL);
+					break;
+				default:
+					logger.warn(loggerModule, "Invalid log verbosity in config file.");
+					break;
+			}
+		}
+
+		logger.debug(loggerModule, "Getting logfile.");
+		if (holder.getLogfile() != null) {
+			try {
+				logger.setLogfile(new File(holder.getLogfile()));
+			} catch (IOException e) {
+				logger.error(loggerModule, "Error while opening logfile: " + e.getMessage());
+			}
+		}
 
 		try {
+			logger.info(loggerModule, "Connecting to database.");
 			connector = new Connector(holder.getDatabaseHost(), holder.getDatabaseSchema(), holder.getDatabaseUser(), holder.getDatabasePassword());
+			logger.debug(loggerModule, "Connecting setup thread to dataase.");
 			connector.connectThread(); // setup thread
-		
+
+			logger.verbose(loggerModule, "Building modules model.");
 			ModelManager.build(NurseModule.class);
 		} catch (InitException e) {
-			e.printStackTrace();
-			System.out.println("Error: Probably no instrumentation.");
-			System.exit(EXIT_CODE_INSTRUMENTATION_MISSING);
+			logger.error(loggerModule, "Error while connecting to database.");
+			logger.exception(e);
+			logger.error(loggerModule, "Probably no instrumentation.");
+			logger.critical(loggerModule, "Unable to continue.");
 		}
-		
+
+		logger.debug(loggerModule, "Creating command handler.");
 		commandHandler = new CommandHandler(this);
+		logger.debug(loggerModule, "Creating semantic handler.");
 		semanticsHandler = new SemanticsHandler(this);
-	
+
+		logger.debug(loggerModule, "Adding commands.");
 		commandHandler.add(new CommandInterpreter(null)
 				.setName("start")
 				.setInfo("")
@@ -92,11 +150,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setPermission(Permission.USER)
 				.setLocality(Locality.USERS)
 				.setAction(c -> {
-					try {
-						c.getSender().send(StringTools.makeBold("Hallo o/\nDieser Bot ist für Gruppen Chats gedacht, aber ein paar Funktionen sind auch hier nutzbar."), true);
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
+					c.getSender().send(StringTools.makeBold("Hallo o/\nDieser Bot ist für Gruppen Chats gedacht, aber ein paar Funktionen sind auch hier nutzbar."), true);
 				}));
 		commandHandler.add(new CommandInterpreter(null)
 				.setName("pause")
@@ -131,6 +185,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setAction(c -> {
 					if (BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
 						c.getSender().send("Shutting down...");
+						logger.info(loggerModule, "Got shutdown command.");
 						shutdown();
 					} else {
 						c.getSender().reply("Du darfst das nicht.", c.getMessage());
@@ -147,6 +202,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setAction(c -> {
 					if (BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
 						c.getSender().send("Restarting...");
+						logger.info(loggerModule, "Got restart command.");
 						restart();
 					} else {
 						c.getSender().reply("Du darfst das nicht.", c.getMessage());
@@ -327,8 +383,9 @@ public class NurseNoakes extends TelegramLongPollingBot {
 							c.getSender().send("Das Modul " + module.getName() + " wurde deaktiviert.");
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
-						c.getSender().reply("Der Vorgang ist fehlgeschlagen. Ist das Modul bereits aktiv/inaktiv?", c.getMessage());
+						logger.warn(loggerModule, "Module " + (activate ? "activiation" : "deactivation") + " failed.");
+						logger.exception(e);
+						c.getSender().reply("Der Vorgang ist fehlgeschlagen. Ist das Modul bereits " + (activate ? "aktiviert" : "deaktiviert") + "?", c.getMessage());
 					}
 					
 				}));
@@ -355,76 +412,64 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					
 						c.getSender().send(text, true);
 				}));
-		
+
+		logger.debug(loggerModule, "Creating module loader.");
 		ModuleLoader loader = new ModuleLoader(this, commandHandler, semanticsHandler);
-	
+
+		logger.info(loggerModule, "Loading dependencies.");
 		loader.loadDependencies();
+		logger.info(loggerModule, "Loading regular modules.");
 		loader.loadModules(module -> loadModule(module));
 			
 			
 		if (ModelManager.wasAnythingCreated()) {
-			System.out.println("We made changes to the database.");
+			logger.warn(loggerModule,"Changes to database were made.");
 			restart();
 		}
 
-		List<Module> modulesToActivate = new LinkedList<>();
-
+		logger.info(loggerModule, "Activating modules.");
 		List<NurseModule> registeredModules = NurseModule.findAll();
 		for (NurseModule registeredModule : registeredModules) {
 			Module module = searchModule(registeredModule.getName());
 			if (module == null) {
-				System.out.println("Module does not exist in database: " + registeredModule.getName());
-				System.out.println("Deleting...");
+				logger.warn(loggerModule, "Module " + registeredModule.getName() + " does not exist in database. Deleting...");
 				registeredModule.delete();
 				continue;
 			}
 			if (registeredModule.isActive())
-				modulesToActivate.add(module);
-		}
-
-
-		List<Module> nonDependencyModulesToActivate = new LinkedList<>();
-
-		System.out.println("Activating all dependency modules.");
-		for (Module module : modulesToActivate) {
-			if (module.getType().is(ModuleType.DEPENDENCY_MODULE)) {
 				activateModule(module);
-			} else {
-				nonDependencyModulesToActivate.add(module);
-			}
 		}
-		System.out.println("Activating all other modules.");
-		for (Module module : nonDependencyModulesToActivate) {
-			activateModule(module);
-		}
-		
+
+		logger.debug(loggerModule, "End of setup. Disconnect from database.");
 		connector.disconnectThread();
 	}
 
 	public void shutdown() {
-		System.out.println("Shutting down...");
+		logger.info(loggerModule, "Shuting down...");
 		for(Module module : activeModules) {
-			System.out.println("Shutting down module " + module.getName() + "...");
+			logger.verbose(loggerModule, "Shutting down module " + module.getName() + "...");
 			module.shutdown();
 		}
 		for(Module module : inactiveModules) {
-			System.out.println("Shutting down module " + module.getName() + "...");
+			logger.verbose(loggerModule, "Shutting down module " + module.getName() + "...");
 			module.shutdown();
 		}
-		
+
+		logger.debug(loggerModule, "Closing database connection.");
 		connector.close();
-		
+
+		logger.info(loggerModule, "Shutdown complete.");
 		System.exit(EXIT_CODE_SHUTDOWN);
 	}
 	
 	public void restart() {
-		System.out.println("Rebooting...");
+		logger.info(loggerModule, "Restarting...");
 		for(Module module : activeModules) {
-			System.out.println("Shutting down module " + module.getName() + "...");
+			logger.verbose(loggerModule, "Shutting down module " + module.getName() + "...");
 			module.shutdown();
 		}
 		for(Module module : inactiveModules) {
-			System.out.println("Shutting down module " + module.getName() + "...");
+			logger.verbose(loggerModule, "Shutting down module " + module.getName() + "...");
 			module.shutdown();
 		}
 		
@@ -452,7 +497,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		
 		inactiveModules.add(module);
 		
-		System.out.println("Module " + module.getName() + " loaded.");
+		logger.verbose(loggerModule, "Module " + module.getName() + " loaded.");
 	}
 	
 	private void activateModule(Module module) {
@@ -472,7 +517,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		
 		nm.saveIt();
 		
-		System.out.println("Module " + module.getName() + " activated.");
+		logger.verbose(loggerModule, "Module " + module.getName() + " activated.");
 	}
 	
 	private void deactivateModule(Module module) {
@@ -492,7 +537,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		
 		nm.saveIt();
 		
-		System.out.println("Module " + module.getName() + " deactivated.");
+		logger.verbose(loggerModule, "Module " + module.getName() + " deactivated.");
 	}
 	
 	public boolean isActive(Module module) {
