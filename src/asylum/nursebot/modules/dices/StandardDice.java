@@ -31,4 +31,9 @@ public abstract class StandardDice implements Dice {
     public String display() {
         return String.valueOf(value);
     }
+
+    @Override
+    public String toString() {
+        return "D" + getSides();
+    }
 }
