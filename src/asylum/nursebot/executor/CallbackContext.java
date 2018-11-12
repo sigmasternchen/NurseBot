@@ -1,8 +1,8 @@
 package asylum.nursebot.executor;
 
-import java.util.HashMap;
+import asylum.nursebot.exceptions.WhatTheFuckException;
 
-import asylum.nursebot.exceptions.WhatTheFuckExecption;
+import java.util.HashMap;
 
 public class CallbackContext extends HashMap<Class<?>, Object>{
 	private static final long serialVersionUID = 1988125468800948893L;
@@ -15,7 +15,7 @@ public class CallbackContext extends HashMap<Class<?>, Object>{
 	public <T> T get(Class<T> clazz) {
 		Object obj = ((HashMap<Class<?>, Object>) this).get(clazz);
 		if (!(clazz.isInstance(obj)))
-			throw new WhatTheFuckExecption();
+			throw new WhatTheFuckException("WAT?");
 		return (T) obj;
 	}
 }

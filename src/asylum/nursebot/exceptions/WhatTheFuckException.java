@@ -1,9 +1,9 @@
 package asylum.nursebot.exceptions;
 
-public class WhatTheFuckException extends NurseException {
+public class WhatTheFuckException extends RuntimeException {
 
 	public WhatTheFuckException(String string) {
-		super("WhatTheFuckException message: " + string);
+		super(string);
 	}
 
 }
