@@ -15,6 +15,9 @@ import asylum.nursebot.NurseNoakes;
 import asylum.nursebot.commands.CommandHandler;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.semantics.SemanticsHandler;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
+import org.reflections.util.FilterBuilder;
 
 public class ModuleLoader {
 	private List<Provider> providers;
@@ -24,7 +27,9 @@ public class ModuleLoader {
 	private ModuleDependencies dependencies;
 
 	private Logger logger = Logger.getModuleLogger("ModuleLoader");
-	
+
+	private Reflections reflections = new Reflections("asylum.nursebot");
+
 	public ModuleLoader(NurseNoakes nurse, CommandHandler commandHandler, SemanticsHandler semanticsHandler) {
 		this.providers = new LinkedList<>();
 		this.dependencyClasses = new LinkedList<>();
@@ -35,7 +40,6 @@ public class ModuleLoader {
 	
 	@SuppressWarnings("unchecked")
 	public void loadDependencies() {
-		Reflections reflections = new Reflections("asylum.nursebot");
 		Set<Class<?>> list = reflections.getTypesAnnotatedWith(AutoDependency.class);
 		for (Class<?> clazz : list) {
 			if (Module.class.isAssignableFrom(clazz)) {
@@ -47,8 +51,7 @@ public class ModuleLoader {
 	@SuppressWarnings("unchecked")
 	public void loadModules(ModuleHandler handler) {
 		Injector injector = Guice.createInjector(providers);
-		
-		Reflections reflections = new Reflections("asylum.nursebot");
+
 		Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(AutoModule.class);
 
 		Set<Class<?>> dependenciesToLoad = new HashSet<Class<?>>();
