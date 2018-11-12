@@ -2,15 +2,19 @@ package asylum.nursebot.persistence;
 
 import java.sql.Connection;
 
+import asylum.nursebot.utils.ThreadHelper;
+import asylum.nursebot.utils.log.Logger;
 import org.javalite.activejdbc.Base;
 
 public class Connector {
 	private static final long CONNECTION_SLEEP = 30*1000;
 	private Connection connection;
-private String host;
-private String schema;
-private String user;
-private String password;
+	private String host;
+	private String schema;
+	private String user;
+	private String password;
+
+	private Logger logger = Logger.getModuleLogger("Connector");
 	
 	private void connect() {
 		Base.open(
@@ -33,15 +37,12 @@ private String password;
 			Base.attach(connection);
 			
 			while(true) {
-				try {
-					Thread.sleep(CONNECTION_SLEEP);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+					ThreadHelper.ignore(InterruptedException.class, () -> Thread.sleep(CONNECTION_SLEEP));
 				
 				try {
 					Base.exec("SELECT 1");
 				} catch (Exception e1) {
+					logger.warn("Connection closed. Reopening...");
 					try {
 						Base.close();
 					} catch (Exception e2) {

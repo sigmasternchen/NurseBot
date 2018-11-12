@@ -2,6 +2,7 @@ package asylum.nursebot.persistence.selfbuilding;
 
 import java.util.List;
 
+import asylum.nursebot.utils.log.Logger;
 import org.javalite.activejdbc.Base;
 
 public interface Selfbuilding {
@@ -11,14 +12,16 @@ public interface Selfbuilding {
 	
 	default boolean selfbuild() {
 		List<Column> list = getSelfbuildingColumns();
+
+		Logger logger = Logger.getModuleLogger("Selfbuilding");
 		
-		System.out.println("Checking for table " + getSelfbuildingName() + "...");
+		logger.verbose("Checking for table " + getSelfbuildingName() + "...");
 		boolean present = Base.firstCell("SHOW TABLES LIKE '" + getSelfbuildingName() + "'") != null;
 		
 		if (present) {
-			System.out.println("... present"); 
+			logger.verbose("... present");
 		} else {
-			System.out.println("... missing"); 
+			logger.verbose("... missing");
 			StringBuilder builder = new StringBuilder();
 			builder.append("CREATE TABLE IF NOT EXISTS `").append(getSelfbuildingName()).append("`\n(\n");
 			boolean first = true;
@@ -32,14 +35,14 @@ public interface Selfbuilding {
 			}
 			builder.append("\n)");
 			
-			System.out.println("Creating table " + getSelfbuildingName() + "...");
+			logger.info("Creating table " + getSelfbuildingName() + "...");
 			try {
 				Base.exec(builder.toString());
 			} catch (Exception e) {
-				System.out.println("... failed.");
+				logger.info("... failed.");
 				throw e;
 			}
-			System.out.println("... success");
+			logger.info("... success");
 		}
 		
 		return !present;

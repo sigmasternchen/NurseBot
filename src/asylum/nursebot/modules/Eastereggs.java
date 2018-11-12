@@ -65,11 +65,7 @@ public class Eastereggs implements Module {
 				.setLocality(Locality.EVERYWHERE)
 				.setCategory(category)
 				.setAction(c -> {
-					try {
-						c.getSender().send("https://www.youtube.com/watch?v=VnT7pT6zCcA");
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
+					c.getSender().send("https://www.youtube.com/watch?v=VnT7pT6zCcA");
 				}));
 		commandHandler.add(new CommandInterpreter(this)
 				.setName("eyeroll")
@@ -79,11 +75,7 @@ public class Eastereggs implements Module {
 				.setLocality(Locality.EVERYWHERE)
 				.setCategory(category)
 				.setAction(c -> {
-					try {
-						c.getSender().send("🙄");
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					}
+					c.getSender().send("🙄");
 				}));
 
 

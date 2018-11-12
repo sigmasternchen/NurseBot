@@ -4,6 +4,7 @@ import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
 
+import asylum.nursebot.utils.log.Logger;
 import org.telegram.telegrambots.api.objects.User;
 
 import com.google.inject.Inject;
@@ -35,9 +36,8 @@ public class Greeter implements Module {
 	private SemanticsHandler SemanticsHandler;
 	@Inject
 	private NurseNoakes nurse;
-	
-	public Greeter() {
-	}
+
+	private Logger logger = Logger.getModuleLogger("Greeter");
 	
 	private String getNewUserString(List<User> users) {
 		StringBuilder builder = new StringBuilder();
@@ -95,7 +95,7 @@ public class Greeter implements Module {
 			.setPermission(Permission.ANY)
 			.setAction(c -> {
 				if (c.getMessage().getNewChatMembers() != null) {
-					System.out.println("New Users: " + c.getMessage().getNewChatMembers());
+					logger.info("New Users: " + c.getMessage().getNewChatMembers());
 					if (c.getMessage().getNewChatMembers().stream().anyMatch(u -> u.getUserName() != null && u.getUserName().equals(nurse.getBotUsername()))) {
 						c.getSender().send("Hallihallo o/");
 					} else {
@@ -110,7 +110,7 @@ public class Greeter implements Module {
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
 					if (c.getMessage().getLeftChatMember() != null) {
-						System.out.println("Left User: " + c.getMessage().getLeftChatMember());
+						logger.info("Left User: " + c.getMessage().getLeftChatMember());
 						
 						c.getSender().send(getLeftUserString(c.getMessage().getLeftChatMember()), true);
 					}

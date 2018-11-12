@@ -38,6 +38,13 @@ public class ConfigHolder {
 	public String getDatabasePassword() {
 		return properties.getProperty("database.password");
 	}
+
+	public String getLogfile() {
+		return properties.getProperty("log.file");
+	}
+	public String getLogVerbosity() {
+		return properties.getProperty("log.verbosity");
+	}
 	
 	private ConfigHolder() throws IOException {
 		properties = new Properties();

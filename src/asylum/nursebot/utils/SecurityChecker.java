@@ -1,5 +1,6 @@
 package asylum.nursebot.utils;
 
+import asylum.nursebot.utils.log.Logger;
 import org.telegram.telegrambots.api.methods.groupadministration.GetChatMember;
 import org.telegram.telegrambots.api.objects.ChatMember;
 import org.telegram.telegrambots.api.objects.User;
@@ -10,7 +11,9 @@ import asylum.nursebot.NurseNoakes;
 
 public class SecurityChecker {
 	private NurseNoakes nurse;
-	
+
+	private Logger logger = Logger.getModuleLogger("SecurityChecker");
+
 	public SecurityChecker(NurseNoakes nurse) {
 		this.nurse = nurse;
 	}
@@ -32,7 +35,7 @@ public class SecurityChecker {
 		case "member":
 			return Permission.USER;
 		default: // left, kicked
-			System.out.println("User has status " + status);
+			logger.verbose("User has status " + status);
 			return Permission.USER;
 		}	
 	}

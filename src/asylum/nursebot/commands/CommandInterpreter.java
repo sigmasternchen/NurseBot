@@ -4,6 +4,7 @@ import asylum.nursebot.objects.Locality;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.Permission;
 import asylum.nursebot.objects.Visibility;
+import asylum.nursebot.utils.log.LoggerImpl;
 
 public class CommandInterpreter {
 	private String name = "notset";
@@ -14,7 +15,7 @@ public class CommandInterpreter {
 	private Locality locality = Locality.EVERYWHERE;
 	private Module module;
 	private boolean pausable = true;
-	private CommandAction action = (c -> System.out.println("Action not defined."));
+	private CommandAction action = (c -> LoggerImpl.getInstance().error("Action not defined."));
 	
 	public CommandInterpreter(Module module) {
 		this.module = module;

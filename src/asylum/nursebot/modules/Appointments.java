@@ -10,6 +10,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import asylum.nursebot.utils.ThreadHelper;
+import asylum.nursebot.utils.log.Logger;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -55,6 +57,8 @@ public class Appointments implements Module {
 	
 	@Inject
 	private ModuleDependencies dependencies;
+
+	private Logger logger = Logger.getModuleLogger("Appointments");
 	
 	private long getTimestamp(String format, boolean rel) {
 		int Y = 1970;
@@ -160,23 +164,16 @@ public class Appointments implements Module {
 			public void run() {
 				PrivateNotifier notifier = (PrivateNotifier) dependencies.get(PrivateNotifier.class);
 				if (notifier != null) {
-					try {
-						notifier.send(sender, chat, user, "Du hast einen Termin: " + name);
+						ThreadHelper.ignore(TelegramApiException.class, () ->
+								notifier.send(sender, chat, user, "Du hast einen Termin: " + name)
+						);
 						
 						removeAppointment(user, name);
-						
-						return;
-					} catch (TelegramApiException e) {
-						e.printStackTrace();
-					} catch (NurseException e) {
-					}
 				}
 				
-				try {
-					sender.mention(user, ", du hast einen Termin: " + name);
-				} catch (TelegramApiException e) {
-					e.printStackTrace();
-				}
+				ThreadHelper.ignore(TelegramApiException.class, () ->
+					sender.mention(user, ", du hast einen Termin: " + name)
+				);
 				
 				removeAppointment(user, name);
 			}
@@ -203,7 +200,7 @@ public class Appointments implements Module {
 					List<String> list = StringTools.tokenize(c.getParameter());
 					
 					if (list.size() != 3) {
-						System.out.println("Wrong number of parameters.");
+						logger.debug("Wrong number of parameters.");
 						c.getSender().reply(help, c.getMessage());
 						return;
 					}
@@ -215,12 +212,12 @@ public class Appointments implements Module {
 					try {
 						time = getTimestamp(list.get(2), rel);
 					} catch (Exception e) {
-						System.out.println("Wrong time format.");
+						logger.debug("Wrong time format.");
 						fail = true;
 					}
 					
 					if (list.size() != 3 || !(abs ^ rel) || fail) {
-						System.out.println("Wrong parameter");
+						logger.debug("Wrong parameter");
 						c.getSender().reply(help, c.getMessage());
 						return;
 					}
@@ -233,7 +230,7 @@ public class Appointments implements Module {
 					try {
 						setTimer(c.getMessage().getFrom(), list.get(0), rel, time, c.getSender(), c.getMessage().getChat());
 					} catch (Exception e) {
-						System.out.println("Problem setting timer.");
+						logger.error("Problem setting timer.");
 						c.getSender().reply(help, c.getMessage());
 						return;
 					}

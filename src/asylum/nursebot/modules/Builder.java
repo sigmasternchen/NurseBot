@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import asylum.nursebot.utils.log.Logger;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
@@ -39,6 +40,8 @@ public class Builder implements Module {
 	private CommandHandler commandHandler;
 	
 	private CommandCategory category;
+
+	private Logger logger = Logger.getModuleLogger("Builder");
 	
 	@Override
 	public String getName() {
@@ -80,7 +83,8 @@ public class Builder implements Module {
 				c.get(Sender.class).reply(msg, c.get(Message.class));
 			});
 		}, (e, c) -> {
-			e.printStackTrace();
+			logger.error("Error while executing update script.");
+			logger.exception(e);
 		}, context);
 	}
 		
@@ -96,7 +100,8 @@ public class Builder implements Module {
 				c.get(Sender.class).reply(msg, c.get(Message.class));
 			});
 		}, (e, c) -> {
-			e.printStackTrace();
+			logger.error("Error while executing build script.");
+			logger.exception(e);
 		}, context);
 	}
 	
@@ -112,7 +117,8 @@ public class Builder implements Module {
 				c.get(Sender.class).reply(msg, c.get(Message.class));
 			});
 		}, (e, c) -> {
-			e.printStackTrace();
+			logger.error("Error while executing deploy script.");
+			logger.exception(e);
 		}, context);
 	}
 	
@@ -132,7 +138,8 @@ public class Builder implements Module {
 			
 			scanner.close();
 		}, (e, c) -> {
-			e.printStackTrace();
+			logger.error("Error while executing versions script.");
+			logger.exception(e);
 		}, context);
 	}
 	

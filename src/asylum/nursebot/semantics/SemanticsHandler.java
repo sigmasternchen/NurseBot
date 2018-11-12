@@ -3,6 +3,7 @@ package asylum.nursebot.semantics;
 import java.util.LinkedList;
 import java.util.List;
 
+import asylum.nursebot.utils.log.Logger;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
@@ -16,6 +17,8 @@ public class SemanticsHandler {
 	private NurseNoakes nurse;
 	
 	private List<SemanticInterpreter> interpreters;
+
+	private Logger logger = Logger.getModuleLogger("SemanticHandler");
 	
 	public SemanticsHandler(NurseNoakes nurse) {
 		interpreters = new LinkedList<>();
@@ -47,7 +50,7 @@ public class SemanticsHandler {
 		case TEXT_MESSAGE:
 			return true;
 		default:
-			System.out.println("Unknown WakeWordPosition.");
+			logger.error("Unknown WakeWordPosition.");
 			return false;
 		}
 	}
@@ -93,7 +96,8 @@ public class SemanticsHandler {
 						continue;
 					}
 				} catch (TelegramApiException e) {
-					e.printStackTrace();
+					logger.error("Cannot check permissions.");
+					logger.exception(e);
 					continue;
 				}
 			}
@@ -103,7 +107,8 @@ public class SemanticsHandler {
 			try {
 				interpreter.getAction().action(context);
 			} catch (TelegramApiException e) {
-				e.printStackTrace();
+				logger.error("Error while executing semantic interpreter.");
+				logger.exception(e);
 			}
 		}
 		

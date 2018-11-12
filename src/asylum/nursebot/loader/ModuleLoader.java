@@ -1,9 +1,11 @@
 package asylum.nursebot.loader;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import asylum.nursebot.utils.log.Logger;
 import org.reflections.Reflections;
 
 import com.google.inject.Guice;
@@ -20,6 +22,8 @@ public class ModuleLoader {
 	private List<Class<? extends Module>> dependencyClasses;
 	
 	private ModuleDependencies dependencies;
+
+	private Logger logger = Logger.getModuleLogger("ModuleLoader");
 	
 	public ModuleLoader(NurseNoakes nurse, CommandHandler commandHandler, SemanticsHandler semanticsHandler) {
 		this.providers = new LinkedList<>();
@@ -38,8 +42,6 @@ public class ModuleLoader {
 				dependencyClasses.add((Class<? extends Module>) clazz);
 			}
 		}
-		
-		
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -47,22 +49,42 @@ public class ModuleLoader {
 		Injector injector = Guice.createInjector(providers);
 		
 		Reflections reflections = new Reflections("asylum.nursebot");
-		Set<Class<?>> list = reflections.getTypesAnnotatedWith(AutoModule.class);
-		for (Class<?> clazz : list) {
-			if (!Module.class.isAssignableFrom(clazz))
-				throw new RuntimeException(clazz.getCanonicalName() + " is annotated but not a module.");
-			AutoModule annotation = clazz.getAnnotation(AutoModule.class);
-			if (annotation == null)
-				throw new RuntimeException("HOW?! " + clazz.getCanonicalName());
-			if (annotation.load()) {
-				Module module = (Module) injector.getInstance(clazz);
-				handler.handle(module);
-				
-				if (dependencyClasses.contains(clazz)) {
-					System.out.println("Adding " + clazz.getCanonicalName() + " as dependency.");
-					dependencies.put((Class<? extends Module>) clazz, module);
-				}
+		Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(AutoModule.class);
+
+		Set<Class<?>> dependenciesToLoad = new HashSet<Class<?>>();
+		Set<Class<?>> regularModulesToLoad = new HashSet<Class<?>>();
+
+		for (Class<?> clazz : annotatedClasses) {
+			if (!Module.class.isAssignableFrom(clazz)) {
+				logger.error(clazz.getCanonicalName() + " is annotated but not a module.");
+				continue;
 			}
+			AutoModule annotation = clazz.getAnnotation(AutoModule.class);
+			if (annotation == null) {
+				logger.error("Cannot get annotation object from annotated class " + clazz.getCanonicalName() + ". This should not happen.");
+				continue;
+			}
+			if (annotation.load()) {
+				if (dependencyClasses.contains(clazz))
+					dependenciesToLoad.add(clazz);
+				else
+					regularModulesToLoad.add(clazz);
+			}
+		}
+
+		for (Class<?> clazz : dependenciesToLoad) {
+			logger.verbose("Loading module class " + clazz.getCanonicalName() + ".");
+			Module module = (Module) injector.getInstance(clazz);
+			handler.handle(module);
+
+			logger.verbose("Adding " + clazz.getCanonicalName() + " as dependency.");
+			dependencies.put((Class<? extends Module>) clazz, module);
+		}
+
+		for (Class<?> clazz : regularModulesToLoad) {
+			logger.verbose("Loading module class " + clazz.getCanonicalName() + ".");
+			Module module = (Module) injector.getInstance(clazz);
+			handler.handle(module);
 		}
 	}
 }
