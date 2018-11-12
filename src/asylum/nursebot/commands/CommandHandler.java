@@ -3,6 +3,8 @@ package asylum.nursebot.commands;
 import java.util.LinkedList;
 import java.util.List;
 
+import asylum.nursebot.utils.log.Logger;
+import asylum.nursebot.utils.log.LoggerImpl;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
@@ -17,6 +19,8 @@ import asylum.nursebot.Sender;
 public class CommandHandler {
 
 	private NurseNoakes nurse;
+
+	private Logger logger = LoggerImpl.getModuleLogger("commandHandler");
 	
 	private List<CommandInterpreter> commands;
 	
@@ -80,7 +84,7 @@ public class CommandHandler {
 	
 	public void parse(Message message) {
 		if (!message.hasText()) {
-			System.out.println("Command without text.");
+			logger.error("Command without text.");
 			return;
 		}
 		String token = message.getText().split(" ")[0];
@@ -97,22 +101,22 @@ public class CommandHandler {
 			}
 		}
 		if (command == null) {
-			System.out.println("Command not found: " + token);
+			logger.warn("Command not found: " + token);
 			return;
 		}
 		
 		if (command.getModule() != null && !nurse.isActive(command.getModule())) {
-			System.out.println("Module is inactive.");
+			logger.warn("Module is inactive.");
 			return;
 		}
 		
 		if (!command.getLocality().check(message.getChat())) {
-			System.out.println("Wrong chat type.");
+			logger.warn("Wrong chat type.");
 			return;
 		}
 		
 		if (nurse.isChatPaused(message.getChatId()) && command.isPausable()) {
-			System.out.println("Chat is paused.");
+			logger.warn("Chat is paused.");
 			return;
 		}
 		
@@ -122,11 +126,13 @@ public class CommandHandler {
 			SecurityChecker checker = new SecurityChecker(nurse);
 			try {
 				if (!checker.checkRights(message.getChatId(), message.getFrom(), command.getPermission())) {
+					logger.info("User " + message.getFrom().getId() + " tried to execute " + command.getName() + " without permissions.");
 					sender.reply("Du hast leider nicht die nötigen Berechtigungen.", message);
 					return;
 				}
 			} catch (TelegramApiException e) {
-				e.printStackTrace();
+				logger.error("Error while processing command " + command.getName());
+				logger.exception(e);
 				return;
 			}
 		}
@@ -135,7 +141,8 @@ public class CommandHandler {
 		try {
 			command.getAction().action(context);
 		} catch (TelegramApiException e) {
-			e.printStackTrace();
+			logger.error("Error while executing command interpreter.");
+			logger.exception(e);
 		}
 	}
 	

@@ -11,6 +11,7 @@ import asylum.nursebot.objects.*;
 import asylum.nursebot.persistence.ModelManager;
 import asylum.nursebot.persistence.modules.RandomHugsOptins;
 import asylum.nursebot.utils.ThreadHelper;
+import asylum.nursebot.utils.log.Logger;
 import com.google.inject.Inject;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -80,6 +81,8 @@ public class RandomHugs implements Module {
 	}
 
     private ConcurrentHashMap<Long, RandomHugProperties> randomHugChats = new ConcurrentHashMap<>();
+
+    private Logger logger = Logger.getModuleLogger("RandomHugs");
 
     public RandomHugs() {
         category = new CommandCategory("Eastereggs");
@@ -187,7 +190,7 @@ public class RandomHugs implements Module {
     	if (randomHugChats.size() == 0) {
     		UserLookup userLookup = moduleDependencies.get(UserLookup.class);
     		if (userLookup == null) {
-    			System.out.print("Loading hug users from database failed: UserLookup module not active.");
+    			logger.error("Loading hug users from database failed: UserLookup module not active.");
 			} else {
 
 				List<RandomHugsOptins> entries = RandomHugsOptins.findAll();
@@ -198,7 +201,7 @@ public class RandomHugs implements Module {
 					if (!properties.users.containsKey(entry.getUserId())) {
 						User user = userLookup.getUser(entry.getUserId());
 						if (user == null) {
-							System.out.println("Loading user from database failed: No User Entry from User Lookup.");
+							logger.error("Loading user from database failed: No User Entry from User Lookup.");
 						} else {
 							properties.users.put(entry.getUserId(), user);
 						}

@@ -38,7 +38,7 @@ public class LoggerImpl extends Logger {
 	public void setLogfile(File logfile) throws FileNotFoundException {
 		this.logfile = new PrintStream(logfile);
 
-		info("log", "The logfile is: " + logfile.getAbsolutePath());
+		info("LoggerImpl", "The logfile is: " + logfile.getAbsolutePath());
 	}
 
 	public void setLogfileStream(PrintStream logfile) {

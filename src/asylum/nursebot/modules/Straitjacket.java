@@ -3,6 +3,7 @@ package asylum.nursebot.modules;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import asylum.nursebot.utils.log.Logger;
 import org.telegram.telegrambots.api.methods.groupadministration.RestrictChatMember;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
@@ -32,7 +33,9 @@ public class Straitjacket implements Module {
 	private NurseNoakes nurse;
 	@Inject
 	private CommandHandler commandHandler;
-	
+
+	private Logger logger = Logger.getModuleLogger("Straitjacket");
+
 	class Restrict {
 		private long chatid;
 		private User target;
@@ -114,7 +117,8 @@ public class Straitjacket implements Module {
 			
 			sender.mention(target, ", sei nett zu den anderen Patienten. Du bist jetzt für " + (RESTRICT_TIME / 1000 / 60) + " Minuten gesperrt.");
 		} catch (TelegramApiException e) {
-			e.printStackTrace();
+			logger.error("Can not execute restrict command.");
+			logger.exception(e);
 		}
 		
 		
@@ -127,14 +131,15 @@ public class Straitjacket implements Module {
 			
 			try {
 				if (!restricts.contains(restrict)) {
-					System.out.println("Restrict is not current.");
+					logger.error("Restrict is not current.");
 					return;
 				}
 				
 				undoRestrict(restrict);
 				sender.mention(target, ", ich hoffe, du hast deine Lektion gelernt.");
 			} catch (TelegramApiException e) {
-				e.printStackTrace();
+				logger.error("Can not execute unrestrict command.");
+				logger.exception(e);
 			}
 			
 		}).start();

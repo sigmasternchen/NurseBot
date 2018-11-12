@@ -1,5 +1,6 @@
 package asylum.nursebot.modules;
 
+import asylum.nursebot.utils.log.Logger;
 import com.google.inject.Inject;
 
 import asylum.nursebot.commands.CommandCategory;
@@ -19,6 +20,8 @@ public class TestModule implements Module {
 	private CommandHandler commandHandler;
 	
 	private CommandCategory category;
+
+	private Logger logger = Logger.getModuleLogger("TestModule");
 	
 	@Override
 	public String getName() {
@@ -48,7 +51,7 @@ public class TestModule implements Module {
 				.setCategory(category)
 				.setVisibility(Visibility.PRIVATE)
 				.setAction(c -> {
-					System.out.println(c.getMessage());
+					logger.verbose(c.getMessage().toString());
 				}));
 	}
 
