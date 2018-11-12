@@ -1,6 +1,7 @@
 package asylum.nursebot.modules.dices;
 
 
+import asylum.nursebot.exceptions.NurseException;
 import org.apache.commons.math3.special.Erf;
 
 import java.util.Random;
@@ -10,6 +11,11 @@ public class NormalDistribution implements Distribution {
     private double sigma;
 
     private Random random;
+
+    public NormalDistribution() {
+        this.mu = 0;
+        this.sigma = 1;
+    }
 
     public NormalDistribution(double mu, double sigma) {
         this.mu = mu;
@@ -24,6 +30,15 @@ public class NormalDistribution implements Distribution {
     @Override
     public String getParameters() {
         return "μ = " + mu + ", σ = " + sigma;
+    }
+
+    @Override
+    public void setParameter(Number... parameter) throws NurseException {
+        if (parameter.length != 2)
+            throw new NurseException("Die Normalverteilung braucht zwei Parameter.");
+
+        this.mu = parameter[0].doubleValue();
+        this.sigma = parameter[1].doubleValue();
     }
 
     @Override

@@ -42,11 +42,9 @@ public class Dices implements Module {
 
     private Class<? extends Dice> parseDice(String string) throws NurseException {
     	string = string.toLowerCase();
-    	switch (string.toLowerCase()) {
+    	switch (string) {
 			case "d4":
 				return D4.class;
-			case "d5":
-				return D5.class;
 			case "d6":
 				return D6.class;
 			case "d8":
@@ -58,9 +56,35 @@ public class Dices implements Module {
 			case "d20":
 				return D20.class;
 			default:
-				throw new NurseException("Den Würfel \"" + string + "\" kenne ich nicht.");
+				if (string.startsWith("d")) {
+					String tmp = string.substring(1);
+					if (!StringUtils.isStrictlyNumeric(tmp))
+						throw new NurseException("\"" + string + "\" ist keine gültige Würfel-Bezeichnung.");
+					int n = Integer.parseInt(tmp);
+					if (n <= 0)
+						throw new NurseException("... Betreibst du da Boundary Testing?");
+
+					throw new NurseException("Das ist kein Standard-Würfel.\nBitte benutze /distribution distrete-uniform 1 " + n);
+
+				}
+				throw new NurseException("Das äh hab ich nicht ganz verstanden.");
 		}
     }
+
+    private Class<? extends Distribution> parseDistribution(String string) throws NurseException {
+    	string = string.toLowerCase();
+		switch (string) {
+			case "discrete-uniform":
+				return DiscreteUniformDistribution.class;
+			case "normal":
+				return NormalDistribution.class;
+			case "uniform":
+			case "continuous-uniform":
+				return ContinuousUniformDistribution.class;
+			default:
+				throw new NurseException("Diese Verteilung kenne ich noch nicht.");
+		}
+	}
 
     @Override
     public void init() {
@@ -103,10 +127,12 @@ public class Dices implements Module {
                             throw new NurseException("*stolpert, und verteilt " + dices.size() + " Würfel auf dem Boden*\nOh nein... \uD83D\uDE1E");
                     } catch(NurseException e) {
                         c.getSender().reply(e.getMessage(), c.getMessage());
+                        return;
                     } catch (IllegalAccessException | InstantiationException e) {
                         logger.error("This is bad.");
                         logger.exception(e);
                         c.getSender().reply("Irgendwas ist da schief gelaufen. Bitte schau in den Server-Log.", c.getMessage());
+                        return;
                     }
                 }
 
@@ -142,10 +168,38 @@ public class Dices implements Module {
                 .setAction(c -> {
                     Distribution distribution = null;
                     if (c.getParameter().isEmpty()) {
-                        distribution = new NormalDistribution(0, 1);
+                        distribution = new NormalDistribution();
                     } else {
-                        c.getSender().reply("Das kann ich leider noch nicht.", c.getMessage());
-                        return;
+                    	try {
+							List<String> tokens = StringTools.tokenize(c.getParameter());
+
+							distribution = parseDistribution(tokens.get(0)).newInstance();
+
+							tokens.remove(0);
+
+							if (tokens.size() > 0) {
+								Number[] parameters = new Number[tokens.size()];
+								for (int i = 0; i < tokens.size(); i++) {
+									String tmp = tokens.get(i);
+									if (!StringUtils.isStrictlyNumeric(tmp))
+										throw new NurseException("Die Parameter müssen Zahlen sein.");
+									if (tmp.contains("."))
+										parameters[i] = new Double(tmp);
+									else
+										parameters[i] = new Integer(tmp);
+								}
+
+								distribution.setParameter(parameters);
+							}
+						} catch(NurseException e) {
+							c.getSender().reply(e.getMessage(), c.getMessage());
+							return;
+						} catch (IllegalAccessException | InstantiationException e) {
+							logger.error("This is bad.");
+							logger.exception(e);
+							c.getSender().reply("Irgendwas ist da schief gelaufen. Bitte schau in den Server-Log.", c.getMessage());
+							return;
+						}
                     }
 
                     distribution.setRandom(new Random());
