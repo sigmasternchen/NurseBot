@@ -37,6 +37,9 @@ public class DiscreteUniformDistribution implements Distribution {
 
 		this.min = parameter[0].intValue();
 		this.max = parameter[1].intValue();
+
+		if (min > max)
+			throw new NurseException("Der erste Parameter muss kleiner sein.");
 	}
 
 	@Override

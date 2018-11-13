@@ -58,13 +58,13 @@ public class Dices implements Module {
 			default:
 				if (string.startsWith("d")) {
 					String tmp = string.substring(1);
-					if (!StringUtils.isStrictlyNumeric(tmp))
+					if (!StringTools.isInteger(tmp))
 						throw new NurseException("\"" + string + "\" ist keine gültige Würfel-Bezeichnung.");
 					int n = Integer.parseInt(tmp);
 					if (n <= 0)
 						throw new NurseException("... Betreibst du da Boundary Testing?");
 
-					throw new NurseException("Das ist kein Standard-Würfel.\nBitte benutze /distribution distrete-uniform 1 " + n);
+					throw new NurseException("Das ist kein Standard-Würfel.\nBitte benutze /distribution discrete-uniform 1 " + n);
 
 				}
 				throw new NurseException("Das äh hab ich nicht ganz verstanden.");
@@ -108,7 +108,7 @@ public class Dices implements Module {
                             if (tmp.length == 1) {
                                 dices.add(parseDice(tmp[0]).newInstance());
                             } else if (tmp.length == 2) {
-                                if (!StringUtils.isStrictlyNumeric(tmp[0]))
+                                if (!StringTools.isInteger(tmp[0]))
                                     throw new NurseException("Das ist keine gültige Zahl.");
                                 int n = Integer.parseInt(tmp[0]);
                                 if (n < 1 || n > 10)
@@ -181,12 +181,12 @@ public class Dices implements Module {
 								Number[] parameters = new Number[tokens.size()];
 								for (int i = 0; i < tokens.size(); i++) {
 									String tmp = tokens.get(i);
-									if (!StringUtils.isStrictlyNumeric(tmp))
+									if (!StringTools.isNumeric(tmp))
 										throw new NurseException("Die Parameter müssen Zahlen sein.");
-									if (tmp.contains("."))
-										parameters[i] = new Double(tmp);
-									else
+									if (StringTools.isInteger(tmp))
 										parameters[i] = new Integer(tmp);
+									else
+										parameters[i] = new Double(tmp);
 								}
 
 								distribution.setParameter(parameters);

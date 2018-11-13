@@ -37,6 +37,9 @@ public class ContinuousUniformDistribution implements Distribution {
 
 		this.min = parameter[0].doubleValue();
 		this.max = parameter[1].doubleValue();
+
+		if (min > max)
+			throw new NurseException("Der erste Parameter muss kleiner sein.");
 	}
 
 	@Override

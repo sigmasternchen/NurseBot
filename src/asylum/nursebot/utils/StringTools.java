@@ -99,4 +99,22 @@ public class StringTools {
 	public static String nullCheck(String string, String nullValue) {
 		return string == null ? nullValue : string;
 	}
+
+	public static boolean isInteger(String string) {
+		try {
+			Integer.parseInt(string);
+			return true;
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
+
+	public static boolean isNumeric(String string) {
+		try {
+			Double.parseDouble(string);
+			return true;
+		} catch (RuntimeException e) {
+			return false;
+		}
+	}
 }
