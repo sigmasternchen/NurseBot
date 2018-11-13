@@ -1,6 +1,7 @@
 package asylum.nursebot.persistence;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 
 import asylum.nursebot.utils.ThreadHelper;
 import asylum.nursebot.utils.log.Logger;
@@ -40,9 +41,11 @@ public class Connector {
 					ThreadHelper.ignore(InterruptedException.class, () -> Thread.sleep(CONNECTION_SLEEP));
 				
 				try {
-					Base.exec("SELECT 1");
+					PreparedStatement statement = Base.connection().prepareStatement("SELECT 1");
+					statement.execute();
 				} catch (Exception e1) {
 					logger.warn("Connection closed. Reopening...");
+					logger.exception(e1);
 					try {
 						Base.close();
 					} catch (Exception e2) {
