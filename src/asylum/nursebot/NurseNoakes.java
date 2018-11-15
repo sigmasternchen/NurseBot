@@ -178,7 +178,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				}));
 		
 		commandHandler.add(new CommandInterpreter(null)
-				.setName("shutdown")
+				.setName("stop")
 				.setInfo("")
 				.setVisibility(Visibility.PRIVATE)
 				.setPermission(Permission.ANY)
@@ -186,16 +186,16 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setPausable(false)
 				.setAction(c -> {
 					if (BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
-						c.getSender().send("Shutting down...");
-						logger.info("Got shutdown command.");
-						shutdown();
+						c.getSender().send("Okay, ich schalte mich jetzt ab.");
+						logger.info("Got stop command.");
+						stop();
 					} else {
 						c.getSender().reply("Du darfst das nicht.", c.getMessage());
 					}
 				}));
 		
 		commandHandler.add(new CommandInterpreter(null)
-				.setName("reboot")
+				.setName("restart")
 				.setInfo("")
 				.setVisibility(Visibility.PRIVATE)
 				.setPermission(Permission.ANY)
@@ -203,7 +203,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 				.setPausable(false)
 				.setAction(c -> {
 					if (BOT_ADMIN_USERNAMES.contains(c.getMessage().getFrom().getUserName())) {
-						c.getSender().send("Restarting...");
+						c.getSender().send("Neustarten...");
 						logger.info("Got restart command.");
 						restart();
 					} else {
@@ -335,11 +335,21 @@ public class NurseNoakes extends TelegramLongPollingBot {
 					builder.append(StringTools.makeItalic("Memory: ")).append(Math.round(((float) usedMemory) / 1024 / 1024 * 10)/10).append("/").append(Math.round(((float) maxMemory) / 1024 / 1024 * 10)/10).append(" MiB").append("\n");
 					
 					builder.append("\n");
-					builder.append(StringTools.makeLink("Github Page", "https://github.com/overflowerror/NurseBot"));
+					builder.append("Für einen Github Link klicke hier: /github");
 					
 					c.getSender().send(builder.toString(), true);
 				}));
-		
+
+		commandHandler.add(new CommandInterpreter(null)
+				.setName("github")
+				.setInfo("Github-Link")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setAction(c -> {
+					c.getSender().reply(StringTools.makeLink("Github Page", "https://github.com/overflowerror/NurseBot"), c.getMessage());
+				}));
+
 		commandHandler.add(new CommandInterpreter(null)
 				.setName("modules")
 				.setInfo("(de-)aktiviert Module")
@@ -446,7 +456,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		connector.disconnectThread();
 	}
 
-	public void shutdown() {
+	public void stop() {
 		logger.info("Shuting down...");
 		for(Module module : activeModules) {
 			logger.verbose("Shutting down module " + module.getName() + "...");
