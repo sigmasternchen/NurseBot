@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-public class BirthdaysBirthdays extends Model implements Selfbuilding {
+public class BirthdaysBirthday extends Model implements Selfbuilding {
 
 	@Override
 	public String getSelfbuildingName() {
@@ -32,15 +32,15 @@ public class BirthdaysBirthdays extends Model implements Selfbuilding {
 		});
 	}
 
-	public BirthdaysBirthdays() {
+	public BirthdaysBirthday() {
 	}
 
-	public BirthdaysBirthdays(int userid) {
+	public BirthdaysBirthday(int userid) {
 		set("userid", userid);
 	}
 
-	public static BirthdaysBirthdays findByUserid(int userid) {
-		List<BirthdaysBirthdays> tmp = find("userid = ?", userid);
+	public static BirthdaysBirthday findByUserid(int userid) {
+		List<BirthdaysBirthday> tmp = find("userid = ?", userid);
 		if (tmp.size() != 1)
 			return null;
 		return tmp.get(0);

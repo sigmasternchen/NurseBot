@@ -6,11 +6,10 @@ import asylum.nursebot.commands.CommandInterpreter;
 import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.modules.birthdays.Privacy;
 import asylum.nursebot.objects.*;
-import asylum.nursebot.persistence.modules.BirthdaysBirthdays;
+import asylum.nursebot.persistence.modules.BirthdaysBirthday;
 import asylum.nursebot.utils.StringTools;
 import com.google.inject.Inject;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -74,9 +73,9 @@ public class Birthdays implements Module {
 
 					int userid = c.getMessage().getFrom().getId();
 
-					BirthdaysBirthdays birthday = BirthdaysBirthdays.findByUserid(userid);
+					BirthdaysBirthday birthday = BirthdaysBirthday.findByUserid(userid);
 					if (birthday == null) {
-						birthday = new BirthdaysBirthdays(userid);
+						birthday = new BirthdaysBirthday(userid);
 					}
 					birthday.setBirthday(date);
 					birthday.setPrivacy(privacy);
