@@ -9,7 +9,7 @@ import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.loader.ModuleDependencies;
 import asylum.nursebot.objects.*;
 import asylum.nursebot.persistence.ModelManager;
-import asylum.nursebot.persistence.modules.RandomHugsOptins;
+import asylum.nursebot.persistence.modules.RandomHugsOptin;
 import asylum.nursebot.utils.ThreadHelper;
 import asylum.nursebot.utils.log.Logger;
 import com.google.inject.Inject;
@@ -87,7 +87,7 @@ public class RandomHugs implements Module {
     public RandomHugs() {
         category = new CommandCategory("Eastereggs");
 
-		ModelManager.build(RandomHugsOptins.class);
+		ModelManager.build(RandomHugsOptin.class);
     }
 
     @Override
@@ -158,7 +158,7 @@ public class RandomHugs implements Module {
 						c.getSender().reply("Du bist bereits angemeldet.\nMit /hugoptout kannst du dich wieder abmelden.", c.getMessage());
 					} else {
 						properties.users.put(user.getId(), user);
-						RandomHugsOptins entry = new RandomHugsOptins(chatid, user.getId());
+						RandomHugsOptin entry = new RandomHugsOptin(chatid, user.getId());
 						entry.saveIt();
 						c.getSender().reply("Yay, ich freue mich schon. : )", c.getMessage());
 					}
@@ -179,7 +179,7 @@ public class RandomHugs implements Module {
 
 					if (properties.users.containsKey(user.getId())) {
 						properties.users.remove(user.getId());
-						RandomHugsOptins entry = RandomHugsOptins.find(chatid, user.getId());
+						RandomHugsOptin entry = RandomHugsOptin.find(chatid, user.getId());
 						if (entry != null)
 							entry.delete();
 						c.getSender().reply("Schade. : (", c.getMessage());
@@ -198,9 +198,9 @@ public class RandomHugs implements Module {
     			logger.error("Loading hug users from database failed: UserLookup module not active.");
 			} else {
 
-				List<RandomHugsOptins> entries = RandomHugsOptins.findAll();
+				List<RandomHugsOptin> entries = RandomHugsOptin.findAll();
 
-				for (RandomHugsOptins entry : entries) {
+				for (RandomHugsOptin entry : entries) {
 					RandomHugProperties properties = getProperties(entry.getChatId());
 
 					if (!properties.users.containsKey(entry.getUserId())) {
