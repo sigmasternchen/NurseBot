@@ -7,7 +7,9 @@ import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.modules.birthdays.Privacy;
 import asylum.nursebot.objects.*;
 import asylum.nursebot.persistence.modules.BirthdaysBirthday;
+import asylum.nursebot.persistence.modules.BirthdaysGratulation;
 import asylum.nursebot.utils.StringTools;
+import asylum.nursebot.utils.ThreadHelper;
 import com.google.inject.Inject;
 
 import java.time.LocalDate;
@@ -85,13 +87,62 @@ public class Birthdays implements Module {
 				}));
 
 		commandHandler.add(new CommandInterpreter(this)
+				.setName("deletebirthday")
+				.setInfo("löscht den eigenen Geburtstag")
+				.setVisibility(Visibility.PUBLIC)
+				.setPermission(Permission.ANY)
+				.setLocality(Locality.EVERYWHERE)
+				.setCategory(category)
+				.setAction(c -> {
+					BirthdaysBirthday birthday = BirthdaysBirthday.findByUserid(c.getMessage().getFrom().getId());
+					if (birthday == null) {
+						c.getSender().reply("Aber ich kenne deinen Geburtstag doch nicht mal. D:", c.getMessage());
+						return;
+					}
+
+					birthday.delete();
+
+					c.getSender().reply("*deinen Geburtstag im Kalender durchstreich*", c.getMessage());
+				}));
+
+		commandHandler.add(new CommandInterpreter(this)
 				.setName("enablebirthday")
-				.setInfo("aktiviert Geburtstags-Gratulationen")
+				.setInfo("aktiviert Geburtstags-Gratulationen in Gruppen")
 				.setVisibility(Visibility.PUBLIC)
 				.setPermission(Permission.ANY)
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
+					int userid = c.getMessage().getFrom().getId();
+					long  chatid = c.getMessage().getChat().getId();
+
+					BirthdaysBirthday birthday = BirthdaysBirthday.findByUserid(userid);
+					if (birthday == null) {
+						c.getSender().reply("Ich würde dir ja gerne gratulieren, aber ich weiß nicht, wann du Geburtstag hast. : (\n" +
+								"Mit /setbirthday kannst du es mir verraten (übrigens auch in Private Chats mit mir, wenn du ihn geheim halten willst).", c.getMessage());
+						return;
+					}
+
+					if (birthday.getPrivacy() == Privacy.PRIVATE) {
+						c.getSender().reply("Du hast mir gesagt, dein Geburtstag wäre privat. Bitte ändere das, und versuch es nochmal.", c.getMessage());
+						return;
+					}
+
+					BirthdaysGratulation gratulation = BirthdaysGratulation.find(userid, chatid);
+					if (gratulation != null) {
+						c.getSender().reply("Das mache ich doch schon...", c.getMessage());
+						return;
+					}
+					gratulation = new BirthdaysGratulation(userid, chatid);
+					gratulation.saveIt();
+
+					c.getSender().reply("Okay, an deinem nächsten Geburtstag gratuliere ich dir. : )", c.getMessage());
+
+					if (birthday.getBirthday().isEqual(LocalDate.now())) {
+						ThreadHelper.delay(() -> {
+							c.getSender().reply("Oh, by the way: Happy Birthday! ; )", c.getMessage());
+						}, 2000);
+					});
 				}));
 
 		commandHandler.add(new CommandInterpreter(this)
@@ -102,6 +153,17 @@ public class Birthdays implements Module {
 				.setLocality(Locality.GROUPS)
 				.setCategory(category)
 				.setAction(c -> {
+					int userid = c.getMessage().getFrom().getId();
+					long  chatid = c.getMessage().getChat().getId();
+
+					BirthdaysGratulation gratulation = BirthdaysGratulation.find(userid, chatid);
+					if (gratulation == null) {
+						c.getSender().reply("Aber... äh... Gut, von mir aus: ich werde dir hier (wie bisher) nicht zum Geburtstag gratulieren.", c.getMessage());
+						return;
+					}
+					gratulation.delete();
+
+					c.getSender().reply("Ich werde dir hier ab jetzt nicht mehr zun Geburtstag gratulieren.", c.getMessage());
 				}));
 
 		commandHandler.add(new CommandInterpreter(this)
@@ -112,7 +174,7 @@ public class Birthdays implements Module {
 				.setLocality(Locality.EVERYWHERE)
 				.setCategory(category)
 				.setAction(c -> {
-					final String synopsis = "Synopsis: /showbirthday all|{MENTION}";
+					final String synopsis = "Synopsis: /showbirthday [all|{MENTION}]";
 				}));
 	}
 
