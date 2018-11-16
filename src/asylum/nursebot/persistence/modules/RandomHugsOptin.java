@@ -7,19 +7,19 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class RandomHugsOptins extends Model implements Selfbuilding {
+public class RandomHugsOptin extends Model implements Selfbuilding {
 
-	public static RandomHugsOptins find(Long chatid, Integer userid) {
-		List<RandomHugsOptins> list = find("chatid = ? AND userid = ?", chatid, userid);
+	public static RandomHugsOptin find(Long chatid, Integer userid) {
+		List<RandomHugsOptin> list = find("chatid = ? AND userid = ?", chatid, userid);
 		if (list.size() != 1)
 			return null;
 		return list.get(0);
 	}
 
-	public RandomHugsOptins() {
+	public RandomHugsOptin() {
 	}
 
-	public RandomHugsOptins(Long chatid, Integer userid) {
+	public RandomHugsOptin(Long chatid, Integer userid) {
 		Objects.requireNonNull(chatid);
 		Objects.requireNonNull(userid);
 
