@@ -42,4 +42,12 @@ public class BirthdaysGratulation extends Model implements Selfbuilding {
 			return null;
 		return tmp.get(0);
 	}
+
+	public static List<BirthdaysGratulation> find(long chatid) {
+		return find("chatid = ?", chatid);
+	}
+
+	public int getUserId() {
+		return getInteger("userid");
+	}
 }

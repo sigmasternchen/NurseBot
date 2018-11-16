@@ -3,23 +3,41 @@ package asylum.nursebot.modules;
 import asylum.nursebot.commands.CommandCategory;
 import asylum.nursebot.commands.CommandHandler;
 import asylum.nursebot.commands.CommandInterpreter;
+import asylum.nursebot.exceptions.WhatTheFuckException;
 import asylum.nursebot.loader.AutoModule;
+import asylum.nursebot.loader.ModuleDependencies;
 import asylum.nursebot.modules.birthdays.Privacy;
 import asylum.nursebot.objects.*;
 import asylum.nursebot.persistence.modules.BirthdaysBirthday;
 import asylum.nursebot.persistence.modules.BirthdaysGratulation;
+import asylum.nursebot.utils.Action;
 import asylum.nursebot.utils.StringTools;
 import asylum.nursebot.utils.ThreadHelper;
+import asylum.nursebot.utils.log.Logger;
 import com.google.inject.Inject;
+import org.telegram.telegrambots.api.objects.Chat;
+import org.telegram.telegrambots.api.objects.User;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.List;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @AutoModule(load=true)
 public class Birthdays implements Module {
 	@Inject
 	private CommandHandler commandHandler;
+
+	@Inject
+	private ModuleDependencies moduleDependencies;
+
+	private Logger logger = Logger.getModuleLogger("Birthdays");
 
 	private CommandCategory category;
 
@@ -35,6 +53,43 @@ public class Birthdays implements Module {
 	@Override
 	public ModuleType getType() {
 		return new ModuleType().set(ModuleType.COMMAND_MODULE);
+	}
+
+	private String format(BirthdaysBirthday birthdayObj, String name, boolean self, boolean overridePrivacy) {
+		Privacy privacy = birthdayObj.getPrivacy();
+
+		if (overridePrivacy)
+			privacy = Privacy.PUBLIC;
+
+		DateTimeFormatter dateOnly = DateTimeFormatter.ofPattern("d. M.");
+		LocalDate birthday = birthdayObj.getBirthday();
+
+		String date;
+
+		switch (privacy) {
+			case PRIVATE:
+				return null;
+			case PUBLIC:
+				date = birthday.toString();
+				if (self)
+					return "Du hast am " + date + " Geburtstag.";
+				else
+					return name + " hat am " + date + "Geburtstag.";
+			case PUBLIC_DATE:
+				date = birthday.format(dateOnly);
+				if (self)
+					return "Du hast am " + date + " Geburtstag.";
+				else
+					return name + "hat am " + date + "Geburtstag.";
+			case PUBLIC_AGE:
+				date = String.valueOf(birthday.until(LocalDate.now()).getYears());
+				if (self)
+					return "Du bist " + date + " Jahre alt.";
+				else
+					return name + " ist " + date + "Jahre alt.";
+			default:
+				throw new WhatTheFuckException("No such enum state");
+		}
 	}
 
 	@Override
@@ -142,7 +197,7 @@ public class Birthdays implements Module {
 						ThreadHelper.delay(() -> {
 							c.getSender().reply("Oh, by the way: Happy Birthday! ; )", c.getMessage());
 						}, 2000);
-					});
+					}
 				}));
 
 		commandHandler.add(new CommandInterpreter(this)
@@ -175,6 +230,129 @@ public class Birthdays implements Module {
 				.setCategory(category)
 				.setAction(c -> {
 					final String synopsis = "Synopsis: /showbirthday [all|{MENTION}]";
+
+					User user = c.getMessage().getFrom();
+					Chat chat = c.getMessage().getChat();
+
+					boolean isGroupChat = chat.isGroupChat() || chat.isSuperGroupChat();
+
+					List<String> parameters = StringTools.tokenize(c.getParameter());
+					if (parameters.size() == 0) {
+						BirthdaysBirthday birthday = BirthdaysBirthday.findByUserid(user.getId());
+						if (birthday == null) {
+							c.getSender().reply("Ich kenne leider deinen Geburtstag nicht.", c.getMessage());
+							return;
+						}
+						BirthdaysGratulation gratulation = BirthdaysGratulation.find(user.getId(), chat.getId());
+
+						StringBuilder builder = new StringBuilder();
+						builder.append(format(birthday, null, true, !isGroupChat));
+
+						if (isGroupChat && gratulation != null) {
+							builder.append("\nIn diesem Chat gratuliere ich dir zum Geburtstag.");
+						}
+
+						c.getSender().reply(builder.toString(), c.getMessage());
+					} else if (parameters.get(0).toLowerCase().equals("all")) {
+						if (!isGroupChat) {
+							c.getSender().reply("Diese Funktion ist nur in Gruppenchats sinnvoll.", c.getMessage());
+							return;
+						}
+
+						UserLookup lookup = moduleDependencies.get(UserLookup.class);
+						if (lookup == null) {
+							logger.error("Couldn't get UserLookup instance.");
+							c.getSender().reply("Da ist etwas schief gelaufen. Details sind im Log-File.", c.getMessage());
+							return;
+						}
+
+						List<BirthdaysGratulation> gratulations = BirthdaysGratulation.find(chat.getId());
+
+						if (gratulations.size() == 0) {
+							c.getSender().reply("In diesem Chat gratuliere ich im Moment niemandem zum Geburtstag.\nWenn du die erste Person sein willst, denn benutze /enablebirthday.", c.getMessage());
+							return;
+						}
+
+						StringBuilder builder = new StringBuilder();
+						builder.append("In diesem Chat gratuliere ich im Moment folgenden Leuten:\n");
+
+						for(BirthdaysGratulation gratulation : gratulations) {
+							BirthdaysBirthday birthday = BirthdaysBirthday.findByUserid(gratulation.getUserId());
+							if (birthday == null)
+								continue;
+							User target = lookup.getUser(birthday.getUserId());
+							if (target == null)
+								continue;
+							String format = format(birthday, target.getFirstName(), user.getId().equals(target.getId()), false);
+							if (format == null)
+								continue;
+							builder.append(format).append("\n");
+						}
+
+						c.getSender().reply(builder.toString(), c.getMessage());
+					} else {
+						UserLookup lookup = moduleDependencies.get(UserLookup.class);
+						if (lookup == null) {
+							logger.error("Couldn't get UserLookup instance.");
+							c.getSender().reply("Ohje, da ist wohl ein Problem aufgetreten. Details stehen im Log-File.", c.getMessage());
+							return;
+						}
+
+						Set<User> users = lookup.getMentions(c.getMessage()).stream().collect(new Collector<User, Map<Integer, User>, Set<User>>() {
+							@Override
+							public Supplier<Map<Integer, User>> supplier() {
+								return HashMap::new;
+							}
+
+							@Override
+							public BiConsumer<Map<Integer, User>, User> accumulator() {
+								return (m, e) -> m.put(e.getId(), e);
+							}
+
+							@Override
+							public BinaryOperator<Map<Integer, User>> combiner() {
+								return (m1, m2) -> { m1.putAll(m2); return m1; };
+							}
+
+							@Override
+							public Function<Map<Integer, User>, Set<User>> finisher() {
+								return m -> m.entrySet().stream().map(es -> es.getValue()).collect(Collectors.toSet());
+							}
+
+							@Override
+							public Set<Characteristics> characteristics() {
+								Set<Characteristics> characteristics = new HashSet<>();
+								characteristics.add(Characteristics.UNORDERED);
+								return characteristics;
+							}
+						});
+
+						if (users.size() > 5) {
+							c.getSender().reply("Das sind etwas viele Namen, findest du nicht?", c.getMessage());
+							return;
+						}
+
+						StringBuilder builder = new StringBuilder();
+
+						for (User target : users) {
+							BirthdaysBirthday birthday = BirthdaysBirthday.findByUserid(target.getId());
+							if (birthday == null) {
+								builder.append("Für " + user.getFirstName() + " ist kein Geburtstag eingetragen.\n");
+								continue;
+							}
+							if (birthday.getPrivacy() == Privacy.PRIVATE) {
+								builder.append("Der Geburtstag von " + user.getFirstName() + " ist privat.\n");
+								continue;
+							}
+							builder.append(format(birthday, target.getFirstName(), user.getId().equals(target.getId()), false)).append("\n");
+						}
+
+						if (users.size() > 3) {
+							builder.append("\nWofür brauchst du so viele Geburtstage?");
+						}
+
+						c.getSender().reply(builder.toString(), c.getMessage());
+					}
 				}));
 	}
 

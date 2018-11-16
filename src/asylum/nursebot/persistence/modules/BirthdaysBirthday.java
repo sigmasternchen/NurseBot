@@ -61,4 +61,8 @@ public class BirthdaysBirthday extends Model implements Selfbuilding {
 	public void setPrivacy(Privacy privacy) {
 		set("privacy", privacy.getCharacter());
 	}
+
+	public int getUserId() {
+		return getInteger("userid");
+	}
 }
