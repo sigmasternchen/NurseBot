@@ -13,8 +13,23 @@ import asylum.nursebot.persistence.selfbuilding.Selfbuilding;
 import asylum.nursebot.persistence.selfbuilding.Type;
 
 public class UserDetailsInfo extends Model implements Selfbuilding {
-	public static List<UserDetailsInfo> get(int authoruserid, int userid) {
+	public static List<UserDetailsInfo> getAll(int authoruserid, int userid) {
 		return find("userid = ? AND (authoruserid = ? OR authoruserid = ?)", userid, authoruserid, userid);
+	}
+
+	public static UserDetailsInfo get(int authoruserid, int userid) {
+		List<UserDetailsInfo> tmp = find("userid = ? AND authoruserid = ?", userid, authoruserid);
+		if (tmp.size() != 1)
+			return null;
+		return tmp.get(0);
+	}
+
+	public UserDetailsInfo() {
+	}
+
+	public UserDetailsInfo(int authoruserid, int userid) {
+		setAuthorUserId(authoruserid);
+		setUserId(userid);
 	}
 
 	public int getAuthorUserId() {
@@ -29,11 +44,11 @@ public class UserDetailsInfo extends Model implements Selfbuilding {
 		return getString("text");
 	}
 
-	public void setAuthorUserId(int id) {
+	private void setAuthorUserId(int id) {
 		set("authoruserid", id);
 	}
 
-	public void setUserId(int id) {
+	private void setUserId(int id) {
 		set("userid", id);
 	}
 
