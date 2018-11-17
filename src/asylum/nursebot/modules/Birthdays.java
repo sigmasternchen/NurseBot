@@ -11,10 +11,12 @@ import asylum.nursebot.objects.*;
 import asylum.nursebot.persistence.modules.BirthdaysBirthday;
 import asylum.nursebot.persistence.modules.BirthdaysGratulation;
 import asylum.nursebot.utils.Action;
+import asylum.nursebot.utils.StatefulPredicate;
 import asylum.nursebot.utils.StringTools;
 import asylum.nursebot.utils.ThreadHelper;
 import asylum.nursebot.utils.log.Logger;
 import com.google.inject.Inject;
+import org.glassfish.jersey.internal.util.Producer;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
 
@@ -298,34 +300,12 @@ public class Birthdays implements Module {
 							return;
 						}
 
-						Set<User> users = lookup.getMentions(c.getMessage()).stream().collect(new Collector<User, Map<Integer, User>, Set<User>>() {
-							@Override
-							public Supplier<Map<Integer, User>> supplier() {
-								return HashMap::new;
-							}
+						Set<User> users = lookup.getMentions(c.getMessage()).stream()
+								.filter(new StatefulPredicate<Set<Integer>, User>(
+										new HashSet<>(),
+										(s, e) -> !(s.add(e.getId())))
+								).collect(Collectors.toSet());
 
-							@Override
-							public BiConsumer<Map<Integer, User>, User> accumulator() {
-								return (m, e) -> m.put(e.getId(), e);
-							}
-
-							@Override
-							public BinaryOperator<Map<Integer, User>> combiner() {
-								return (m1, m2) -> { m1.putAll(m2); return m1; };
-							}
-
-							@Override
-							public Function<Map<Integer, User>, Set<User>> finisher() {
-								return m -> m.entrySet().stream().map(es -> es.getValue()).collect(Collectors.toSet());
-							}
-
-							@Override
-							public Set<Characteristics> characteristics() {
-								Set<Characteristics> characteristics = new HashSet<>();
-								characteristics.add(Characteristics.UNORDERED);
-								return characteristics;
-							}
-						});
 
 						if (users.size() > 5) {
 							c.getSender().reply("Das sind etwas viele Namen, findest du nicht?", c.getMessage());
