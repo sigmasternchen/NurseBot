@@ -34,10 +34,9 @@ public class PrivateNotifierChat extends Model implements Selfbuilding {
 	
 	@Override
 	public List<Column> getSelfbuildingColumns() {
-		return Arrays.asList(new Column[]{
-			new Column("userid", new Type(DataType.INT))
-				.setKey(Key.PRIMARY_KEY)
-		});
+		return Arrays.asList(
+				new Column("userid", new Type(DataType.INT))
+					.setKey(Key.PRIMARY_KEY));
 	}
 
 	public Integer getUserId() {

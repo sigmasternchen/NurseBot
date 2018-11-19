@@ -17,10 +17,10 @@ public class BirthdaysBirthday extends Model implements Selfbuilding {
 
 	@Override
 	public List<Column> getSelfbuildingColumns() {
-		return Arrays.asList(new Column[]{
+		return Arrays.asList(
 				new Column("id", new Type(DataType.BIGINT))
-						.setKey(Key.PRIMARY_KEY)
-						.setAutoincrement(true),
+					.setKey(Key.PRIMARY_KEY)
+					.setAutoincrement(true),
 				new Column("userid", new Type(DataType.INT))
 						.setNotNullFlag(true),
 				new Column("birthday", new Type(DataType.DATE))
@@ -28,8 +28,7 @@ public class BirthdaysBirthday extends Model implements Selfbuilding {
 				new Column("privacy",
 						new Type(DataType.CHAR)
 							.setLength(1))
-						.setNotNullFlag(true)
-		});
+						.setNotNullFlag(true));
 	}
 
 	public BirthdaysBirthday() {

@@ -20,8 +20,7 @@ public class UserLookupEntry extends Model implements Selfbuilding{
 
 	@Override
 	public List<Column> getSelfbuildingColumns() {
-		return Arrays.asList(new Column[]{
-				new Column("id", new Type(DataType.BIGINT))
+		return Arrays.asList(new Column("id", new Type(DataType.BIGINT))
 					.setKey(Key.PRIMARY_KEY)
 					.setAutoincrement(true),
 				new Column("userid", new Type(DataType.INT))
@@ -31,8 +30,7 @@ public class UserLookupEntry extends Model implements Selfbuilding{
 				new Column("firstname", new Type(DataType.TEXT))
 					.setNotNullFlag(false),
 				new Column("surname", new Type(DataType.TEXT))
-					.setNotNullFlag(false)
-			});
+					.setNotNullFlag(false));
 	}
 
 	public String getUsername() {

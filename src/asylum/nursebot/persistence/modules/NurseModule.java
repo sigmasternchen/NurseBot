@@ -50,14 +50,13 @@ public class NurseModule extends Model implements Selfbuilding {
 	
 	@Override
 	public List<Column> getSelfbuildingColumns() {
-		return Arrays.asList(new Column[]{
-			new Column("id", new Type(DataType.BIGINT))
-				.setKey(Key.PRIMARY_KEY)
-				.setAutoincrement(true),
-			new Column("module", new Type(DataType.TEXT))
-				.setNotNullFlag(true),
-			new Column("active", new Type(DataType.TINYINT))
-				.setNotNullFlag(true),
-		});
+		return Arrays.asList(
+				new Column("id", new Type(DataType.BIGINT))
+					.setKey(Key.PRIMARY_KEY)
+					.setAutoincrement(true),
+				new Column("module", new Type(DataType.TEXT))
+					.setNotNullFlag(true),
+				new Column("active", new Type(DataType.TINYINT))
+					.setNotNullFlag(true));
 	}
 }

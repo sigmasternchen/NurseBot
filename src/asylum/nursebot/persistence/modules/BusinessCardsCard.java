@@ -47,7 +47,7 @@ public class BusinessCardsCard extends Model implements Selfbuilding {
 
 	@Override
 	public List<Column> getSelfbuildingColumns() {
-		return Arrays.asList(new Column[]{
+		return Arrays.asList(
 				new Column("id", new Type(DataType.INT))
 					.setKey(Key.PRIMARY_KEY)
 					.setAutoincrement(true),
@@ -57,8 +57,7 @@ public class BusinessCardsCard extends Model implements Selfbuilding {
 					.setNotNullFlag(true),
 				new Column("public", new Type(DataType.TINYINT))
 					.setNotNullFlag(true)
-					.setDefaultValue("0")
-			});
+					.setDefaultValue("0"));
 	}
 
 	public String getName() {

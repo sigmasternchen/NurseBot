@@ -15,15 +15,14 @@ public class BirthdaysCongratulation extends Model implements Selfbuilding {
 
 	@Override
 	public List<Column> getSelfbuildingColumns() {
-		return Arrays.asList(new Column[]{
+		return Arrays.asList(
 				new Column("id", new Type(DataType.BIGINT))
-						.setKey(Key.PRIMARY_KEY)
-						.setAutoincrement(true),
+				.setKey(Key.PRIMARY_KEY)
+				.setAutoincrement(true),
 				new Column("userid", new Type(DataType.INT))
 						.setNotNullFlag(true),
 				new Column("chatid", new Type(DataType.BIGINT))
-						.setNotNullFlag(true)
-		});
+						.setNotNullFlag(true));
 	}
 
 	public BirthdaysCongratulation() {

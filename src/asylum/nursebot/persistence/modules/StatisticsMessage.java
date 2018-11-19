@@ -30,18 +30,17 @@ public class StatisticsMessage extends Model implements Selfbuilding {
 
 	@Override
 	public List<Column> getSelfbuildingColumns() {
-		return Arrays.asList(new Column[]{
-			new Column("id", new Type(DataType.BIGINT))
-				.setKey(Key.PRIMARY_KEY)
-				.setAutoincrement(true),
-			new Column("chatid", new Type(DataType.BIGINT))
-				.setNotNullFlag(true),
-			new Column("length", new Type(DataType.INT))
-				.setNotNullFlag(true),
-			new Column("time", new Type(DataType.TIMESTAMP))
-				.setDefaultValue("CURRENT_TIMESTAMP")
-				.setNotNullFlag(true),
-		});
+		return Arrays.asList(
+				new Column("id", new Type(DataType.BIGINT))
+					.setKey(Key.PRIMARY_KEY)
+					.setAutoincrement(true),
+				new Column("chatid", new Type(DataType.BIGINT))
+					.setNotNullFlag(true),
+				new Column("length", new Type(DataType.INT))
+					.setNotNullFlag(true),
+				new Column("time", new Type(DataType.TIMESTAMP))
+					.setDefaultValue("CURRENT_TIMESTAMP")
+					.setNotNullFlag(true));
 	}
 	public Timestamp getTime() {
 		return getTimestamp("time");

@@ -27,7 +27,7 @@ public class BusinessCardsEntry extends Model implements Selfbuilding {
 
 	@Override
 	public List<Column> getSelfbuildingColumns() {
-		return Arrays.asList(new Column[]{
+		return Arrays.asList(
 				new Column("id", new Type(DataType.INT))
 					.setKey(Key.PRIMARY_KEY)
 					.setAutoincrement(true),
@@ -36,8 +36,7 @@ public class BusinessCardsEntry extends Model implements Selfbuilding {
 				new Column("business_cards_field_id", new Type(DataType.INT))
 					.setNotNullFlag(true),
 				new Column("value", new Type(DataType.TEXT))
-					.setNotNullFlag(true)
-			});
+					.setNotNullFlag(true));
 	}
 
 	public BusinessCardsEntry setValue(String value) {

@@ -63,16 +63,15 @@ public class UserDetailsInfo extends Model implements Selfbuilding {
 
 	@Override
 	public List<Column> getSelfbuildingColumns() {
-		return Arrays.asList(new Column[]{
+		return Arrays.asList(
 				new Column("id", new Type(DataType.BIGINT))
-						.setKey(Key.PRIMARY_KEY)
-						.setAutoincrement(true),
+					.setKey(Key.PRIMARY_KEY)
+					.setAutoincrement(true),
 				new Column("authoruserid", new Type(DataType.INT))
 						.setNotNullFlag(true),
 				new Column("userid", new Type(DataType.INT))
 						.setNotNullFlag(true),
 				new Column("text", new Type(DataType.TEXT))
-						.setNotNullFlag(true)
-		});
+						.setNotNullFlag(true));
 	}
 }
