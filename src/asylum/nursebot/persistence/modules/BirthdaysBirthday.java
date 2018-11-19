@@ -46,6 +46,10 @@ public class BirthdaysBirthday extends Model implements Selfbuilding {
 		return tmp.get(0);
 	}
 
+	public static List<BirthdaysBirthday> findByDate(LocalDate date) {
+		return find("birthday = ?", date.toString());
+	}
+
 	public LocalDate getBirthday() {
 		return LocalDate.parse(getString("birthday"));
 	}
@@ -59,7 +63,7 @@ public class BirthdaysBirthday extends Model implements Selfbuilding {
 	}
 
 	public void setPrivacy(Privacy privacy) {
-		set("privacy", privacy.getCharacter());
+		set("privacy", "" + privacy.getCharacter());
 	}
 
 	public int getUserId() {

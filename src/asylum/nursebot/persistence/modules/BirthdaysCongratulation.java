@@ -1,14 +1,12 @@
 package asylum.nursebot.persistence.modules;
 
-import asylum.nursebot.modules.birthdays.Privacy;
 import asylum.nursebot.persistence.selfbuilding.*;
 import org.javalite.activejdbc.Model;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
-public class BirthdaysGratulation extends Model implements Selfbuilding {
+public class BirthdaysCongratulation extends Model implements Selfbuilding {
 
 	@Override
 	public String getSelfbuildingName() {
@@ -28,26 +26,26 @@ public class BirthdaysGratulation extends Model implements Selfbuilding {
 		});
 	}
 
-	public BirthdaysGratulation() {
+	public BirthdaysCongratulation() {
 	}
 
-	public BirthdaysGratulation(int userid, long chatid) {
+	public BirthdaysCongratulation(int userid, long chatid) {
 		set("userid", userid);
 		set("chatid", chatid);
 	}
 
-	public static BirthdaysGratulation find(int userid, long chatid) {
-		List<BirthdaysGratulation> tmp = find("userid = ? AND chatid = ?", userid, chatid);
+	public static BirthdaysCongratulation find(int userid, long chatid) {
+		List<BirthdaysCongratulation> tmp = find("userid = ? AND chatid = ?", userid, chatid);
 		if (tmp.size() != 1)
 			return null;
 		return tmp.get(0);
 	}
 
-	public static List<BirthdaysGratulation> findByChatId(long chatid) {
+	public static List<BirthdaysCongratulation> findByChatId(long chatid) {
 		return find("chatid = ?", chatid);
 	}
 
-	public static List<BirthdaysGratulation> findByUserId(int userid) {
+	public static List<BirthdaysCongratulation> findByUserId(int userid) {
 		return find("userid = ?", userid);
 	}
 
