@@ -416,12 +416,6 @@ public class Birthdays implements Module {
 						}
 
 						c.getSender().reply(builder.toString(), c.getMessage());
-					/*} else if (parameters.get(0).toLowerCase().equals("today")) {
-						// TODO remove
-
-						List<BirthdaysBirthday> birthdays = BirthdaysBirthday.findByDate(LocalDate.now());
-
-						logger.info("birthdays today: " + birthdays.size());*/
 					} else {
 						UserLookup lookup = moduleDependencies.get(UserLookup.class);
 						if (lookup == null) {
