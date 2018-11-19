@@ -43,11 +43,19 @@ public class BirthdaysGratulation extends Model implements Selfbuilding {
 		return tmp.get(0);
 	}
 
-	public static List<BirthdaysGratulation> find(long chatid) {
+	public static List<BirthdaysGratulation> findByChatId(long chatid) {
 		return find("chatid = ?", chatid);
+	}
+
+	public static List<BirthdaysGratulation> findByUserId(int userid) {
+		return find("userid = ?", userid);
 	}
 
 	public int getUserId() {
 		return getInteger("userid");
+	}
+
+	public long getChatId() {
+		return getLong("chatid");
 	}
 }
