@@ -6,6 +6,7 @@ import asylum.nursebot.commands.CommandInterpreter;
 import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.loader.ModuleDependencies;
 import asylum.nursebot.objects.*;
+import asylum.nursebot.persistence.ModelManager;
 import asylum.nursebot.persistence.modules.UserDetailsInfo;
 import asylum.nursebot.utils.StringTools;
 import asylum.nursebot.utils.log.Logger;
@@ -28,6 +29,8 @@ public class UserDetails implements Module {
 
 	public UserDetails() {
 		category = new CommandCategory("Benutzer-Informationen");
+
+		ModelManager.build(UserDetailsInfo.class);
 	}
 
 	@Override
@@ -80,11 +83,81 @@ public class UserDetails implements Module {
 				if (info == null) {
 					info = new UserDetailsInfo(author.getId(), user.getId());
 				}
-				info.set(parameters.get(1));
+				info.setText(parameters.get(1));
 				info.saveIt();
 
 				c.getSender().reply("Die Benutzer Info wurde erfolgreich gesetzt.", c.getMessage());
 			}));
+
+		commandHandler.add(new CommandInterpreter(this)
+				.setName("getuserinfo")
+				.setInfo("Benutzerinfo anzeigen")
+				.setCategory(category)
+				.setLocality(Locality.EVERYWHERE) // TODO: change to USER
+				.setVisibility(Visibility.PUBLIC)
+				.setPermission(Permission.ANY)
+				.setAction(c -> {
+					UserLookup lookup = dependencies.get(UserLookup.class);
+					if (lookup == null) {
+						logger.error("Couldn't get UserLookup instance.");
+						c.getSender().reply("Ohje. Irgendwas ist schiefgelaufen. Details stehen im Log-File.", c.getMessage());
+						return;
+					}
+
+					User author = c.getMessage().getFrom();
+
+					List<User> users = lookup.getMentions(c.getMessage());
+					if (users.size() > 3) {
+						c.getSender().reply("Bitte nicht so viele auf einmal.", c.getMessage());
+						return;
+					}
+					if (users.size() == 0) {
+						c.getSender().reply("Diese User kenne ich nicht.", c.getMessage());
+						return;
+					}
+
+					StringBuilder builder = new StringBuilder();
+
+					boolean okay = false;
+
+					for(User user : users) {
+						builder.append("Details für ").append(user.getFirstName());
+						if (user.getUserName() != null) {
+							builder.append(" (@").append(user.getUserName()).append(")");
+						}
+						builder.append(":\n\n");
+						List<UserDetailsInfo> infos = UserDetailsInfo.getAll(author.getId(), user.getId());
+
+						for (UserDetailsInfo info : infos) {
+							User infoAuthor = lookup.getUser(info.getAuthorUserId());
+							if (infoAuthor == null)
+								continue;
+
+							okay = true;
+
+							builder.append("von ");
+							if (infoAuthor.getId() == author.getId()) {
+								builder.append("dir");
+							} else {
+								builder.append(infoAuthor.getFirstName());
+								if (infoAuthor.getUserName() != null) {
+									builder.append(" (@").append(infoAuthor.getUserName()).append(")");
+								}
+							}
+							builder.append(":\n");
+
+							builder.append(info.getText());
+							builder.append("\n");
+						}
+					}
+
+					if (!okay) {
+						c.getSender().reply("Es wurden keine Details zu diesen Benutzern gefunden.", c.getMessage());
+						return;
+					}
+
+					c.getSender().reply(builder.toString(), c.getMessage());
+				}));
 	}
 
 	@Override
