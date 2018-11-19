@@ -54,6 +54,8 @@ popd
 
 pushd ../bin/
 
+rm -r *
+
 MAX_LINE=72
 manifest_cp="lass-Path: $manifest_cp"
 manifest_cp="$(echo $manifest_cp | fold -bw $((MAX_LINE - 1)) | awk '{ if (NR == 1) print "C" $0; else print " " $0}')"
