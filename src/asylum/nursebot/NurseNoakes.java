@@ -597,4 +597,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 	public boolean isChatPaused(Long chatid) {
 		return pausedChats.contains(chatid);
 	}
+
+	public Connector getConnector() {
+		return connector;
+	}
 }
