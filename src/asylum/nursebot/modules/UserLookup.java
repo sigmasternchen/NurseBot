@@ -133,33 +133,13 @@ public class UserLookup implements Module {
 	}
 
 	public User getUser(String name) {
+		if (name.startsWith("@"))
+			name = name.substring(1);
+
 		UserLookupEntry entry = getUserEntry(name);
 		if (entry == null)
 			return null;
 		return new MinimalUser(entry);
-	}
-
-	public String getUsername(int id) {
-		UserLookupEntry entry = getUserEntry(id);
-		if (entry == null)
-			return null;
-		return entry.getUsername();
-	}
-	
-	public Integer getUserId(String username) {
-		if (username.startsWith("@"))
-			username = username.substring(1);
-		
-		UserLookupEntry entry = UserLookupEntry.getByUsername(username);
-		if (entry == null)
-			return null;
-		return (Integer) entry.getUserid();
-	}
-	
-	public List<Integer> getMentionIds(Message message) {
-		List<Integer> list = getUsernameMentionIds(message);
-		list.addAll(getNonUsernameMentionIds(message));
-		return list;
 	}
 	
 	public List<User> getMentions(Message message) {
@@ -174,30 +154,15 @@ public class UserLookup implements Module {
 		for (MessageEntity entity : message.getEntities()) {
 			if (!entity.getType().equals("mention"))
 				continue;
-			
-			Integer user = getUserId(entity.getText());
-			if (user != null)
-				list.add(new MinimalUser(user, entity.getText()));
-		}
-		
-		return list;
-	}
-	
-	private List<Integer> getUsernameMentionIds(Message message) {
-		List<Integer> list = new LinkedList<>();
-		
-		for (MessageEntity entity : message.getEntities()) {
-			if (!entity.getType().equals("mention"))
-				continue;
-			
-			Integer user = getUserId(entity.getText());
+
+			User user = getUser(entity.getText());
 			if (user != null)
 				list.add(user);
 		}
 		
 		return list;
 	}
-	
+
 	private List<User> getNonUsernameMentions(Message message) {
 		List<User> list = new LinkedList<>();
 		
@@ -208,10 +173,6 @@ public class UserLookup implements Module {
 		}
 		
 		return list;
-	}
-	
-	private List<Integer> getNonUsernameMentionIds(Message message) {
-		return getNonUsernameMentions(message).stream().map(u -> u.getId()).collect(Collectors.toList());
 	}
 	
 	@Override

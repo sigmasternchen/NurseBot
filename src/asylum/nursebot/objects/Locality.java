@@ -9,7 +9,7 @@ public class Locality {
 	public static final int GROUP = 1 << 2;
 	public static final int SUPERGROUP = 1 << 3;
 
-	public static final Locality USERS = new Locality(GROUP).or(USER);
+	public static final Locality USERS = new Locality(USER);
 	public static final Locality GROUPS = new Locality(GROUP).or(SUPERGROUP);
 	public static final Locality EVERYWHERE = new Locality(GROUPS).or(USER);
 
