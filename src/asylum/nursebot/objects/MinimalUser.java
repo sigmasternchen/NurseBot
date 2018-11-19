@@ -11,13 +11,6 @@ public class MinimalUser extends User {
 	private String firstname;
 	private String lastname;
 
-	public MinimalUser(int id, String name) {
-		this.name = name;
-		this.id = id;
-		this.firstname = name;
-		this.lastname = "";
-	}
-
 	public MinimalUser(UserLookupEntry entry) {
 		this.id = entry.getUserid();
 		this.name = entry.getUsername();
@@ -27,9 +20,7 @@ public class MinimalUser extends User {
 
 	@Override
 	public String getUserName() {
-		if (name.startsWith("@"))
-			return name.substring(1);
-		return null;
+		return name;
 	}
 
 	@Override
