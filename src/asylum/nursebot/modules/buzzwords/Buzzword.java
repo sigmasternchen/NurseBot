@@ -59,7 +59,7 @@ public class Buzzword extends SemanticInterpreter implements SemanticAction {
     }
 
     public Buzzword(Module module, String[] buzzwords, String[] reactions, double chance, int delay) {
-        this(module, buzzwords, reactions, chance, delay, WakeWordType.ANYWHERE);
+        this(module, buzzwords, reactions, chance, delay, WakeWordType.STANDALONE);
     }
     public Buzzword(Module module, String buzzword, String[] reactions, double chance, int delay) {
         this(module, new String[] {buzzword}, reactions, chance, delay);
