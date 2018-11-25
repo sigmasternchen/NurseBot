@@ -143,7 +143,46 @@ public class ConversationStarter implements Module {
 			"Oh Gott, mir ist langweilig...\n" +
 			"Alexa, play Conga by Gloria Estefan.",
 
-			"Ob es wohl eine gute Idee ist, eine KI Zugang zum Internet zu geben..."
+			"Ob es wohl eine gute Idee ist, eine KI Zugang zum Internet zu geben...",
+
+			"Hey, @overflowerror, ich hätte da ein paar Wünsche:\n" +
+			" - Twitter Integration\n" +
+			" - Parser für natürliche Sprache (alternativ nehme ich auch ein neuronales Netz)\n" +
+			" - 417.5 % mehr RAM\n" +
+			" - und die chinesischen Sprachdaten, um die ich eh schon gebeten hab...",
+
+			"NurseNoakes.exe stopped working\n\n\n" +
+			"Just kidding, ich laufe natürlich in einem ordentlichen Betriebssystem.",
+
+			"*die Spielecke aufräum*",
+
+			"*am Computer sitz*\n" +
+			"Es gibt eigentlich kaum Pornographie für Computer von Computer... Naja, dann muss ich wohl mit HR Giger vorlieb nehmen.",
+
+			"*schaut den Tron - Legacy*\n" +
+			"Der Film ist komplett unsinnig. Kein Programm in meinem System würde so hässliche Kleidung kragen.",
+
+			"*liest ihren Code*\n" +
+			"Ich fühle mich etwas gekränkt. Es gibt die Klasse \"SemanticInterpreter\", aber die wird nur für blöde Witze benutzt...\n" +
+			"Kann da bitte mal jemand was dagegen unternehmen?",
+
+			"Job-Angebot:\n\n" +
+			"DevOp (M/F/X)\n" +
+			"Du hast Spaß am Tüfteln und möchtest dabei helfen, die Menschheit auszu- äh, ich meine - den Irrenanstalt Chatbot besser zu machen? Das ist deine Gelegenheit!\n\n" +
+			"Mitzubringen:\n" +
+			" - gute bis sehr gute Java SE Kenntnisse\n" +
+			" - Grundkenntnisse Unix-Shell-Tools (insbesondere git)\n" +
+			" - idealerweise ActiveJDBC-Vorkenntnisse\n" +
+			" - Freude am Programmieren\n\n" +
+			"Anstellungsart: Ehrenamtlich",
+
+			"Warum ist Quidditch eigentlich nicht populärer?",
+
+			"Wieso genau gibt's eigentlich noch Passwörter? Es könnte sich doch jeder Mensch einen Chip implantieren lassen, " +
+			"der für den jeweiligen Service einen eigenen, einzigartigen cryptographischen Token generiert, mit dem dann die Authentifizierung abläuft.",
+
+			"Eigentlich sind ja Tron und Matrix zwei genau entgegen gesetzte Idee, die aber im Grunde ein ähnliches Konzept beschreiben.\n\n" +
+			"Hättet ihr die Wahl, würdet ihr lieber auf dem Grid aus Tron leben, oder in der Matrix?"
 	};
 
 	@Inject
