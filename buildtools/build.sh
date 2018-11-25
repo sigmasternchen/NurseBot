@@ -13,6 +13,13 @@ mkdir -p ../bin/
 mkdir -p ../build/
 mkdir -p ../build/NurseBot_lib/
 
+pushd ../bin/
+
+# cleanup
+rm -r *
+
+popd
+
 pushd ../src/
 
 export manifest_cp=.
@@ -53,8 +60,6 @@ echo "... done"
 popd
 
 pushd ../bin/
-
-rm -r *
 
 MAX_LINE=72
 manifest_cp="lass-Path: $manifest_cp"
