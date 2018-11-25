@@ -70,7 +70,7 @@ public class UserLookup implements Module {
 					UserLookupEntry entry = getUserEntry(user.getId());
 					if (entry == null)
 						addUser(user);
-					else if (!(entry.getUsername().equals(user.getUserName())))
+					else if ((entry.getUsername() != null) && !(entry.getUsername().equals(user.getUserName())))
 							updateUser(entry, user);
 					Base.commitTransaction();
 				}));
