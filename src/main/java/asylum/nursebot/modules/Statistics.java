@@ -129,8 +129,6 @@ public class Statistics implements Module {
 		
 		chart.setSize(600, 450);
 		chart.setTitle(title, Color.WHITE, 14);
-		//chart.addHorizontalRangeMarker(40, 60, Color.newColor(Color.RED, 30));
-        //chart.addVerticalRangeMarker(70, 90, Color.newColor(Color.GREEN, 30));
 		
 		double xgrid = 100 / (double) (xLabels.length - 1);
 		while (xgrid < 10)

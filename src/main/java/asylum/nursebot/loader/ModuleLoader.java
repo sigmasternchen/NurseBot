@@ -5,9 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import asylum.nursebot.utils.log.Logger;
-import org.reflections.Reflections;
-
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
@@ -15,9 +12,8 @@ import asylum.nursebot.NurseNoakes;
 import asylum.nursebot.commands.CommandHandler;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.semantics.SemanticsHandler;
-import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
-import org.reflections.util.FilterBuilder;
+import asylum.nursebot.utils.log.Logger;
+import org.reflections.Reflections;
 
 public class ModuleLoader {
 	private List<Provider> providers;
@@ -37,25 +33,23 @@ public class ModuleLoader {
 		
 		this.providers.add(new BaseProvider(nurse, commandHandler, semanticsHandler, dependencies));
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public void loadDependencies() {
 		Set<Class<?>> list = reflections.getTypesAnnotatedWith(AutoDependency.class);
 		for (Class<?> clazz : list) {
 			if (Module.class.isAssignableFrom(clazz)) {
-				dependencyClasses.add((Class<? extends Module>) clazz);
+				dependencyClasses.add(clazz.asSubclass(Module.class));
 			}
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	public void loadModules(ModuleHandler handler) {
 		Injector injector = Guice.createInjector(providers);
 
 		Set<Class<?>> annotatedClasses = reflections.getTypesAnnotatedWith(AutoModule.class);
 
-		Set<Class<?>> dependenciesToLoad = new HashSet<Class<?>>();
-		Set<Class<?>> regularModulesToLoad = new HashSet<Class<?>>();
+		Set<Class<?>> dependenciesToLoad = new HashSet<>();
+		Set<Class<?>> regularModulesToLoad = new HashSet<>();
 
 		for (Class<?> clazz : annotatedClasses) {
 			if (!Module.class.isAssignableFrom(clazz)) {
@@ -81,7 +75,7 @@ public class ModuleLoader {
 			handler.handle(module);
 
 			logger.verbose("Adding " + clazz.getCanonicalName() + " as dependency.");
-			dependencies.put((Class<? extends Module>) clazz, module);
+			dependencies.put(clazz.asSubclass(Module.class), module);
 		}
 
 		for (Class<?> clazz : regularModulesToLoad) {

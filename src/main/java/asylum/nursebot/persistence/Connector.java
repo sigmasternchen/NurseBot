@@ -48,7 +48,7 @@ public class Connector {
 					logger.exception(e1);
 					try {
 						Base.close();
-					} catch (Exception e2) {
+					} catch (Exception ignored) {
 					}
 					connect();
 				}

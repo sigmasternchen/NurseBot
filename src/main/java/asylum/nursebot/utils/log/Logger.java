@@ -9,6 +9,9 @@ public abstract class Logger {
 	public final static int EXCEPTION = 3;
 	public final static int CRITICAL = 4;
 
+	public static final String END_ANSI = "\033[0m";
+	public static final String BLINK = "\033[1m";
+
 	protected final static int DEFAULT_VERBOSITY = INFO;
 
 	protected enum LogColor {
@@ -25,11 +28,11 @@ public abstract class Logger {
 		}
 
 		public String endANSI() {
-			return "\033[0m";
+			return END_ANSI;
 		}
 
 		public String blink() {
-			return "\033[1m";
+			return BLINK;
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.inject.Inject;
 
@@ -22,9 +23,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @AutoModule(load=true)
 public class ConversationStarter implements Module {
-	private final Duration SLEEP_TIME = Duration.ofSeconds(30);
-	private final Duration IDLE_TIME = Duration.ofHours(7);
-	private final String[] STARTERS = {
+	private static final Duration SLEEP_TIME = Duration.ofSeconds(30);
+	private static final Duration IDLE_TIME = Duration.ofHours(7);
+	private static final String[] STARTERS = {
 			"Mir fällt gerade auf: Alles, was ich jemals sagen werde, ist durch mein Programm vorherbestimmt.\n" +
 			"Ob sich wohl die ganze Welt so verhält?",
 
@@ -214,7 +215,7 @@ public class ConversationStarter implements Module {
 					Long chatid = c.getMessage().getChat().getId();
 					if (!lastMessages.containsKey(chatid)) {
 						new Thread(() -> {
-							Random random = new Random();
+							Random random = ThreadLocalRandom.current();
 							while(true) {
 								ThreadHelper.ignore(InterruptedException.class, () -> Thread.sleep(SLEEP_TIME.toMillis()));
 								if (!active)

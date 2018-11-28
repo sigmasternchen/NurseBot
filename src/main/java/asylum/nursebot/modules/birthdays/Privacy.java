@@ -24,7 +24,7 @@ public enum Privacy {
 	public static Privacy fromString(String name) {
 		name = name.toLowerCase().replace('-', '_');
 		for (Privacy privacy : Privacy.values()) {
-			if (privacy.name().toLowerCase().equals(name))
+			if (privacy.name().equalsIgnoreCase(name))
 				return privacy;
 		}
 		return null;

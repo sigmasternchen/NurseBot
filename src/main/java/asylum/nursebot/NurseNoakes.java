@@ -439,7 +439,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		logger.info("Loading dependencies.");
 		loader.loadDependencies();
 		logger.info("Loading regular modules.");
-		loader.loadModules(module -> loadModule(module));
+		loader.loadModules(this::loadModule);
 			
 			
 		if (ModelManager.wasAnythingCreated()) {
@@ -466,14 +466,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 
 	public void stop() {
 		logger.info("Shuting down...");
-		for(Module module : activeModules) {
-			logger.verbose("Shutting down module " + module.getName() + "...");
-			module.shutdown();
-		}
-		for(Module module : inactiveModules) {
-			logger.verbose("Shutting down module " + module.getName() + "...");
-			module.shutdown();
-		}
+		disableModules();
 
 		logger.debug("Closing database connection.");
 		connector.close();
@@ -481,9 +474,8 @@ public class NurseNoakes extends TelegramLongPollingBot {
 		logger.info("Shutdown complete.");
 		System.exit(EXIT_CODE_SHUTDOWN);
 	}
-	
-	public void restart() {
-		logger.info("Restarting...");
+
+	private void disableModules() {
 		for(Module module : activeModules) {
 			logger.verbose("Shutting down module " + module.getName() + "...");
 			module.shutdown();
@@ -492,7 +484,12 @@ public class NurseNoakes extends TelegramLongPollingBot {
 			logger.verbose("Shutting down module " + module.getName() + "...");
 			module.shutdown();
 		}
-		
+	}
+
+	public void restart() {
+		logger.info("Restarting...");
+		disableModules();
+
 		connector.close();
 		
 		System.exit(EXIT_CODE_RESTART);

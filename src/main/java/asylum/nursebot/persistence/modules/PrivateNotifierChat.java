@@ -22,7 +22,7 @@ public class PrivateNotifierChat extends Model implements Selfbuilding {
 
 	public static PrivateNotifierChat find(long userid) {
 		List<PrivateNotifierChat> list = NurseModule.where("userid = ?", userid);
-		if (list == null || list.size() == 0)
+		if (list == null || list.isEmpty())
 			return null;
 		return list.get(0);
 	}

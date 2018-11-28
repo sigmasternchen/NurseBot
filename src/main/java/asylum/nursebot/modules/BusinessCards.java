@@ -24,6 +24,7 @@ import asylum.nursebot.persistence.modules.BusinessCardsEntry;
 import asylum.nursebot.persistence.modules.BusinessCardsField;
 import asylum.nursebot.utils.StringTools;
 import org.javalite.activejdbc.Base;
+import org.javalite.activejdbc.Model;
 import org.telegram.telegrambots.meta.api.objects.User;
 
 @AutoModule(load=true)
@@ -165,13 +166,14 @@ public class BusinessCards implements Module {
 							
 							String cardname = args.get(0);
 						
-							List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname, c.getMessage().getFrom().getId().intValue());
+							List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname,
+							c.getMessage().getFrom().getId());
 							if (tmp == null || tmp.isEmpty()) {
 								throw new ParsingException("Diese Karte existiert nicht.");
 							}
 							
 							args = args.subList(1, args.size());
-							boolean isPublic = args.get(0).toLowerCase().equals("public");
+							boolean isPublic = args.get(0).equalsIgnoreCase("public");
 							if (isPublic)
 								args = args.subList(1, args.size());
 							
@@ -180,7 +182,7 @@ public class BusinessCards implements Module {
 							card.saveIt();
 							
 							List<BusinessCardsEntry> entries = card.getAll(BusinessCardsEntry.class);
-							entries.forEach(e -> e.delete());
+							entries.forEach(Model::delete);
 							
 							modifyFields(card, args);
 							
@@ -211,13 +213,14 @@ public class BusinessCards implements Module {
 					try {
 						String cardname = args.get(0);
 						
-						List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname, c.getMessage().getFrom().getId().intValue());
+						List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname,
+						c.getMessage().getFrom().getId());
 						if (tmp == null || tmp.isEmpty()) {
 							throw new ParsingException("Es wurde keine Karte mit diesem Namen gefunden.");
 						}
 						BusinessCardsCard card = tmp.get(0);
 						
-						card.getAll(BusinessCardsEntry.class).forEach(e -> e.delete());
+						card.getAll(BusinessCardsEntry.class).forEach(Model::delete);
 						card.delete();
 						
 						c.getSender().send("Visitenkarte " + cardname + " wurde erfolgreich gelösch.");
@@ -236,7 +239,7 @@ public class BusinessCards implements Module {
 				.setAction(c -> {
 					String help = "Synopsis: /showcard CARDNAME";
 					List<String> args = StringTools.tokenize(c.getParameter());
-					if (args.size() < 1) {
+					if (args.isEmpty()) {
 						c.getSender().send(help);
 						return;
 					}
@@ -255,11 +258,6 @@ public class BusinessCards implements Module {
 						
 						List<BusinessCardsEntry> list = card.getAll(BusinessCardsEntry.class);
 						for (BusinessCardsEntry entry : list) {
-							/*List<BusinessCardsField> fields = entry.getAll(BusinessCardsField.class);
-							if ((fields == null) || fields.isEmpty()) {
-								throw new WhatTheFuckException("Field object is inconsistent.");
-							}
-							BusinessCardsField field = fields.get(0);*/
 							BusinessCardsField field = entry.parent(BusinessCardsField.class);
 							builder.append(field.getLabel()).append(": ");
 							builder.append(entry.getValue()).append("\n");
@@ -281,7 +279,7 @@ public class BusinessCards implements Module {
 				.setAction(c -> {
 					String help = "Synopsis: /givecard CARDNAME USERNAME";
 					List<String> args = StringTools.tokenize(c.getParameter());
-					if (args.size() < 1) {
+					if (args.isEmpty()) {
 						c.getSender().send(help);
 						return;
 					}
@@ -315,7 +313,8 @@ public class BusinessCards implements Module {
 						
 						builder.append("Visitenkarte ").append(StringTools.makeMention(c.getMessage().getFrom())).append(" ").append(cardname).append(":\n\n");
 						
-						List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname, c.getMessage().getFrom().getId().intValue());
+						List<BusinessCardsCard> tmp = BusinessCardsCard.getByName(cardname,
+						c.getMessage().getFrom().getId());
 						if (tmp == null || tmp.isEmpty()) {
 							throw new ParsingException("Diese Visitenkarte existiert nicht.\nNeue Karten können mit /createcard hinzugefügt werden.");
 						}
@@ -357,12 +356,13 @@ public class BusinessCards implements Module {
 				.setAction(c -> {
 					String help = "Synopsis: /showcards";
 					List<String> args = StringTools.tokenize(c.getParameter());
-					if (args.size() != 0) {
+					if (!args.isEmpty()) {
 						c.getSender().send(help);
 						return;
 					}
 					
-					List<BusinessCardsCard> tmp = BusinessCardsCard.getByUserid(c.getMessage().getFrom().getId().intValue());
+					List<BusinessCardsCard> tmp = BusinessCardsCard.getByUserid(
+					c.getMessage().getFrom().getId());
 					if (tmp == null || tmp.isEmpty()) {
 						c.getSender().send("Keine Visitenkarten gefunden.");
 						return;
@@ -435,7 +435,7 @@ public class BusinessCards implements Module {
 				.setAction(c -> {
 					String help = "Synopsis: /showcardfields";
 					List<String> args = StringTools.tokenize(c.getParameter());
-					if (args.size() != 0) {
+					if (!args.isEmpty()) {
 						c.getSender().send(help);
 						return;
 					}
@@ -490,7 +490,7 @@ public class BusinessCards implements Module {
 							throw new NurseException("Es wurde kein Feld mit diesem Namen gefunden.");
 						
 						if ("delete".equals(command)) {
-							field.getAll(BusinessCardsEntry.class).forEach(e -> e.delete());
+							field.getAll(BusinessCardsEntry.class).forEach(Model::delete);
 							field.delete();
 							c.getSender().send("Das Feld " + name + " wurde erfogreich mit allen Abhängigkiten gelöscht.");
 						} else if ("set".equals(command)) {
@@ -523,7 +523,6 @@ public class BusinessCards implements Module {
 					} catch (NurseException e) {
 						Base.rollbackTransaction();
 						c.getSender().send(help + "\n\n" + e.getMessage());
-						return;
 					}
 				}));
 	}

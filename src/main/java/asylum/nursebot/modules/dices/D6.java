@@ -5,7 +5,7 @@ public class D6 extends StandardDice {
         super(6);
     }
 
-    private final String[] images = {"⚀", "⚁", "⚂", "⚃", "⚄", "⚅"};
+    private static final String[] images = {"⚀", "⚁", "⚂", "⚃", "⚄", "⚅"};
 
     @Override
     public String display() {

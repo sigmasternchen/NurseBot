@@ -127,7 +127,7 @@ public class PrivateNotifier implements Module {
 		if (!chats.contains(user.getId())) {
 			return;
 		}
-		chats.remove(new Long(user.getId()));
+		chats.remove(user.getId());
 		PrivateNotifierChat chat = PrivateNotifierChat.find(user.getId());
 		chat.delete();
 	}

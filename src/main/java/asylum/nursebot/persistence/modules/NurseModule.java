@@ -22,7 +22,7 @@ public class NurseModule extends Model implements Selfbuilding {
 	
 	static public NurseModule byName(String name) {
 		List<NurseModule> list = NurseModule.where("module = ?", name);
-		if (list == null || list.size() == 0)
+		if (list == null || list.isEmpty())
 			return null;
 		return list.get(0);
 	}

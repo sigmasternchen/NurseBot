@@ -2,6 +2,7 @@ package asylum.nursebot.modules;
 
 import java.util.Calendar;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import com.google.inject.Inject;
 
@@ -109,7 +110,7 @@ public class Eastereggs implements Module {
 							"Gern geschehen.", "Hab ich gerne gemacht."
 					};
 					
-					Random random = new Random();	
+					Random random = ThreadLocalRandom.current();
 					
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
 				}));
@@ -126,7 +127,7 @@ public class Eastereggs implements Module {
 							"Heast!"
 					};
 					
-					Random random = new Random();	
+					Random random = ThreadLocalRandom.current();
 					
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
 				}));
@@ -152,7 +153,7 @@ public class Eastereggs implements Module {
 					if (!(hour < 2 || hour > 21))
 						return;
 					
-					Random random = new Random();
+					Random random = ThreadLocalRandom.current();
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
 				}));
 	}

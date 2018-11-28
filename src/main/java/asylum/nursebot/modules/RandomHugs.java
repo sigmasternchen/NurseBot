@@ -80,7 +80,7 @@ public class RandomHugs implements Module {
 
 				if (properties.next.compareTo(Calendar.getInstance()) < 0) {
 					List<User> users = new LinkedList<User>(properties.users.values());
-					if (users.size() != 0) {
+					if (!users.isEmpty()) {
 						User user = users.get(random.nextInt(users.size()));
 						ThreadHelper.ignore(
 						TelegramApiException.class, () -> sender.mention(user, "\\*random hug\\*"));

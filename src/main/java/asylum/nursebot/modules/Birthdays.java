@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import com.google.inject.Inject;
@@ -142,7 +143,7 @@ public class Birthdays implements Module {
 					logger.debug("Size of congratulations list: " + congratulations.size());
 
 					for (BirthdaysCongratulation congratulation : congratulations) {
-						Random random = new Random();
+						Random random = ThreadLocalRandom.current();
 						String text = String.format(CONGRATULATIONS[random.nextInt(CONGRATULATIONS.length)], StringTools.makeMention(user));
 
 						ThreadHelper.ignore(TelegramApiException.class, () -> sender.send(congratulation.getChatId(), text, true));
@@ -250,7 +251,7 @@ public class Birthdays implements Module {
 						return;
 					}
 
-					LocalDate date = null;
+					LocalDate date;
 
 					try {
 						date = LocalDate.parse(arguments.get(0));
@@ -390,7 +391,7 @@ public class Birthdays implements Module {
 						}
 
 						c.getSender().reply(builder.toString(), c.getMessage());
-					} else if (parameters.get(0).toLowerCase().equals("all")) {
+					} else if (parameters.get(0).equalsIgnoreCase("all")) {
 						if (!isGroupChat) {
 							c.getSender().reply("Diese Funktion ist nur in Gruppenchats sinnvoll.", c.getMessage());
 							return;
@@ -405,7 +406,7 @@ public class Birthdays implements Module {
 
 						List<BirthdaysCongratulation> congratulations = BirthdaysCongratulation.findByChatId(chat.getId());
 
-						if (congratulations.size() == 0) {
+						if (congratulations.isEmpty()) {
 							c.getSender().reply("In diesem Chat gratuliere ich im Moment niemandem zum Geburtstag.\nWenn du die erste Person sein willst, denn benutze /enablebirthday.", c.getMessage());
 							return;
 						}

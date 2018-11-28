@@ -73,7 +73,7 @@ public class UserDetails implements Module {
 					c.getSender().reply(synopsis, c.getMessage());
 					return;
 				}
-				if (users.size() < 1) {
+				if (users.isEmpty()) {
 					c.getSender().reply("Der User wurde nicht gefunden. Möglicherweise ist er noch nicht vom UserLookup erfasst.", c.getMessage());
 					return;
 				}
@@ -116,7 +116,7 @@ public class UserDetails implements Module {
 						c.getSender().reply("Bitte nicht so viele auf einmal.", c.getMessage());
 						return;
 					}
-					if (users.size() == 0) {
+					if (users.isEmpty()) {
 						c.getSender().reply("Diese User kenne ich nicht.", c.getMessage());
 						return;
 					}
@@ -141,7 +141,7 @@ public class UserDetails implements Module {
 							okay = true;
 
 							builder.append("von ");
-							if (infoAuthor.getId() == author.getId()) {
+							if (infoAuthor.getId().equals(author.getId())) {
 								builder.append("dir");
 							} else {
 								builder.append(infoAuthor.getFirstName());

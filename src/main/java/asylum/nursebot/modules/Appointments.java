@@ -1,5 +1,6 @@
 package asylum.nursebot.modules;
 
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -203,8 +204,8 @@ public class Appointments implements Module {
 						return;
 					}
 					
-					boolean abs = "absolut".equals(list.get(1).toLowerCase()) || "absolute".equals(list.get(1).toLowerCase());
-					boolean rel = "relativ".equals(list.get(1).toLowerCase()) || "relative".equals(list.get(1).toLowerCase());
+					boolean abs = Arrays.asList("absolut", "absolute").contains(list.get(1).toLowerCase());
+					boolean rel = Arrays.asList("relativ","relative").contains(list.get(1).toLowerCase());
 					long time = 0;
 					boolean fail = false;
 					try {

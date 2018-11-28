@@ -8,7 +8,6 @@ public class ExitCode {
 	}
 
 	public ExitCode(int value) {
-		super();
 		this.value = value;
 	}
 }

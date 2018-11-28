@@ -2,6 +2,7 @@ package asylum.nursebot.modules.buzzwords;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import asylum.nursebot.objects.Locality;
@@ -100,7 +101,8 @@ public class Buzzword extends SemanticInterpreter implements SemanticAction {
 
     @Override
     public void action(SemanticContext context) {
-        Random random = new Random();
+
+        Random random = ThreadLocalRandom.current();
 
         if (random.nextDouble() >= chance)
             return;

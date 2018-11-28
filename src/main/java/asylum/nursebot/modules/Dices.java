@@ -135,7 +135,7 @@ public class Dices implements Module {
                                 throw new NurseException("Synopsis: /dice {[ANZAHL.]WÜRFEL}");
                             }
                         }
-                        if (dices.size() == 0)
+                        if (dices.isEmpty())
                             throw new NurseException("Mathematisch gesehen gibt es für das Ergebnis nur eine Möglichkeit, wenn man mit gar keinen Würfel spielt. Nämlich das da:");
                         if (dices.size() > 10)
                             throw new NurseException("*stolpert, und verteilt " + dices.size() + " Würfel auf dem Boden*\nOh nein... \uD83D\uDE1E");
@@ -165,7 +165,8 @@ public class Dices implements Module {
                             builder.append(", ");
                         }
                         dice.roll();
-                        builder.append(dice.display() + " (" + dice.toString() + ")");
+                        builder.append(dice.display()).append(" (").append(dice.toString())
+                        .append(")");
                     }
                 }
 
@@ -191,7 +192,7 @@ public class Dices implements Module {
 
 							tokens.remove(0);
 
-							if (tokens.size() > 0) {
+							if (!tokens.isEmpty()) {
 								Number[] parameters = new Number[tokens.size()];
 								for (int i = 0; i < tokens.size(); i++) {
 									String tmp = tokens.get(i);

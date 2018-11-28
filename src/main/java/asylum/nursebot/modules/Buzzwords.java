@@ -1,16 +1,16 @@
 package asylum.nursebot.modules;
 
-import asylum.nursebot.NurseNoakes;
+import java.util.LinkedList;
+import java.util.List;
+
+import com.google.inject.Inject;
+
 import asylum.nursebot.loader.AutoModule;
 import asylum.nursebot.modules.buzzwords.Buzzword;
 import asylum.nursebot.objects.Module;
 import asylum.nursebot.objects.ModuleType;
 import asylum.nursebot.semantics.SemanticsHandler;
 import asylum.nursebot.semantics.WakeWordType;
-import com.google.inject.Inject;
-
-import java.util.LinkedList;
-import java.util.List;
 
 @AutoModule(load=true)
 public class Buzzwords implements Module {
