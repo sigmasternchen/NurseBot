@@ -35,3 +35,5 @@ hs_err_pid*
 
 .idea
 target/
+
+dependency-reduced-pom.xml
