@@ -24,7 +24,12 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <minimizeJar>true</minimizeJar>
+              <minimizeJar>false</minimizeJar>
+              <transformers>
+                <transformer>
+                  <mainClass>asylum.nursebot.NurseNoakes</mainClass>
+                </transformer>
+              </transformers>
             </configuration>
           </execution>
         </executions>
