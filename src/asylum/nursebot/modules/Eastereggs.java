@@ -5,6 +5,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
+import asylum.nursebot.loader.ModuleDependencies;
+import asylum.nursebot.utils.StringTools;
+import asylum.nursebot.utils.ThreadHelper;
 import org.telegram.telegrambots.api.objects.User;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
@@ -34,6 +37,8 @@ public class Eastereggs implements Module {
 	private CommandHandler commandHandler;
 	@Inject
 	private SemanticsHandler semanticsHandler;
+	@Inject
+	private ModuleDependencies moduleDependencies;
 	@Inject
 	private NurseNoakes nurse;
 
@@ -158,6 +163,50 @@ public class Eastereggs implements Module {
 					
 					Random random = new Random();
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
+				}));
+
+		semanticsHandler.add(new SemanticInterpreter(this)
+				.addWakeWord(new WakeWord("Nobelpreis", WakeWordType.ANYWHERE, false))
+				.setLocality(Locality.GROUPS)
+				.setPermission(Permission.ANY)
+				.setAction(c -> {
+					if (!c.getMessage().getFrom().getUserName().equals("overflowerror"))
+						return;
+					if (!c.getMessage().getText().contains(" geht an"))
+						return;
+
+					UserLookup lookup = moduleDependencies.get(UserLookup.class);
+
+					List<User> users = null;
+
+					if (lookup != null) {
+						users = lookup.getMentions(c.getMessage());
+					}
+
+					if (users == null) {
+						users = new LinkedList<>();
+						if (c.getMessage().getReplyToMessage() != null) {
+							users.add(c.getMessage().getReplyToMessage().getFrom());
+						}
+					}
+
+					if (users.size() != 1)
+						return;
+
+					final User user = users.get(0));
+
+					ThreadHelper.delay(() -> {
+						c.getSender().send("Gratuliere," + StringTools.makeMention(user) + "!\nDu hast es wirklich verdient.", true);
+					}, 1000);
+
+					ThreadHelper.delay(() -> {
+						c.getSender().send("*überreicht die Medaille*\n\nhttps://upload.wikimedia.org/wikipedia/ka/e/ed/Nobel_Prize.png", false);
+					}, 2000);
+
+					ThreadHelper.delay(() -> {
+						c.getSender().send("*applaudiert*", false);
+					}, 3000);
+
 				}));
 	}
 
