@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import asylum.nursebot.loader.ModuleDependencies;
 import asylum.nursebot.utils.StringTools;
@@ -189,6 +190,8 @@ public class Eastereggs implements Module {
 							users.add(c.getMessage().getReplyToMessage().getFrom());
 						}
 					}
+
+					c.getSender().send(users.stream().map(u -> u.getUserName()).collect(Collectors.toList()));
 
 					if (users.size() != 1)
 						return;
