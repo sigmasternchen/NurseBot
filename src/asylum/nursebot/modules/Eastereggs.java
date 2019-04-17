@@ -193,7 +193,7 @@ public class Eastereggs implements Module {
 					if (users.size() != 1)
 						return;
 
-					final User user = users.get(0));
+					final User user = users.get(0);
 
 					ThreadHelper.delay(() -> {
 						c.getSender().send("Gratuliere," + StringTools.makeMention(user) + "!\nDu hast es wirklich verdient.", true);
