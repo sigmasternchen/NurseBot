@@ -191,7 +191,7 @@ public class Eastereggs implements Module {
 						}
 					}
 
-					c.getSender().send(users.stream().map(u -> u.getUserName()).collect(Collectors.toList()));
+					c.getSender().send(users.toString());
 
 					if (users.size() != 1)
 						return;
