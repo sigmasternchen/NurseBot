@@ -172,7 +172,7 @@ public class Eastereggs implements Module {
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
 
-					c.getSender().reply(c.getMessage().getFrom().getUserName() + ": " + c.getMessage().getText());
+					c.getSender().reply(c.getMessage().getFrom().getUserName() + ": " + c.getMessage().getText(), c.getMessage());
 
 					if (!c.getMessage().getFrom().getUserName().equals("overflowerror"))
 						return;
