@@ -163,6 +163,7 @@ public class Eastereggs implements Module {
 						return;
 					
 					Random random = new Random();
+					c.getSender().reply("test", c.getMessage());
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
 				}));
 
