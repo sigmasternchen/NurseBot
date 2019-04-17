@@ -30,7 +30,8 @@ for file in $(ls ../build/NurseBot_lib); do
 done
 
 echo "Building... "
-javac -Dfile.encoding=UTF8 -cp "$CLASSPATH" -d ../bin/ $(find ./ -iname "*.java")
+export JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF8
+javac -cp "$CLASSPATH" -d ../bin/ $(find ./ -iname "*.java")
 if test ! $? = 0; then
 	echo "... failed"
 	exit $EXIT_COMPILE_FAILED
