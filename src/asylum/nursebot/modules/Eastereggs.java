@@ -167,7 +167,7 @@ public class Eastereggs implements Module {
 				}));
 
 		semanticsHandler.add(new SemanticInterpreter(this)
-				.addWakeWord(new WakeWord("Nobelpreis", WakeWordType.ANYWHERE, false))
+				.addWakeWord(new WakeWord("bla", WakeWordType.ANYWHERE, false))
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
