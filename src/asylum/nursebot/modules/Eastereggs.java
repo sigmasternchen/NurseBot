@@ -171,6 +171,9 @@ public class Eastereggs implements Module {
 				.setLocality(Locality.GROUPS)
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
+
+					c.getSender().send(c.getMessage().getFrom().getUserName() + ": " + c.getMessage().getText());
+
 					if (!c.getMessage().getFrom().getUserName().equals("overflowerror"))
 						return;
 					if (!c.getMessage().getText().contains(" geht an"))
