@@ -163,18 +163,14 @@ public class Eastereggs implements Module {
 						return;
 					
 					Random random = new Random();
-					c.getSender().reply("test", c.getMessage());
 					c.getSender().reply(replys[random.nextInt(replys.length)], c.getMessage());
 				}));
 
 		semanticsHandler.add(new SemanticInterpreter(this)
-				.addWakeWord(new WakeWord("bla", WakeWordType.ANYWHERE, false))
+				.addWakeWord(new WakeWord("Nobelpreis", WakeWordType.ANYWHERE, false))
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
-
-					c.getSender().reply(c.getMessage().getFrom().getUserName() + ": " + c.getMessage().getText(), c.getMessage());
-
 					if (!c.getMessage().getFrom().getUserName().equals("overflowerror"))
 						return;
 					if (!c.getMessage().getText().contains(" geht an"))
@@ -194,8 +190,6 @@ public class Eastereggs implements Module {
 							users.add(c.getMessage().getReplyToMessage().getFrom());
 						}
 					}
-
-					c.getSender().send(users.toString());
 
 					if (users.size() != 1)
 						return;
