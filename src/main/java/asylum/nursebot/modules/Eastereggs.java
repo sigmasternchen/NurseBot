@@ -208,6 +208,22 @@ public class Eastereggs implements Module {
 					}, 3000);
 
 				}));
+
+		semanticsHandler.add(new SemanticInterpreter(this)
+				.addWakeWord(new WakeWord("CPR", WakeWordType.ANYWHERE, false))
+				.setLocality(Locality.EVERYWHERE)
+				.setPermission(Permission.ANY)
+				.setAction(c -> {
+					if (!c.getMessage().getFrom().getUserName().equals("overflowerror"))
+						return;
+					if (!c.getMessage().getText().contains("@" + nurse.getBotUsername()))
+						return;
+
+					ThreadHelper.delay(() -> {
+						c.getSender().send("*schreckt auf und atmet schnell* Was... wie... Was ist passiert? D:");
+					}, 5000);
+
+				}));
 	}
 
 	@Override
