@@ -233,7 +233,7 @@ public class Eastereggs implements Module {
 					if (!c.getMessage().getFrom().getUserName().equals("Konirrikon") && !c.getMessage().getFrom().getUserName().equals("overflowerror"))
 						return;
 
-					String compareString = "*ein Messer nach @" + nurse.getBotUsername() + " werf*".toLowerCase();
+					String compareString = ("*ein Messer nach @" + nurse.getBotUsername() + " werf*").toLowerCase();
 
 					System.out.println(c.getMessage().getText().toLowerCase());
 					System.out.println(compareString);
