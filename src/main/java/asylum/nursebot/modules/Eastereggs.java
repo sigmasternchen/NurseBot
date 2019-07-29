@@ -230,11 +230,14 @@ public class Eastereggs implements Module {
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
-					System.out.println(c.getMessage().getFrom().getUserName());
 					if (!c.getMessage().getFrom().getUserName().equals("Konirrikon") && !c.getMessage().getFrom().getUserName().equals("overflowerror"))
 						return;
 
-					if (!c.getMessage().getText().toLowerCase().contains("*ein Messer nach @" + nurse.getBotUsername() + " werf*".toLowerCase()))
+					String compareString = "*ein Messer nach @" + nurse.getBotUsername() + " werf*".toLowerCase();
+
+					System.out.println(c.getMessage().getText().toLowerCase());
+					System.out.println(compareString);
+					if (!c.getMessage().getText().toLowerCase().contains(compareString))
 						return;
 
 					String[] replys = new String[] {
