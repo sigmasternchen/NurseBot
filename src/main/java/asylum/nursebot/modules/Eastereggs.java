@@ -230,6 +230,7 @@ public class Eastereggs implements Module {
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
+					System.out.println(c.getMessage().getFrom().getUserName());
 					if (!c.getMessage().getFrom().getUserName().equals("Konirrikon") && !c.getMessage().getFrom().getUserName().equals("overflowerror"))
 						return;
 
