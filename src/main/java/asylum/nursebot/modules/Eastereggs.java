@@ -235,8 +235,6 @@ public class Eastereggs implements Module {
 
 					String compareString = ("*ein Messer nach @" + nurse.getBotUsername() + " werf*").toLowerCase();
 
-					System.out.println(c.getMessage().getText().toLowerCase());
-					System.out.println(compareString);
 					if (!c.getMessage().getText().toLowerCase().contains(compareString))
 						return;
 
