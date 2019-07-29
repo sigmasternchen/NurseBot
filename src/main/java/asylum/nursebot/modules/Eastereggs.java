@@ -226,11 +226,14 @@ public class Eastereggs implements Module {
 				}));
 
 		semanticsHandler.add(new SemanticInterpreter(this)
-				.addWakeWord(new WakeWord("*ein Messer nach @" + nurse.getBotUsername() + " werf*", WakeWordType.STANDALONE, false))
+				.addWakeWord(new WakeWord("Messer", WakeWordType.ANYWHERE, false))
 				.setLocality(Locality.EVERYWHERE)
 				.setPermission(Permission.ANY)
 				.setAction(c -> {
-					if (!c.getMessage().getFrom().getUserName().equals("Konirrikon"))
+					if (!c.getMessage().getFrom().getUserName().equals("Konirrikon") && !c.getMessage().getFrom().getUserName().equals("overflowerror"))
+						return;
+
+					if (!c.getMessage().getText().toLowerCase().contains("*ein Messer nach @" + nurse.getBotUsername() + " werf*".toLowerCase()))
 						return;
 
 					String[] replys = new String[] {
