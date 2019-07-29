@@ -224,6 +224,35 @@ public class Eastereggs implements Module {
 					}, 5000);
 
 				}));
+
+		semanticsHandler.add(new SemanticInterpreter(this)
+				.addWakeWord(new WakeWord("*ein Messer nach @" + nurse.getBotUsername() + " werf*", WakeWordType.STANDALONE, false))
+				.setLocality(Locality.EVERYWHERE)
+				.setPermission(Permission.ANY)
+				.setAction(c -> {
+					if (!c.getMessage().getFrom().getUserName().equals("Konirrikon"))
+						return;
+
+					String[] replys = new String[] {
+							"*das Messer streift Noakes an der Schulter* AAAAAHHH... *läuft schreiend zum Verbandskasten*",
+							"*mit dem Klemmbrett das Messer abfang* HAST DU GERADE EIN MESSER NACH MIR GEWORFEN?! Das wird noch ein Nachspiel haben, Freundchen!",
+							"*das Messer verfehlt und trifft die Vase hinter Noakes* ... Wer war das?! Wenn ich die Person erwische... *fängt an, Überwachungskameras aufzubauen*",
+							"*das Messer aus der Luft greif und zurückwerf* *verfehlt und stattdessen das Sofa treff* ... Ach, verdammt..."
+					};
+
+					Random random = ThreadLocalRandom.current();
+					int i = random.nextInt(replys.length);
+
+					c.getSender().send(replys[i]);
+
+					if (i == 0) {
+						ThreadHelper.delay(() -> {
+							c.getSender().send(StringTools.makeMention(c.getMessage().getFrom()) + " wurde gestrikt.", true);
+							c.getSender().send("... Das kommt davon.");
+						}, 1000);
+					}
+
+				}));
 	}
 
 	@Override
@@ -249,5 +278,4 @@ public class Eastereggs implements Module {
 	@Override
 	public void shutdown() {
 	}
-	
 }
