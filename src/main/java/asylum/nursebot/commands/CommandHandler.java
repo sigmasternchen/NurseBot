@@ -1,7 +1,6 @@
 package asylum.nursebot.commands;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import asylum.nursebot.NurseNoakes;
 import asylum.nursebot.Sender;
@@ -24,13 +23,13 @@ public class CommandHandler {
 	
 	private List<CommandInterpreter> commands;
 
-	private List<User> bannedUsers;
+	private Set<User> bannedUsers;
 	
 	public CommandHandler(NurseNoakes nurse) {
 		commands = new LinkedList<>();
 		this.nurse = nurse;
 
-		this.bannedUsers = new LinkedList<>();
+		this.bannedUsers = new HashSet<>();
 		
 		commands.add(new CommandInterpreter(null)
 				.setName("help")
@@ -161,5 +160,22 @@ public class CommandHandler {
 
 	public int getNumberOfEntities() {
 		return commands.size();
+	}
+
+	public void ban(Collection<User> users) {
+		bannedUsers.addAll(users);
+	}
+
+	public void ban(User user) {
+		bannedUsers.add(user);
+	}
+
+
+	public void unban(Collection<User> users) {
+		bannedUsers.removeAll(users);
+	}
+
+	public void unban(User user) {
+		bannedUsers.remove(user);
 	}
 }
