@@ -1,6 +1,9 @@
 package asylum.nursebot.modules;
 
+import java.lang.Thread;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import asylum.nursebot.objects.*;
@@ -24,6 +27,7 @@ public class Straitjacket implements Module {
 	public static final int STRIKES_TO_RESTRICT = 5;
 	public static final int RESTRICT_TIME = 5*60*1000;
 	public static final int STRIKE_TIMEOUT = 5*60*1000;
+	public static final int COMMAND_BAN_TIMEOUT = 10*60*1000;
 	
 	@Inject
 	private NurseNoakes nurse;
@@ -64,8 +68,8 @@ public class Straitjacket implements Module {
 		}
 	}
 	
-	private Collection<Strike> strikes = new ConcurrentLinkedQueue<Strike>();
-	private Collection<Restrict> restricts = new ConcurrentLinkedQueue<Restrict>();
+	private Collection<Strike> strikes = new ConcurrentLinkedQueue<>();
+	private Collection<Restrict> restricts = new ConcurrentLinkedQueue<>();
 	
 	private void deleteOldStrikes() {
 		long now = System.currentTimeMillis();
@@ -233,6 +237,48 @@ public class Straitjacket implements Module {
 					if (checkRestrict(c.getMessage().getChatId(), target)) {
 						restrict(c.getMessage().getChatId(), target, c.getSender());
 					}
+				}));
+
+
+		commandHandler.add(new CommandInterpreter(this)
+				.setName("counterstrike")
+				.setInfo("")
+				.setVisibility(Visibility.PRIVATE)
+				.setPermission(Permission.ADMIN)
+				.setLocality(Locality.GROUPS)
+				.setCategory(category)
+				.setAction(c -> {
+
+					Set<User> usersToBan = new HashSet<>();
+
+					for (Strike strike : strikes) {
+						if (strike.chatid == c.getMessage().getChatId()) {
+							usersToBan.add(strike.source);
+						}
+					}
+
+					commandHandler.ban(usersToBan);
+
+					StringBuilder builder = new StringBuilder();
+					builder.append("Höret nun mein heiliges Gelübde:\n\n");
+
+					for (User user : usersToBan) {
+						builder.append("Ich werde keine Befehle mehr von ").append(StringTools.makeMention(user)).append(" entgegen nehmen.\n");
+					}
+
+					c.getSender().reply(builder.toString(), c.getMessage(), true);
+
+					new Thread(() -> {
+						try {
+							Thread.sleep(COMMAND_BAN_TIMEOUT);
+						} catch (InterruptedException e) {
+							// ignore
+						}
+
+						commandHandler.unban(usersToBan);
+
+					}).start();
+
 				}));
 	}
 
