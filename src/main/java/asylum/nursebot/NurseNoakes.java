@@ -37,7 +37,7 @@ public class NurseNoakes extends TelegramLongPollingBot {
 
 	public static final String VERSION = "4.0";
 	public static final List<String> BOT_ADMIN_USERNAMES = 
-			Collections.unmodifiableList(Arrays.asList("overflowerror"));
+			Collections.unmodifiableList(Arrays.asList("overflowerror", "LinoBla"));
 	private static final int EXIT_CODE_SHUTDOWN = 0;
 	private static final int EXIT_CODE_RESTART = 1;
 
