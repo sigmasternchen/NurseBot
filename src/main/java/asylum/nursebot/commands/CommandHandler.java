@@ -13,6 +13,7 @@ import asylum.nursebot.utils.StringTools;
 import asylum.nursebot.utils.log.Logger;
 import asylum.nursebot.utils.log.LoggerImpl;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public class CommandHandler {
@@ -22,10 +23,14 @@ public class CommandHandler {
 	private Logger logger = LoggerImpl.getModuleLogger("commandHandler");
 	
 	private List<CommandInterpreter> commands;
+
+	private List<User> bannedUsers;
 	
 	public CommandHandler(NurseNoakes nurse) {
 		commands = new LinkedList<>();
 		this.nurse = nurse;
+
+		this.bannedUsers = new LinkedList<>();
 		
 		commands.add(new CommandInterpreter(null)
 				.setName("help")
@@ -103,7 +108,12 @@ public class CommandHandler {
 			logger.warn("Command not found: " + token);
 			return;
 		}
-		
+
+		if (bannedUsers.contains(message.getFrom())) {
+			logger.warn("User banned from using commands: " + message.getFrom().getId());
+			return;
+		}
+
 		if (command.getModule() != null && !nurse.isActive(command.getModule())) {
 			logger.warn("Module is inactive.");
 			return;
