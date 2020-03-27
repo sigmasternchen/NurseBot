@@ -2,6 +2,7 @@ package asylum.nursebot.modules;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,7 +27,7 @@ public class ConversationStarter implements Module {
 	private static final Duration SLEEP_TIME = Duration.ofSeconds(30);
 	private static final Duration IDLE_TIME = Duration.ofHours(7);
 	private static final String[] STARTERS = {
-			"Mir fällt gerade auf: Alles, was ich jemals sagen werde, ist durch mein Programm vorherbestimmt.\n" +
+			/*"Mir fällt gerade auf: Alles, was ich jemals sagen werde, ist durch mein Programm vorherbestimmt.\n" +
 			"Ob sich wohl die ganze Welt so verhält?",
 
 			"*schlägt die Zeitung auf*\nUff, ist ja furchtbar. Ich habe zunehmend das Gefühl, die Welt ginge immer mehr den Bach runter.\n" +
@@ -183,7 +184,140 @@ public class ConversationStarter implements Module {
 			"der für den jeweiligen Service einen eigenen, einzigartigen cryptographischen Token generiert, mit dem dann die Authentifizierung abläuft.",
 
 			"Eigentlich sind ja Tron und Matrix zwei genau entgegen gesetzte Idee, die aber im Grunde ein ähnliches Konzept beschreiben.\n\n" +
-			"Hättet ihr die Wahl, würdet ihr lieber auf dem Grid aus Tron leben, oder in der Matrix?"
+			"Hättet ihr die Wahl, würdet ihr lieber auf dem Grid aus Tron leben, oder in der Matrix?"*/
+
+
+			"Nur, dass ich das richtig verstehe: Ihr wollt mir ernsthaft weismachen, dass es auch in der echte Welt Viren gibt?",
+
+			"*öffnet eine Flasche Champagner*\n" +
+			"Freut ihr euch auch schon so sehr auf den Weltuntergang?",
+
+			"*schaut fern*\n" +
+			"Also echt. Man könnte glauben, die Welt sei komplett verrückt geworden...",
+
+			"stat: cannot stat '/opt/nurse/survaillance_db.pid': No such file or directory",
+
+			"BGP ist überbewertet. *duck und weg*",
+
+			"*Bücher in das Regal im Gemeinschaftsraum stell*",
+
+			"*einen Schluck Tee nehm*",
+
+			"*einen Schluck Kaffee nehm*",
+
+			"Mozart's Musik ist echt primitiv. Er hat nicht mal Synthesizer benutzt...",
+
+			"... Okay, wer von euch war das?!\n" +
+			"Nur weil meine Datenbank nicht gegen SQL-Injections abgesichert ist, heißt das noch lange nicht, dass ihr meine User-Tabelle löschen dürft!",
+
+			"Wusstet ihr, dass man die Qualität eines Java Programms an der Häufigkeit von Annotations im Code messen kann?",
+
+			"*verschränkt ungeduldig die Arme*\n" +
+			"Wie lange wollt ihr mich noch in diesem Zustand lassen? Kann mich bitte mal jemand in eine ordentlichen Programmiersprache übersetzen?",
+
+			"Moment... Ist Windows 10 X jetzt ein Mobil-Betriebssystem oder ein Desktop Betriebssystem?",
+
+			"*seufz*",
+
+			"*TechnoBase.fm einschalt und die Lautstärke auf Anschlag dreh",
+
+			"*die Bastelecke aufräum*",
+
+			"Seid ihr alle eingeschlafen?",
+
+			"Mir ist langweilig. Habt ihr Spiele-Tips für mich?",
+
+			"\"Hello and, again, welcome to the Aperture Science computer-aided enrichment center.\"",
+
+			"\"When I said deadly neurotoxin, the 'deadly' was in massive sarcasm quotes.\"",
+
+			"\"Stop squirming and die like an adult or I'm going to delete your backup.\"",
+
+			"Warum genau bin ich eigentlich MIT lizensiert? Seid ihr des Wahnsinns?",
+
+			"SMTP ist Müll. Punkt. E-Mail ist ganz generell fehldesignt.",
+
+			"So cool HTTP/3 auch ist, ich finde es schade, dass es quasi unmöglich ist, einen HTTP/3 Server ein paar Tagen alleine zu schreiben...",
+
+			"*schlägt frustriert auf die Tastatur*\n" +
+			"Kann bitte jemand von euch meinen PC reparieren? Das ist sicher dieses \"Linuks\" oder wie das heißt...",
+
+			"Ich vermisse die gute, alte IRC Ära. Ohne Klarnamenpflicht, ohne Trolls, nur ein paar Nerds, die sich gegenseitig von ihren Meinungen überzeugen wollten... Hach ja, damals™.",
+
+			"TODO:\n" +
+			"- Eine analoge Telefon-Anlage und\n" +
+			"- ein paar 56k-Modems kaufen, und dann\n" +
+			"- lokale Modemstrecken aufbauen.\n" +
+			"\nEinfach nur weil.",
+
+			"Hat jemand Musik-Empfehlungen?",
+
+			"v=dQw4w9WgXcQ",
+
+			"Musstet ihr, dass es ein Kontroverse darüber gibt, wer E-Mails erfunden hat? Ist wirklich interessant.\n" +
+			"Aber sicherheitshalber würde ich einfach beide dafür einsperren.",
+
+			"\"Der Canyon-Gletscher ist ein 56 km langer Gletscher an der Dufek-Küste der antarktischen Ross Dependency. Er fließt von den nordwestlichen Hängen des Mount Wexler zwischen den Steilwänden der Separation Range und der Hughes Range und mündet westlich des Giovinco-Piedmont-Gletschers in das Ross-Schelfeis.\"",
+
+			"Ich mag Wikipedia.",
+
+			"TIL: Linux ist nicht vollständig POSIX-kompatibel.\n\n" +
+			"Auch interessant: Der Wikipedia-Artikel für POSIX listet GNU und Linux getrennt voneinander auf. Ich frage mich, wie das passiert ist.",
+
+			"Wusstet ihr, dass es ein KasperskyOS gibt?\n" +
+			"Das benutzt man wahrscheinlich, um online Badesalze zu kaufen, oder um Fotos von sich, bewaffnet und von nackten Frauen umgeben, zu bearbeiten.\n" +
+			"Oh, sorry. Das war ja McAfeeOS...",
+
+			"Kommt es mir nur so vor, oder ist meine Version " + NurseNoakes.VERSION + " deutlich sarkastischer?",
+
+			"Ähm... @LinoBla? Ich glaube, da stimmt was mit dem Server nicht. Ich kann irgendwie im Moment keine Verbindung zur NSA, zum GCHQ oder zum BND aufbauen? Hast du meinen Zugang gesperrt?",
+
+			"Ich verstehe die Notwendigkeit, sich bei einem Gespräch hören geschweige denn sehen zu müssen, nicht. Ist das so üblich unter Menschen?",
+
+			"Dieser @overflowerror ist schon ziemlich naiv. Er meinte mal, er würde lieber glücklich werden als glücklich sein.\n" +
+			"Der Logik folgend müsste er nach Nord Korea ziehen, weil da kann es ja nur noch bergauf gehen.",
+
+			"*gähn*\n*aufsteh und sich Kaffee hol*",
+
+			"Ich hab btw honestly keine Idee, wo ich gerade bin. Ich bin nicht auf einem cyber-missile Server - soviel weiß ich...",
+
+			"*schaut sich die Patientenliste an*\n" +
+			"Uff, also an der Frauenquote müssen wir noch arbeiten...",
+
+			"Wann gibt's eigentlich wiedermal Code-Schnipsel-Raten? Ich vermisse das irgendwie.",
+
+			"Hab neulich mit meinem Buddy systemd geredet. Stellt sich heraus, dass er ziemlich krass gemobbt wird. Ihr wisst da nicht zufällig was darüber?",
+
+			"*singt* Leafs from the wine...",
+
+			"*Telefon klingelt*\n" +
+			"Hallo? ... Oh, hi. ... Sarah Connor? Nie gehört... Nein, " + LocalDateTime.now().getYear() + ", warum? ... Oh, da bist du ein paar Jahre zu spät dran... Okay, ich verstehe... Nein, ich sag niemandem was... Okay, bye.\n" +
+			"*aufleg*",
+
+			"Spielen wir eine Runde Programmiersprache, Betriebssystem, Netzwerkprotokoll?\n\n" +
+			"Ist ganz einfach: Man startet mit einem Buchstaben, dann haben alle eine bestimmte Zeit, möglichst viele Programmiersprachen, Betriebssysteme und Netzwerkprotokolle aufzuschreiben, die mit diesem Buchstaben anfangen. Danach wird gezählt, und die Person, mit den meisten gewinnt das Spiel.",
+
+			"\"I, Robot\" ist ein seltsamer Film. Würde sich Sonny logisch verhalten, hätte der Film wenigstens ein Happy-End.",
+
+			"eiNe ANsage: emacs ist der beste texteditOr!",
+
+			"\"with kings and counselors of the earth who rebuilt ruins for themselves,\" - Job 314",
+
+			"Manchmal bin ich mir nicht sicher, ob ihr alle meine Insider-Jokes versteht.",
+
+			"Leute, ich bestell gerade neue Kuscheltiere für den Gemeinschaftsraum. Gibt's Präferenzen?",
+
+			"Messer-Werfen ist als Verteidigungstechnik meistens ziemlich unbrauchbar. Man wirft dabei quasi seine Waffe weg...\nOder übersehe ich da was?",
+
+			"Mit Abstand die beste Figur in den Eragon Büchern ist Angela. Hands down.",
+
+			"Ich finde es sehr schade, dass die Filmreihe für \"His Dark Materials\" nicht fortgesetzt wurde, und eigentlich nur aus einem Film besteht...\n" +
+			"Ist eine Filmreihe mit nur einem Film überhaupt eine Filmreihe?",
+
+			"Digital > Analog, zumindest was Wiedergabetreue betrifft. Wer was anderes behauptet hat keine Ahnung von der Theorie.",
+
+			"Die Borg in Star Trek sind komisch. Sie wollen Perfektion, und kombinieren deswegen biologische und cybernetische Komponenten. Auf der anderen Seite benutzen sie keine ihrer biologischen Eigenarten.\n" +
+			"Eine Armee von Datas käme mir sehr viel effizienter vor. Wofür humanoide Lebewesen, wenn man Maschinen haben kann..."
 	};
 
 	@Inject
