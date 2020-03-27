@@ -42,6 +42,12 @@ public class Buzzwords implements Module {
                     "*streichel*", "Mau", "*flausch*", ":3"
         }, 1, 2000));
 
+        buzzwords.add(new Buzzword(this, new String[] {
+                "minecraft"
+        }, new String[] {
+                "BTW: Es gibt auch einen Minecraft Server von cyber-missile.", "Oh, redest du vom cyber-missile Minecraft Server?", "Ich mag Minecraft. :3"
+        }, 0.1, 1000, WakeWordType.ANYWHERE));
+
 
 
         for (Buzzword buzzword : buzzwords) {
