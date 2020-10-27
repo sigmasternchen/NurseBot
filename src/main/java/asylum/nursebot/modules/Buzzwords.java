@@ -48,7 +48,9 @@ public class Buzzwords implements Module {
                 "BTW: Es gibt auch einen Minecraft Server von cyber-missile.", "Oh, redest du vom cyber-missile Minecraft Server?", "Ich mag Minecraft. :3"
         }, 0.1, 1000, WakeWordType.ANYWHERE));
 
-
+        buzzwords.add(new Buzzword(this, new String[] {"Joshua"}, new String[] {"HALLO PROFESSOR FALKEN\n\nSHALL WE PLAY A GAME?"},
+                1, 1000, WakeWordType.STANDALONE)
+        );
 
         for (Buzzword buzzword : buzzwords) {
             semanticsHandler.add(buzzword);
